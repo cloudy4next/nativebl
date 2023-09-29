@@ -69,7 +69,7 @@ class RoleController extends AbstractController
     public function role()
     {
         $this->initGrid(['title', 'name', 'shortDescription', 'isDeleted'], pagination: 5);
-        return view('home.settings.user.role');
+        return view('home.settings.user.role.list');
     }
 
     public function store(Request $request)
@@ -93,7 +93,7 @@ class RoleController extends AbstractController
     public function create()
     {
         $this->initCreate();
-        return view('native::create');
+        return view('home.settings.user.role.create');
     }
 
     public function update(Request $request)

@@ -40,7 +40,7 @@ class PermissionController extends AbstractController
     public function configureForm()
     {
         $fields = [
-            ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->permissionService->getApplication())->setCssClass('my-class'),
+            ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->permissionService->getApplication()),
             InputField::init('title'),
             InputField::init('shortDescription', 'Short Description', 'textarea'),
         ];
@@ -64,13 +64,13 @@ class PermissionController extends AbstractController
     public function permission()
     {
         $this->initGrid(['title', 'name', 'shortDescription'], pagination: 5);
-        return view('home.settings.user.permission');
+        return view('home.settings.user.permission.list');
     }
 
     public function create()
     {
         $this->initCreate();
-        return view('native::create');
+        return view('home.settings.user.permission.create');
     }
 
     public function store(Request $request)

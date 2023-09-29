@@ -11,10 +11,8 @@
 
 namespace NativeBL\Field;
 
-
-use NativeBL\Dto\Crudboard\ActionDto;
-
 use function Symfony\Component\String\u;
+use NativeBL\Dto\CrudBoard\ActionDto;
 
 
 /**
@@ -29,9 +27,9 @@ final class ButtonField
     public const DETAIL = 'detail';
     public const EDIT = 'edit';
     public const INDEX = 'index';
-    public const  NEW = 'new';
+    public const NEW = 'new';
 
-    
+
     private ActionDto $dto;
 
     private function __construct(ActionDto $actionDto)
@@ -48,16 +46,16 @@ final class ButtonField
      * @param mixed       $label Use FALSE to hide the label; use NULL to autogenerate it
      * @param string|null $icon  The full CSS classes of the FontAwesome icon to render (see https://fontawesome.com/v6/search?m=free)
      */
-    public static function init(string $name, ?string $label = null, iterable ... $prarms ): self
+    public static function init(string $name, ?string $label = null, iterable ...$prarms): self
     {
-       
-      
+
+
         $dto = new ActionDto();
-        $dto->setType($params['type'] ?? ActionDto::TYPE_ROW );
+        $dto->setType($params['type'] ?? ActionDto::TYPE_ROW);
         $dto->setName($name);
         $dto->setLabel($label ?? self::humanizeString($name));
-        isset($params['icon'])     &&   $dto->setIcon($params['icon']);
-        isset($params['cssClass']) &&   $dto->setCssClass($params['cssClass']);
+        isset($params['icon']) && $dto->setIcon($params['icon']);
+        isset($params['cssClass']) && $dto->setCssClass($params['cssClass']);
         $dto->setHtmlElement('a');
         $dto->setHtmlAttributes([]);
         return new self($dto);
@@ -69,7 +67,7 @@ final class ButtonField
         return $this;
     }
 
-    public function iconForNew() : self
+    public function iconForNew(): self
     {
         $this->dto->setIcon('fa-plus');
         return $this;
@@ -100,7 +98,7 @@ final class ButtonField
     {
         $this->dto->setType(ActionDto::TYPE_FORM);
         $this->dto->setHtmlElement('button');
-        $this->setHtmlAttributes(['type'=>'submit']);
+        $this->setHtmlAttributes(['type' => 'submit']);
         $this->dto->setUrl('/');
         return $this;
     }
@@ -146,7 +144,7 @@ final class ButtonField
      */
     public function addCssClass(string $cssClass): self
     {
-        $this->dto->setCssClass(trim($this->dto->getCssClass().' '.$cssClass));
+        $this->dto->setCssClass(trim($this->dto->getCssClass() . ' ' . $cssClass));
 
         return $this;
     }
@@ -191,7 +189,7 @@ final class ButtonField
         return $this;
     }
 
-    public function linkToUrl( string|callable $url): self
+    public function linkToUrl(string|callable $url): self
     {
 
         $this->dto->setUrl($url);

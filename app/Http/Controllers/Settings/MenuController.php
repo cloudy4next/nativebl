@@ -71,13 +71,13 @@ class MenuController extends AbstractController
     public function menu()
     {
         $this->initGrid(['title', 'name', 'applicationID', 'parentID'], pagination: 5);
-        return view('components.settings.user.menu');
+        return view('home.settings.user.menu.list');
     }
 
     public function create()
     {
         $this->initCreate();
-        return view('native::create');
+        return view('home.settings.user.menu.create');
     }
 
     public function store(Request $request)
@@ -135,7 +135,6 @@ class MenuController extends AbstractController
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
-        // dd($this->getRepository()->getAllMenu());
         $requestedMenu = $this->MenuService->singleMenu($id);
         return view('components.settings.user.single-menu')
             ->with('menu', $requestedMenu->data)
