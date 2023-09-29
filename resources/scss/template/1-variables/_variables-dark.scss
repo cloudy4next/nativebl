@@ -1,0 +1,54 @@
+// Dark color mode variables
+//
+// Custom variables for the `[data-bs-theme="dark"]` theme. Use this as a starting point for your own custom color modes by creating a new theme-specific file like `_variables-dark.scss` and adding the variables you need.
+
+//
+// Global colors
+//
+
+// scss-docs-start sass-dark-mode-vars
+$primary-text-dark: $primary-300 !default;
+
+$primary-bg-subtle-dark: $primary-900 !default;
+
+$primary-border-subtle-dark: $primary-700 !default;
+
+$body-color-dark: $gray-100 !default;
+$body-bg-dark: #1c1c1e !default;
+
+$link-color-dark: $primary-300 !default;
+$link-hover-color-dark: $primary-200 !default;
+$code-color-dark: $red-300 !default;
+
+//
+// Forms
+//
+
+//
+// Accordion
+//
+
+// =================
+// Varibles Mio
+// =================
+
+// Sidebar
+$sidebar-bg-dark: #1c1c1e !default;
+
+// Sidebar link
+$sidebar-link-color-dark: $body-color-dark;
+$sidebar-link-bg-dark: $sidebar-bg-dark !default;
+
+$sidebar-link-hover-bg-dark: $sidebar-bg-dark !default;
+
+// Sidebar brand
+$sidebar-brand-color-dark: $body-color-dark !default;
+
+// Sidebar link icon
+$sidebar-link-icon-color-dark: $body-color-dark !default;
+
+// NavTop
+$navtop-bg-dark: #1c1c1e !default;
+
+// Footer
+$footer-bg-dark: #1c1c1e !default;
