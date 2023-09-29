@@ -156,6 +156,11 @@ class LoginService
 
         $path = '/Api/AppUserManagement/AppUser?id=' . $id;
         $response = $this->apiResponse('GET', $headers, null, $path, true);
+        if ($response['data']['isActiveUser'] == 0) {
+            throw new NotFoundException(['email' => 'User Not Found']);
+
+        }
+
         return $this->UserDataProcessing($response, $accessToken->access_token, $accessToken->refresh_token);
 
     }

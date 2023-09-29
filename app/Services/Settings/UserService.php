@@ -19,17 +19,17 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
     {
         return '';
     }
-    
-    public function getGridData(array $filters=[]): iterable
+
+    public function getGridData(array $filters = []): iterable
     {
         return $this->featureSet($this->getAllUser());
 
     }
 
-    public function applyFilterData(Collection $data, array $filters) : Collection
+    public function applyFilterData(Collection $data, array $filters): Collection
     {
-        foreach($filters as $field=>$value){
-            $filtered = $data->where($field,$value);
+        foreach ($filters as $field => $value) {
+            $filtered = $data->where($field, $value);
             $data = $filtered;
         }
         return $data;
@@ -42,6 +42,7 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
     {
         $path = '/Api/AppUserManagement/AppUsers?id=' . (int) $this->SessionCheck('applicationID');
         $response = $this->apiResponse('GET', null, null, $path);
+        // dd($response->data);
         return $response->data;
     }
     /**
@@ -127,6 +128,7 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
 
     public function updateUser($request): bool
     {
+        $isActive = ($request->get('isActiveUser') == null) ? 0 : 1;
 
         $json = [
             "userID" => $request->get('id'),
@@ -135,11 +137,12 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
             "password" => $request->get('password'),
             "emailAddress" => $request->emailAddress,
             "mobileNumber" => $request->get('mobileNumber'),
+            "IsActiveUser" => $isActive,
             "roleIDs" => $request->get('roles'),
             "updatedBy" => Auth::user()->id,
             "permissionIDs" => $request->get('permissions'),
-
         ];
+        // dd($json);
 
         $path = '/Api/AppUserManagement/SaveUser';
 
