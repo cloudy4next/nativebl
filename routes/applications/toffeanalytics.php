@@ -18,7 +18,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('all-campaign')->group(function () {
         Route::get("/", [CampaignManagementController::class, 'allCampaign'])->name('toffee.all.campaign.list')->middleware('acl:all-campaign');
-        Route::get("/show", [UserCampaingController::class, 'singleCampaign'])->name('toffee.single.campaign.detail')->middleware('acl:all-campaign');
+        Route::get("/show/{id}/{status}/{impression}/{clicks}/{ctr}/{view}", [UserCampaingController::class, 'singleCampaign'])->name('toffee.single.campaign.detail')->middleware('acl:all-campaign');
         Route::post("/campaign-range-data", [CampaignManagementController::class, 'campaignRangeData'])->name('toffee.campaign.range.data');
 
     });

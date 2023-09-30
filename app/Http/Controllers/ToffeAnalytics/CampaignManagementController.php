@@ -37,7 +37,16 @@ class CampaignManagementController extends AbstractController
             ButtonField::init('new', 'new')->linkToRoute('toffee.all.campaign.list')->createAsCrudBoardAction(),
 
             ButtonField::init(ButtonField::EDIT)->linkToRoute('toffee.single.campaign.detail', function ($row) {
-                return ['id' => $row['id'], 'startDate' => $row['startDateTime'], 'endDate' => $row['endDateTime'], 'status' => $row['status']];
+                return [
+                    'id' => $row['id'],
+                    'startDate' => $row['startDateTime'],
+                    'endDate' => $row['endDateTime'],
+                    'impression' => $row['impression'],
+                    'clicks' => $row['clicks'],
+                    'ctr' => $row['ctr'],
+                    'view' => $row['complete'],
+                    'status' => $row['status']
+                ];
             }),
         ];
 

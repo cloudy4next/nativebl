@@ -48,12 +48,17 @@ class UserCampaingController extends AbstractController
 
     public function singleCampaign(Request $request)
     {
-
         $id = $request->id;
         $startDate = $request->startDate;
         $endDate = $request->endDate;
         $status = $request->status;
-
+        $newCardArry = [
+            'impression' => $request->impression,
+            'clicks' => $request->clicks,
+            'ctr' => $request->ctr,
+            'view' => $request->view,
+            'status' => $request->status,
+        ];
         if (isset($request->filters) == null) {
             $this->campaignManagementInterface->campaignReportByLineItem((int) $id, $startDate, $endDate, $status);
         }
@@ -67,7 +72,7 @@ class UserCampaingController extends AbstractController
             'ctr',
             'completion_rate'
         ]);
-        return view('home.toffe.campaign-report.campaign-single');
+        return view('home.toffe.campaign-report.campaign-single')->with('data', $newCardArry);
     }
 
 
