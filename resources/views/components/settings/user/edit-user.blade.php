@@ -59,7 +59,7 @@
                     <div class="col-md-4">
                         <div class="form-check">
                             <label class="form-check-label" for="isActiveUser"><strong>Active</strong></label>
-                            <input type="checkbox" class="form-check-input" name="isActiveUser" id="isActiveUser" value="1" {{ $user->isActiveUser ? 'checked' : '' }}>
+                            <input type="checkbox" class="form-check-input" name="isActiveUser" id="isActiveUser" value="1" {{ $user->isUserActive ? 'checked' : '' }}>
                         </div>
                     </div>
 

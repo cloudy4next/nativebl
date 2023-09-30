@@ -7,6 +7,7 @@ use App\Http\Controllers\ToffeAnalytics\DashboardController;
 use App\Http\Controllers\ToffeAnalytics\AgencyController;
 use App\Http\Controllers\ToffeAnalytics\BrandController;
 use App\Http\Controllers\ToffeAnalytics\CampaignController;
+use App\Http\Controllers\ToffeAnalytics\UserCampaingController;
 
 Route::middleware('auth')->group(function () {
     // ---------------------- route start's from here --------------------//
@@ -17,7 +18,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('all-campaign')->group(function () {
         Route::get("/", [CampaignManagementController::class, 'allCampaign'])->name('toffee.all.campaign.list')->middleware('acl:all-campaign');
-        Route::get("/show/{id}/{startDate}/{endDate}/status", [CampaignManagementController::class, 'show'])->name('toffee.single.campaign.detail')->middleware('acl:all-campaign');
+        Route::get("/show", [UserCampaingController::class, 'singleCampaign'])->name('toffee.single.campaign.detail')->middleware('acl:all-campaign');
         Route::post("/campaign-range-data", [CampaignManagementController::class, 'campaignRangeData'])->name('toffee.campaign.range.data');
 
     });

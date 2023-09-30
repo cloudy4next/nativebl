@@ -129,7 +129,7 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
     public function updateUser($request): bool
     {
         $isActive = ($request->get('isActiveUser') == null) ? 0 : 1;
-
+        // dd($isActive);
         $json = [
             "userID" => $request->get('id'),
             "userName" => $request->get('userName'),
@@ -137,7 +137,7 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
             "password" => $request->get('password'),
             "emailAddress" => $request->emailAddress,
             "mobileNumber" => $request->get('mobileNumber'),
-            "IsActiveUser" => $isActive,
+            "isUserActive" => $isActive,
             "roleIDs" => $request->get('roles'),
             "updatedBy" => Auth::user()->id,
             "permissionIDs" => $request->get('permissions'),

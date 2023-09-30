@@ -26,9 +26,9 @@ use Google\AdsApi\AdManager\Util\v202308\AdManagerDateTimes;
 use Google\AdsApi\AdManager\Util\v202308\StatementBuilder;
 use Illuminate\Support\Collection;
 use NativeBL\Repository\AbstractNativeRepository;
+use Auth;
 
-
-class CampaignManagementRepository  extends AbstractNativeRepository implements CampaignManagementRepositoryInterface
+class CampaignManagementRepository extends AbstractNativeRepository implements CampaignManagementRepositoryInterface
 {
     use AdsManagerTrait;
 
@@ -58,7 +58,7 @@ class CampaignManagementRepository  extends AbstractNativeRepository implements 
         $clicks = null;
         $crt = null;
         $complete = null;
-        $LineItemArr = $this->getLineItemByAgency(auth()->user()->camapign());
+        $LineItemArr = $this->getLineItemByAgency(Auth::user()->camapign());
         foreach ($LineItemArr as $LineItem) {
 
             $id = $LineItem->getId();
@@ -144,7 +144,6 @@ class CampaignManagementRepository  extends AbstractNativeRepository implements 
 
             $statementBuilder->increaseOffsetBy($pageSize);
         } while ($statementBuilder->getOffset() < $totalResultSetSize);
-        // dd($testLineItemArray);
         return $testLineItemArray;
     }
 
@@ -191,7 +190,7 @@ class CampaignManagementRepository  extends AbstractNativeRepository implements 
 
         $this->prepareReportArray(gzdecode(file_get_contents($reportDownloadUrl)));
 
-        return $this->getAllCampaignRecordById((int) $lineItemId);
+        return ($this->getAllCampaignRecordById((int) $lineItemId)) ? true : false;
 
     }
     public function prepareReportArray(string $url): void
@@ -225,7 +224,6 @@ class CampaignManagementRepository  extends AbstractNativeRepository implements 
             }
         } catch (\Exception $e) {
             throw $e;
-
         }
     }
     /**

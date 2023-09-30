@@ -49,9 +49,10 @@ final class CampaignManagementService implements CampaignManagementServiceInterf
     {
         $fromDb = $this->campaignManagementRepositoryInterface->checkIdDateRangeExits($lineItem, $startDate, $endDate);
         if ($fromDb) {
-            return $fromDb;
+            return true;
         }
-        return $this->campaignManagementRepositoryInterface->campaignReportFetchSaveService($lineItem, $startDate, $endDate, $isPaused);
+        $this->campaignManagementRepositoryInterface->campaignReportFetchSaveService($lineItem, $startDate, $endDate, $isPaused);
+        return false;
     }
 
 

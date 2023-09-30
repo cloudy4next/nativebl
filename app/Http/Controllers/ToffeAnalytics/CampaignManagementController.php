@@ -9,18 +9,6 @@ use NativeBL\Field\ButtonField;
 use NativeBL\Field\TextField;
 use Illuminate\Http\Request;
 
-use App\Exceptions\NotFoundException;
-use App\Contracts\ToffeAnalytics\AgencyRepositoryInterface;
-use NativeBL\Contracts\Repository\NativeRepositoryInterface;
-use NativeBL\Support\Facades\CrudBoardFacade;
-use NativeBL\Field\TextareaField;
-use Illuminate\Http\RedirectResponse;
-use NativeBL\Field\IdField;
-use NativeBL\Field\FileField;
-use NativeBL\Field\HiddenField;
-use NativeBL\Field\ChoiceField;
-use NativeBL\Field\Field;
-use NativeBL\Services\CrudBoard\GridFilter;
 
 class CampaignManagementController extends AbstractController
 {
@@ -81,7 +69,7 @@ class CampaignManagementController extends AbstractController
             'ctr',
             'complete'
         ]);
-        return view('home.toffe.campaign');
+        return view('home.toffe.campaign-report.campaign');
     }
 
 

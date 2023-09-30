@@ -70,6 +70,7 @@ class RepositoryServiceProvider extends ServiceProvider
             'Agency',
             'Campaign',
             'Brand',
+            'UserCampaign',
         ];
         $toffeAnalyticsService = [
             'CampaignManagement',
