@@ -11,7 +11,6 @@ use DB;
 use Illuminate\Database\Eloquent\Builder;
 use App\Traits\ToffeAnalytics\AdsManagerTrait;
 
-use Illuminate\Http\Request;
 
 class UserCampaignRepository extends AbstractNativeRepository implements UserCampaignRepositoryInterface
 {

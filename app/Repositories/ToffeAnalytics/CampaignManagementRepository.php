@@ -4,17 +4,13 @@
 namespace App\Repositories\ToffeAnalytics;
 
 
-use App\Contracts\Services\ToffeAnalytics\CampaignManagementServiceInterface;
-use App\Exceptions\NotFoundException;
-use Illuminate\Database\QueryException;
-use Illuminate\Http\Request;
+
 use Google\AdsApi\AdManager\v202308\Column;
 use Google\AdsApi\AdManager\v202308\Dimension;
 use Google\AdsApi\AdManager\v202308\DimensionAttribute;
 use Google\AdsApi\AdManager\v202308\ReportQuery;
 use Google\AdsApi\AdManager\v202308\DateRangeType;
 use Google\AdsApi\AdManager\v202308\DateTime;
-use Google\AdsApi\AdManager\v202308\Date;
 use Google\AdsApi\AdManager\v202308\ExportFormat;
 use Google\AdsApi\AdManager\v202308\ReportJob;
 use App\Contracts\ToffeAnalytics\CampaignManagementRepositoryInterface;
@@ -44,12 +40,20 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
 
     public function applyFilterData(Collection $data, array $filters): Collection
     {
-        foreach ($filters as $field => $value) {
-            $filtered = $data->where($field, $value);
-            $data = $filtered;
-        }
-        return $data;
+        return $data->filter(function ($item) use ($filters) {
+            foreach ($filters as $field => $value) {
+                if ($value !== null) {
+                    $found = stripos($item[$field], $value) !== false;
+
+                    if ($found) {
+                        return $found;
+                    }
+                }
+            }
+            return false;
+        });
     }
+
 
     public function prepareArray()
     {
@@ -87,10 +91,10 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
             $goal = $LineItem->getPrimaryGoal()->getUnits();
             $impressionsDelivered = $LineItem->getStats();
             if ($impressionsDelivered != null) {
-                $imression = $impressionsDelivered->getImpressionsDelivered();
-                $clicks = $impressionsDelivered->getClicksDelivered();
-                $crt = $this->calculatePercentage((int) $clicks, (int) $imression) . ' %';
-                $complete = $impressionsDelivered->getVideoCompletionsDelivered();
+                $imression = number_format($impressionsDelivered->getImpressionsDelivered());
+                $clicks = number_format($impressionsDelivered->getClicksDelivered());
+                $crt = number_format((float) $this->calculatePercentage((int) $clicks, (int) $imression), 2);
+                $complete = number_format($impressionsDelivered->getVideoCompletionsDelivered());
             }
 
             $newObject[] = [
@@ -213,13 +217,13 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
                 $report = new CampaginReport();
                 $report->campaign_id = $campaginData[0];
                 $report->individual_date = $campaginData[2];
-                $report->impression = $campaginData[3];
-                $report->clicks = $campaginData[5];
-                $report->complete_views = $campaginData[4];
-                $report->active_viewable_impression = $campaginData[7];
-                $report->viewable_impression = $campaginData[9];
-                $report->ctr = $campaginData[6];
-                $report->completion_rate = $campaginData[8];
+                $report->impression = number_format((float) $campaginData[3]);
+                $report->clicks = number_format((float) $campaginData[5]);
+                $report->complete_views = number_format((float) $campaginData[4]);
+                $report->active_viewable_impression = number_format((float) $campaginData[7]);
+                $report->viewable_impression = number_format((float) $campaginData[9], 2);
+                $report->ctr = number_format((float) $campaginData[6], 2);
+                $report->completion_rate = number_format((float) $campaginData[8], 2);
                 $report->save();
             }
         } catch (\Exception $e) {

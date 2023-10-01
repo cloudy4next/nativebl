@@ -8,6 +8,7 @@ use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\Services\ToffeAnalytics\UserCampaignServiceInterface;
 use App\Contracts\ToffeAnalytics\UserCampaignRepositoryInterface;
 use NativeBL\Field\DateTimeField;
+use NativeBL\Field\Field;
 
 class UserCampaingController extends AbstractController
 {
@@ -40,7 +41,8 @@ class UserCampaingController extends AbstractController
     public function configureFilter(): void
     {
         $fields = [
-            DateTimeField::init('individual_date'),
+            DateTimeField::init('individual_date', 'Date'),
+
         ];
         $this->getFilter($fields);
     }
@@ -62,16 +64,22 @@ class UserCampaingController extends AbstractController
         if (isset($request->filters) == null) {
             $this->campaignManagementInterface->campaignReportByLineItem((int) $id, $startDate, $endDate, $status);
         }
-        $this->initGrid([
-            'individual_date',
-            'impression',
-            'clicks',
-            'complete_views',
-            'active_viewable_impression',
-            'viewable_impression',
-            'ctr',
-            'completion_rate'
-        ]);
+
+        $this->initGrid(
+            [
+                Field::init('individual_date', 'Date'),
+                Field::init('impression', 'Impression'),
+                Field::init('clicks', 'Clicks'),
+                Field::init('complete_views', 'Complete Views'),
+                Field::init('active_viewable_impression', 'Active Viewable Impression'),
+                Field::init('viewable_impression', 'Viewable Impression %'),
+                Field::init('ctr', 'CTR %'),
+                Field::init('completion_rate', 'Completion Rate %'),
+
+            ],
+            pagination: 1000
+        );
+
         return view('home.toffe.campaign-report.campaign-single')->with('data', $newCardArry);
     }
 

@@ -6,6 +6,7 @@ use App\Contracts\ToffeAnalytics\CampaignManagementRepositoryInterface;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\Services\ToffeAnalytics\CampaignManagementServiceInterface;
 use NativeBL\Field\ButtonField;
+use NativeBL\Field\Field;
 use NativeBL\Field\TextField;
 use Illuminate\Http\Request;
 
@@ -66,18 +67,22 @@ class CampaignManagementController extends AbstractController
 
     public function allCampaign()
     {
-        $this->initGrid([
-            'status',
-            'brand',
-            'agency',
-            'startDate',
-            'endDate',
-            'goal',
-            'impression',
-            'clicks',
-            'ctr',
-            'complete'
-        ]);
+        $this->initGrid(
+            [
+                Field::init('status', 'Status'),
+                Field::init('brand', 'Brand'),
+                Field::init('agency', 'Agency'),
+                Field::init('startDate', 'Start Date'),
+                Field::init('endDate', 'End Date'),
+                Field::init('goal', 'Goal'),
+                Field::init('impression', 'Impression'),
+                Field::init('clicks', 'Clicks'),
+                Field::init('ctr', 'CTR %'),
+                Field::init('complete', 'Complete'),
+            ],
+            pagination: 1000
+        );
+
         return view('home.toffe.campaign-report.campaign');
     }
 

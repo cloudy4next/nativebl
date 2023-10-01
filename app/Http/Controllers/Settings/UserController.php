@@ -99,16 +99,18 @@ class UserController extends AbstractController
         return view('components.settings.user.user');
     }
 
-    public function show($id)
-    {
-        $singleUser = $this->userService->getSingleUser($id);
-        return view('components.settings.user.single-user')->with('data', $singleUser->data);
-    }
 
     public function create()
     {
         $this->initCreate();
-        return view('native::create');
+        return view('home.settings.user.create');
+
+    }
+
+        public function show($id)
+    {
+        $singleUser = $this->userService->getSingleUser($id);
+        return view('components.settings.user.single-user')->with('data', $singleUser->data);
     }
 
     public function store(Request $request)

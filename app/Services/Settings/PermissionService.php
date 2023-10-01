@@ -25,14 +25,20 @@ final class PermissionService extends AbstractNativeRepository implements Permis
         return $this->getAllPermission();
     }
 
-
-    public function applyFilterData(Collection $data, array $filters) : Collection
+    public function applyFilterData(Collection $data, array $filters): Collection
     {
-        foreach($filters as $field=>$value){
-            $filtered = $data->where($field,$value);
-            $data = $filtered;
-        }
-        return $data;
+        return $data->filter(function ($item) use ($filters) {
+            foreach ($filters as $field => $value) {
+                if ($value !== null) {
+                    $found = stripos($item[$field], $value) !== false;
+
+                    if ($found) {
+                        return $found;
+                    }
+                }
+            }
+            return false;
+        });
     }
 
     public function getAllPermission()

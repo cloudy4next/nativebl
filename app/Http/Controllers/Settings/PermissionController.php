@@ -64,13 +64,13 @@ class PermissionController extends AbstractController
     public function permission()
     {
         $this->initGrid(['title', 'name', 'shortDescription'], pagination: 5);
-        return view('home.settings.user.permission.list');
+        return view('home.settings.permission.list');
     }
 
     public function create()
     {
         $this->initCreate();
-        return view('home.settings.user.permission.create');
+        return view('home.settings.permission.create');
     }
 
     public function store(Request $request)

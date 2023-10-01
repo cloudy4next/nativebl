@@ -71,13 +71,13 @@ class MenuController extends AbstractController
     public function menu()
     {
         $this->initGrid(['title', 'name', 'applicationID', 'parentID'], pagination: 5);
-        return view('home.settings.user.menu.list');
+        return view('home.settings.menu.list');
     }
 
     public function create()
     {
         $this->initCreate();
-        return view('home.settings.user.menu.create');
+        return view('home.settings.menu.create');
     }
 
     public function store(Request $request)
@@ -120,21 +120,8 @@ class MenuController extends AbstractController
         return to_route('menu_list');
     }
 
-    public function edit(int $id)
+    public function edit(int $id, )
     {
-        $validator = \Validator::make($request->all(), [
-            'parentID' => 'required',
-            'title' => 'required|string',
-            'iconName' => 'required|string',
-            'displayOrder' => 'required|integer',
-            'target' => 'required|string',
-
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
-
         $requestedMenu = $this->MenuService->singleMenu($id);
         return view('components.settings.user.single-menu')
             ->with('menu', $requestedMenu->data)
