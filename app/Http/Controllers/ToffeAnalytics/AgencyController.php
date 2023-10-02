@@ -156,7 +156,7 @@ class AgencyController extends AbstractController
     public function store(Request $request): RedirectResponse
     {
         $validator = \Validator::make($request->all(), [
-            'name' => 'required|string',
+            'name' => 'required|string|max:255',
             'icon' => 'required|string',
             'user' => 'required|array',
 
@@ -181,10 +181,5 @@ class AgencyController extends AbstractController
 
     }
 
-
-    public function showDetails($id)
-    {
-        //$this->initDetails();
-    }
 
 }

@@ -28,18 +28,14 @@ final class RoleService extends AbstractNativeRepository implements RoleServiceI
 
     public function applyFilterData(Collection $data, array $filters): Collection
     {
-        return $data->filter(function ($item) use ($filters) {
-            foreach ($filters as $field => $value) {
-                if ($value !== null) {
-                    $found = stripos($item[$field], $value) !== false;
-
-                    if ($found) {
-                        return $found;
-                    }
-                }
+        foreach ($filters as $field => $value) {
+            if ($value !== null) {
+                $data = $data->filter(function ($item) use ($field, $value) {
+                    return stripos($item[$field], $value) !== false;
+                });
             }
-            return false;
-        });
+        }
+        return $data;
     }
 
     public function getAllRole()

@@ -42,9 +42,6 @@ class UserController extends AbstractController
             ButtonField::init(ButtonField::DELETE)->linkToRoute('user_delete', function ($row) {
                 return ['id' => $row['userID']];
             }),
-            ButtonField::init(ButtonField::DETAIL)->linkToRoute('toffee_campaign_list', function ($row) {
-                return $row['userID'];
-            }),
             ButtonField::init('submit')->createAsFormSubmitAction(),
             ButtonField::init('cancel')->linkToRoute('user_list')->createAsFormAction(),
         ];

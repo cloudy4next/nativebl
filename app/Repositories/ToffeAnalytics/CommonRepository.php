@@ -19,22 +19,22 @@ use Auth;
 class CommonRepository
 {
 
-  public function toffeeAgencyListByUser()
-   {
-    $toffeeAgencies = ToffeeAgency::where('created_by', Auth::user()->id)
-						->pluck('name','id');
-    return $toffeeAgencies;
-   }
+    public function toffeeAgencyListByUser()
+    {
+        $toffeeAgencies = ToffeeAgency::where('created_by', Auth::user()->id)
+            ->pluck('name', 'id');
+        return $toffeeAgencies;
+    }
 
-  public function toffeeAgencyList()
-   {
-    $toffeeAgencies = ToffeeAgency::pluck('name','id');
-    return $toffeeAgencies;
-   }
+    public function toffeeAgencyList()
+    {
+        $toffeeAgencies = ToffeeAgency::pluck('name', 'id');
+        return $toffeeAgencies;
+    }
 
-  public function toffeeBrandList()
-   {
-    $toffeeBrands = ToffeeBrand::pluck('name','id');
-    return $toffeeBrands;
-   }
+    public function toffeeBrandList()
+    {
+        $toffeeBrands = ToffeeBrand::pluck('name', 'id');
+        return $toffeeBrands;
+    }
 }

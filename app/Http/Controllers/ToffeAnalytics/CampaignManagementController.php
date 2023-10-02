@@ -9,18 +9,40 @@ use NativeBL\Field\ButtonField;
 use NativeBL\Field\Field;
 use NativeBL\Field\TextField;
 use Illuminate\Http\Request;
-
+use Auth;
 
 class CampaignManagementController extends AbstractController
 {
-    public function __construct(private CampaignManagementServiceInterface $campaignManagementInterface, private CampaignManagementRepositoryInterface $campaignManagementRepositoryInterface)
+    public function __construct(private readonly CampaignManagementServiceInterface $campaignManagementInterface, private readonly CampaignManagementRepositoryInterface $campaignManagementRepositoryInterface)
     {
-        $this->campaignManagementInterface = $campaignManagementInterface;
-        $this->campaignManagementRepositoryInterface = $campaignManagementRepositoryInterface;
+
     }
+
     public function getRepository()
     {
         return $this->campaignManagementRepositoryInterface;
+    }
+
+    public function configureActions(): iterable
+    {
+
+        return [
+            ButtonField::init('new', 'new')->linkToRoute('toffee.all.campaign.list')->createAsCrudBoardAction(),
+            ButtonField::init(ButtonField::EDIT)->linkToRoute('toffee.single.campaign.detail', function ($row) {
+
+                return [
+                    'id' => $row['id'],
+                    'startDate' => urlencode($row['startDateTime']),
+                    'endDate' => urlencode($row['endDateTime']),
+                    'impression' => urlencode($row['impression']),
+                    'clicks' => urlencode($row['clicks']),
+                    'ctr' => urlencode($row['ctr']),
+                    'view' => urlencode($row['complete']),
+                    'status' => $row['status']
+                ];
+            }),
+        ];
+
     }
 
     public function configureForm()
@@ -29,38 +51,19 @@ class CampaignManagementController extends AbstractController
     }
 
 
-
-    public function configureActions(): iterable
-    {
-
-
-        return [
-            ButtonField::init('new', 'new')->linkToRoute('toffee.all.campaign.list')->createAsCrudBoardAction(),
-
-            ButtonField::init(ButtonField::EDIT)->linkToRoute('toffee.single.campaign.detail', function ($row) {
-                return [
-                    'id' => $row['id'],
-                    'startDate' => $row['startDateTime'],
-                    'endDate' => $row['endDateTime'],
-                    'impression' => $row['impression'],
-                    'clicks' => $row['clicks'],
-                    'ctr' => $row['ctr'],
-                    'view' => $row['complete'],
-                    'status' => $row['status']
-                ];
-            }),
-        ];
-
-    }
-
-
     public function configureFilter(): void
     {
         $fields = [
-            TextField::init('status'),
-            TextField::init('brand'),
-            TextField::init('agency'),
+            TextField::init('status')
         ];
+        if (Auth::user()->isbrand()) {
+            array_push($fields, TextField::init('brand'));
+        } elseif (Auth::user()->isAgency()) {
+            array_push($fields, TextField::init('agency'));
+        } else {
+            array_push($fields, TextField::init('agency'), TextField::init('brand'));
+        }
+
         $this->getFilter($fields);
     }
 
@@ -80,7 +83,7 @@ class CampaignManagementController extends AbstractController
                 Field::init('ctr', 'CTR %'),
                 Field::init('complete', 'Complete'),
             ],
-            pagination: 1000
+            pagination: 10
         );
 
         return view('home.toffe.campaign-report.campaign');
@@ -91,10 +94,10 @@ class CampaignManagementController extends AbstractController
     {
 
         $id = $request->id;
-        $startDate = $request->startDate;
-        $endDate = $request->endDate;
+        $startDate = urldecode($request->startDate);
+        $endDate = urldecode($request->endDate);
         $status = $request->status;
-        $singleItemReport = $this->campaignManagementInterface->campaignReportByLineItem((int) $id, $startDate, $endDate, $status);
+        $singleItemReport = $this->campaignManagementInterface->campaignReportByLineItem((int)$id, $startDate, $endDate, $status);
         return view('home.toffe.single-lineitem-report')->with('data', $singleItemReport);
 
     }
@@ -102,8 +105,8 @@ class CampaignManagementController extends AbstractController
     public function campaignRangeData(Request $request)
     {
         $id = $request->input('id');
-        $startDate = $request->input('startDate');
-        $endDate = $request->input('endDate');
+        $startDate = urldecode($request->input('startDate'));
+        $endDate = urldecode($request->input('endDate'));
         $data = $this->campaignManagementInterface->getCampaignFromDateRange($id, $startDate, $endDate);
         return response()->json(['data' => $data]);
 

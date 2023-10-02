@@ -31,7 +31,7 @@ trait APITrait
         }
         $client = new Client();
         try {
-            $response = $client->request($method, env('Auth_Server') . $path, [
+            $response = $client->request($method, env('AUTH_SERVER') . $path, [
                 'headers' => $header,
                 'json' => $body
             ]);

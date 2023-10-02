@@ -20,7 +20,7 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
         return '';
     }
 
-    public function getGridData(array $filters = []): iterable
+    public function getGridData(array $filters = []): ?iterable
     {
         return $this->featureSet($this->getAllUser());
 
@@ -28,19 +28,16 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
 
     public function applyFilterData(Collection $data, array $filters): Collection
     {
-        return $data->filter(function ($item) use ($filters) {
-            foreach ($filters as $field => $value) {
-                if ($value !== null) {
-                    $found = stripos($item[$field], $value) !== false;
-
-                    if ($found) {
-                        return $found;
-                    }
-                }
+        foreach ($filters as $field => $value) {
+            if ($value !== null) {
+                $data = $data->filter(function ($item) use ($field, $value) {
+                    return stripos($item[$field], $value) !== false;
+                });
             }
-            return false;
-        });
+        }
+        return $data;
     }
+
     /**
      * @return array all user's
      */
@@ -48,7 +45,6 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
     {
         $path = '/Api/AppUserManagement/AppUsers?id=' . (int) $this->SessionCheck('applicationID');
         $response = $this->apiResponse('GET', null, null, $path);
-        // dd($response->data);
         return $response->data;
     }
     /**

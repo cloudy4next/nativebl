@@ -68,7 +68,7 @@ class RoleController extends AbstractController
 
     public function role()
     {
-        $this->initGrid(['title', 'name', 'shortDescription', 'isDeleted'], pagination: 5);
+        $this->initGrid(['title', 'name', 'shortDescription'], pagination: 5);
         return view('home.settings.role.list');
     }
 

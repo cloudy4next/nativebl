@@ -45,17 +45,18 @@ class CampaignController extends AbstractController
 
     public function configureActions(): iterable
     {
-        $userId = \Request::segment(2);
         $prevUrl = URL::previous() . '';
         $endSegment = explode('/', $prevUrl);
         $userFlag = end($endSegment);
         return [
             ButtonField::init(ButtonField::EDIT)->linkToRoute('toffee_campaign_edit')->addCssClass('fa-file-lines'),
-            ButtonField::init(ButtonField::DELETE)->linkToRoute('toffee_campaign_delete'),
-            ButtonField::init('new', 'new')->linkToRoute('toffee_campaign_create', [$userId])->createAsCrudBoardAction(),
+            ButtonField::init(ButtonField::DELETE)->linkToRoute('toffee_campaign_delete', function ($row) {
+                return ['id' => $row['id'], 'userId' => \Request::segment(2)];
+            }),
+            ButtonField::init('new', 'new')->linkToRoute('toffee_campaign_create',)->createAsCrudBoardAction(),
             ButtonField::init('submit')->createAsFormSubmitAction(),
-            ButtonField::init('cancel')->linkToRoute('toffee_campaign_list', [$userFlag])->createAsFormAction(),
-            ButtonField::init('back')->linkToRoute('toffee_campaign_list', [$userFlag])->createAsShowAction()->setIcon('fa-arrow-left'),
+            ButtonField::init('cancel')->linkToRoute('toffee_campaign_list')->createAsFormAction(),
+            ButtonField::init('back')->linkToRoute('toffee_campaign_list')->createAsShowAction()->setIcon('fa-arrow-left'),
         ];
     }
 
@@ -64,16 +65,14 @@ class CampaignController extends AbstractController
 
     public function configureForm()
     {
-        $userId = \Request::segment(3);
         $toffeeAgencyList = $this->commonService->toffeeAgencyList();
         $toffeeBrandList = $this->commonService->toffeeBrandList();
         $fields = [
             IdField::init('id'),
             TextField::init('campaign_name')->validate('required|max:255'),
-            TextField::init('campaign_id', 'Campaign ID'),
+            TextField::init('campaign_id', 'Campaign ID')->validate('required|max:255'),
             ChoiceField::init('agency_id', 'Map Agency', choiceType: 'select', choiceList: $toffeeAgencyList)->setCssClass('my-class'),
             ChoiceField::init('brand_id', 'Map Brand', choiceType: 'select', choiceList: $toffeeBrandList)->setCssClass('my-class'),
-            HiddenField::init('user_id')->setDefaultValue($userId),
             HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
         ];
         $this->getForm($fields)
@@ -89,7 +88,6 @@ class CampaignController extends AbstractController
             TextField::init('campaign_id'),
             TextField::init('agencyName'),
             TextField::init('brandName'),
-            TextField::init('userId'),
         ];
         $this->getFilter($fields);
     }
@@ -115,11 +113,12 @@ class CampaignController extends AbstractController
     }
     public function delete($id)
     {
-        echo $id;
-        exit();
+         $this->campaignService->delete($id);
+
+       return  to_route('toffee_campaign_list');
     }
 
-    public function create($userId)
+    public function create()
     {
         $this->initCreate();
         return view('home.toffe.Campaign.create');
@@ -130,8 +129,8 @@ class CampaignController extends AbstractController
     {
 
         $validator = \Validator::make($request->all(), [
-            'campaign_name' => 'required|string',
-            'campaign_id' => 'required|integer',
+            'campaign_name' => 'required|string|max:255',
+            'campaign_id' => 'required|string|max:255',
             'agency_id' => 'required|integer',
             'brand_id' => 'required|integer',
         ]);

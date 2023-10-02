@@ -100,7 +100,7 @@ class LoginService
         ];
 
         try {
-            $response = $client->request('POST', env('Auth_Server') . '/api/auth/token', [
+            $response = $client->request('POST', env('AUTH_SERVER') . '/api/auth/token', [
                 'headers' => $headers,
                 'json' => $json
             ]);

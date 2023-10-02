@@ -8,20 +8,13 @@ use App\Exceptions\NotFoundException;
 use Illuminate\Http\Request;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\ToffeAnalytics\BrandRepositoryInterface;
-use NativeBL\Contracts\Repository\NativeRepositoryInterface;
-use NativeBL\Support\Facades\CrudBoardFacade;
 use NativeBL\Field\ButtonField;
-use NativeBL\Field\TextareaField;
 use NativeBL\Field\TextField;
 use Illuminate\Http\RedirectResponse;
 use NativeBL\Field\IdField;
-use NativeBL\Field\FileField;
 use NativeBL\Field\HiddenField;
 use NativeBL\Field\ChoiceField;
-use NativeBL\Services\CrudBoard\GridFilter;
 
-use App\Services\ToffeAnalytics\BrandService;
-use Illuminate\Support\Facades\Redirect;
 
 use Auth;
 
@@ -61,7 +54,6 @@ class BrandController extends AbstractController
     public function configureForm()
     {
         $userList = $this->userServiceInterface->getAllUserIDNameArr();
-        // dd($userList);
         $fields = [
             IdField::init('id'),
             TextField::init('name')->validate('required|max:255'),
@@ -155,7 +147,7 @@ class BrandController extends AbstractController
     public function store(Request $request): RedirectResponse
     {
         $validator = \Validator::make($request->all(), [
-            'name' => 'required|string',
+            'name' => 'required|string|max:255',
             'icon' => 'required|string',
             'user' => 'required|array',
 

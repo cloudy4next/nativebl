@@ -33,60 +33,43 @@ class CampaignRepository extends AbstractNativeRepository implements CampaignRep
 
     public function getGridData(array $filters = []): iterable
     {
-        $toffeeId = 2;
-        // dd(Auth::user()->isSpecificAgency($toffeeId));
-        if (Auth::user()->isSuperAdmin()) {
-            $query = ToffeeCampaign::join('users', 'toffee_campaigns.user_id', '=', 'users.id')
-                ->join('toffee_agencies', 'toffee_campaigns.agency_id', '=', 'toffee_agencies.id')
-                ->join('toffee_brands', 'toffee_campaigns.brand_id', '=', 'toffee_brands.id')
-                ->get(['toffee_campaigns.*', 'users.email as userId', 'toffee_brands.name as brandName', 'toffee_agencies.name as agencyName']);
 
-        } else {
-            if (Auth::user()->getToffeeAgencyId()) {
-                $query = ToffeeCampaign::where('agency_id', Auth::user()->getToffeeAgencyId())
-                    ->join('users', 'toffee_campaigns.user_id', '=', 'users.id')
-                    ->join('toffee_agencies', 'toffee_campaigns.agency_id', '=', 'toffee_agencies.id')
-                    ->join('toffee_brands', 'toffee_campaigns.brand_id', '=', 'toffee_brands.id')
-                    ->get(['toffee_campaigns.*', 'users.email as userId', 'toffee_brands.name as brandName', 'toffee_agencies.name as agencyName']);
-            } else {
-                $query = ToffeeCampaign::whereIn('agency_id', function ($query) {
-                    $query->select('agency_id')->from('toffee_agency_user_maps')->where('user_id', Auth::user()->id);
-                })
-                    ->orWhereIn('brand_id', function ($query) {
-                        $query->select('brand_id')->from('toffee_brand_user_maps')->where('user_id', Auth::user()->id);
-                    })
-                    ->join('users', 'toffee_campaigns.user_id', '=', 'users.id')
-                    ->join('toffee_agencies', 'toffee_campaigns.agency_id', '=', 'toffee_agencies.id')
-                    ->join('toffee_brands', 'toffee_campaigns.brand_id', '=', 'toffee_brands.id')
-                    ->get(['toffee_campaigns.*', 'users.email as userId', 'toffee_brands.name as brandName', 'toffee_agencies.name as agencyName']);
-            }
-            // dd($query);
+        if (Auth::user()->isSuperAdmin()) {
+            $query = ToffeeCampaign::join('toffee_agencies', 'toffee_campaigns.agency_id', '=', 'toffee_agencies.id')
+                ->join('toffee_brands', 'toffee_campaigns.brand_id', '=', 'toffee_brands.id')
+                ->get(['toffee_campaigns.*', 'toffee_brands.name as brandName', 'toffee_agencies.name as agencyName']);
+        }
+        else{
+            return [];
         }
 
         return $query;
     }
-    public function applyFilterData(Collection $data, array $filters): Collection
+    public function applyFilterQuery(Builder $query, array $filters): Builder
     {
         foreach ($filters as $field => $value) {
-            $filtered = $data->where($field, $value);
-            $data = $filtered;
-        }
-        return $data;
-    }
+            if ($value !== null) {
+                try{
+                    $query->where($field, 'LIKE', '%' . $value . '%');
 
+                }finally{
+                    $query->where($field, '=', $value);
+                }
+
+            }
+        }
+        return $query;
+    }
 
     public function store(Request $request)
     {
-        // dd($request);
         if ($request['id'] != null) {
-
             $prevCampaign = $this->find($request['id']);
             $prevCampaign['campaign_name'] = $request['campaign_name'];
             $prevCampaign['campaign_id'] = $request['campaign_id'];
             $prevCampaign['agency_id'] = $request['agency_id'];
             $prevCampaign['brand_id'] = $request['brand_id'];
-            $prevCampaign['user_id'] = $request['user_id'];
-            $prevCampaign['created_by'] = $request['created_by'];
+            $prevCampaign['created_by'] = Auth::user()->id;
             $prevCampaign->save();
         } else {
 
@@ -95,15 +78,17 @@ class CampaignRepository extends AbstractNativeRepository implements CampaignRep
     }
 
 
-    public function agencyFilterData($filter)
+
+    public function delete($id)
     {
-        //return $query = $this->all();
-        $query = ToffeAgency::query();
-        if (isset($filter['search_text']) && $filter['search_text']) {
-            $query->where('name', 'like', "%{$filter['search_text']}%");
+        try {
+            ToffeeCampaign::where('id', $id)->delete();
+            return 1;
+
+        } catch (\Exception $e) {
+            return $e->getMessage();
 
         }
-        return $query;
     }
 
 

@@ -23,139 +23,146 @@ use Illuminate\Http\Request;
 
 use DB;
 
-class BrandRepository  extends AbstractNativeRepository implements BrandRepositoryInterface
+class BrandRepository extends AbstractNativeRepository implements BrandRepositoryInterface
 {
 
-   public function getModelFqcn(): string
-   {
-     return ToffeeBrand::class;
-   }
+    public function getModelFqcn(): string
+    {
+        return ToffeeBrand::class;
+    }
 
-   public function getGridData(array $filters=[]) : ?iterable
-   {
-       return ToffeeBrand::select();
-   }
+    public function getGridData(array $filters = []): ?iterable
+    {
+        return ToffeeBrand::select();
+    }
 
-   public function getGridQuery(): ?Builder
-   {
-      return ToffeeBrand::select();
-   }
-
-   public function getBrandDataById($id)
-   {
-       $query = ToffeeBrand::with('brandUserMap')
-                ->where('id', $id)
-                ->first();
-
-          return $query;      
-   }
-
-
-     public function store(Request $request)
-     {
-      // dd($request);
-      $destinationPath = public_path('toffy/img/');
-      if($request['id'] != null){
-
-        try {
-         DB::beginTransaction();
-
-        $prevBrand = $this->find($request['id']);
-        $prevBrand['name'] = $request['name'];
-        $prevBrand['icon'] = $request['icon'];
-        $prevBrand['created_by'] = $request['created_by'];
-        $prevBrand->save();
-
-        ToffeeBrandUserMap::where('brand_id', $request['id'])->delete();
-
-        foreach ($request['user'] as $userId){
-            $brandUserMap = new ToffeeBrandUserMap();
-            $brandUserMap->brand_id = $request['id'];
-            $brandUserMap->user_id = $userId;
-            $brandUserMap->created_by  = $request['created_by'];
-            $brandUserMap->save();
+   public function applyFilterQuery(Builder $query, array $filters): Builder
+    {
+        if ($filters == null) {
+            return $query;
         }
+        $query->where('name','LIKE',"%{$filters['name']}%");
 
-        DB::commit();
-         return 1;
+        return $query;
 
-      }
-       catch (\Exception $e) {
-         DB::rollBack();
-         return $e->getMessage();
+    }
 
-      }
-      }
-      else{
+    public function getGridQuery(): ?Builder
+    {
+        return ToffeeBrand::select();
+    }
 
-        /*Uploading agency icon*/
+    public function getBrandDataById($id)
+    {
+        $query = ToffeeBrand::with('brandUserMap')
+            ->where('id', $id)
+            ->first();
 
-        try {
-         DB::beginTransaction();
-      $icon_modify_name = '';
-      if ($request->hasFile('icon')) {
-         $icon = $request->file('icon');
+        return $query;
+    }
 
-         $extension = $icon->getClientOriginalExtension();
-         $icon_file_name = 'brand_icon_' . strtotime("+1 second") . '.' . $extension;
-         $upload_success_document = $icon->move($destinationPath, $icon_file_name);
 
-         $icon_modify_name = 'toffy/img/'.$icon_file_name;
-         $request['icon'] = $icon_modify_name;
+
+    public function store(Request $request)
+    {
+        $destinationPath = public_path('toffy/img/');
+        if ($request['id'] != null) {
+
+            try {
+                DB::beginTransaction();
+
+                $prevBrand = $this->find($request['id']);
+                $prevBrand['name'] = $request['name'];
+                $prevBrand['icon'] = $request['icon'];
+                $prevBrand['created_by'] = $request['created_by'];
+                $prevBrand->save();
+
+                ToffeeBrandUserMap::where('brand_id', $request['id'])->delete();
+
+                foreach ($request['user'] as $userId) {
+                    $brandUserMap = new ToffeeBrandUserMap();
+                    $brandUserMap->brand_id = $request['id'];
+                    $brandUserMap->user_id = $userId;
+                    $brandUserMap->created_by = $request['created_by'];
+                    $brandUserMap->save();
+                }
+
+                DB::commit();
+                return 1;
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return $e->getMessage();
+
+            }
+        } else {
+
+            /*Uploading agency icon*/
+
+            try {
+                DB::beginTransaction();
+                $icon_modify_name = '';
+                if ($request->hasFile('icon')) {
+                    $icon = $request->file('icon');
+
+                    $extension = $icon->getClientOriginalExtension();
+                    $icon_file_name = 'brand_icon_' . strtotime("+1 second") . '.' . $extension;
+                    $upload_success_document = $icon->move($destinationPath, $icon_file_name);
+
+                    $icon_modify_name = 'toffy/img/' . $icon_file_name;
+                    $request['icon'] = $icon_modify_name;
+                }
+
+
+                $brandId = ToffeeBrand::create($request->all())->id;
+
+                foreach ($request['user'] as $userId) {
+                    $brandUserMap = new ToffeeBrandUserMap();
+                    $brandUserMap->brand_id = $brandId;
+                    $brandUserMap->user_id = $userId;
+                    $brandUserMap->created_by = $request['created_by'];
+                    $brandUserMap->save();
+                }
+
+                DB::commit();
+                return 1;
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return $e->getMessage();
+
+            }
         }
-        
-
-        $brandId = ToffeeBrand::create($request->all())->id;
-
-        foreach ($request['user'] as $userId){
-            $brandUserMap = new ToffeeBrandUserMap();
-            $brandUserMap->brand_id = $brandId;
-            $brandUserMap->user_id = $userId;
-            $brandUserMap->created_by  = $request['created_by'];
-            $brandUserMap->save();
-        }
-
-        DB::commit();
-       return 1;
-
-      }
-       catch (\Exception $e) {
-         DB::rollBack();
-         return $e->getMessage();
-
-      }
-      }
-      // return ToffeAgency::create($request->all());
-     }
+        // return ToffeAgency::create($request->all());
+    }
 
 
 
-   public function deleteBrandUser($id)
+    public function deleteBrandUser($id)
     {
         return ToffeeBrandUserMap::where('id', $id)->delete() ? 1 : 0;
     }
 
 
-   public function delete($id)
+    public function delete($id)
     {
-      try {
-         DB::beginTransaction();
-        ToffeeBrandUserMap::where('brand_id', $id)->delete();
-        ToffeeBrand::where('id', $id)->delete();
+        try {
+            DB::beginTransaction();
+            ToffeeBrandUserMap::where('brand_id', $id)->delete();
+            ToffeeBrand::where('id', $id)->delete();
 
-         DB::commit();
-         return 1;
+            DB::commit();
+            return 1;
 
-      }
-       catch (\Exception $e) {
-         DB::rollBack();
-         return $e->getMessage();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $e->getMessage();
 
-      }
+        }
     }
 
 
-   public function brandFilterData($filter)
+    public function brandFilterData($filter)
     {
         //return $query = $this->all();
         $query = ToffeeBrand::query();

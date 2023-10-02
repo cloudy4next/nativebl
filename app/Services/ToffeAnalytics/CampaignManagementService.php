@@ -13,9 +13,8 @@ final class CampaignManagementService implements CampaignManagementServiceInterf
 {
     use AdsManagerTrait;
 
-    public function __construct(private CampaignManagementRepositoryInterface $campaignManagementRepositoryInterface)
+    public function __construct(private readonly CampaignManagementRepositoryInterface $campaignManagementRepositoryInterface)
     {
-        $this->campaignManagementRepositoryInterface = $campaignManagementRepositoryInterface;
     }
 
     public function campaignReportByLineItem(int $id, string $startDate, string $endDate, string $status)
@@ -26,14 +25,11 @@ final class CampaignManagementService implements CampaignManagementServiceInterf
         $newStartDate = clone $newEndDate;
         $newStartDate->modify('-6 days');
 
-        switch ($status) {
-            case 'PAUSED':
-                return $this->GetFromDbOrGoogle($id, $this->makeDateTime($startDate), $endDate, true);
-            case 'COMPLETED':
-                return $this->GetFromDbOrGoogle($id, $this->makeDateTime($startDate), $endDate);
-            default:
-                return $this->GetFromDbOrGoogle($id, $newStartDate, $newEndDate);
-        }
+        return match ($status) {
+            'PAUSED' => $this->GetFromDbOrGoogle($id, $this->makeDateTime($startDate), $endDate, true),
+            'COMPLETED' => $this->GetFromDbOrGoogle($id, $this->makeDateTime($startDate), $endDate),
+            default => $this->GetFromDbOrGoogle($id, $newStartDate, $newEndDate),
+        };
 
     }
 
@@ -45,14 +41,21 @@ final class CampaignManagementService implements CampaignManagementServiceInterf
 
     }
 
-    public function GetFromDbOrGoogle($lineItem, $startDate, $endDate, bool $isPaused = false)
+//    public function GetFromDbOrGoogle($lineItem, $startDate, $endDate, bool $isPaused = false)
+//    {
+//        $fromDb = $this->campaignManagementRepositoryInterface->checkIdDateRangeExits($lineItem, $startDate, $endDate);
+//        if ($fromDb) {
+//            return true;
+//        }
+//        $this->campaignManagementRepositoryInterface->campaignReportFetchSaveService($lineItem, $startDate, $endDate, $isPaused);
+//        return false;
+//    }
+
+    public function getFromDbOrGoogle($lineItem, $startDate, $endDate, bool $isPaused = false)
     {
         $fromDb = $this->campaignManagementRepositoryInterface->checkIdDateRangeExits($lineItem, $startDate, $endDate);
-        if ($fromDb) {
-            return true;
-        }
-        $this->campaignManagementRepositoryInterface->campaignReportFetchSaveService($lineItem, $startDate, $endDate, $isPaused);
-        return false;
+
+        return $fromDb ?: $this->campaignManagementRepositoryInterface->campaignReportFetchSaveService($lineItem, $startDate, $endDate, $isPaused);
     }
 
 

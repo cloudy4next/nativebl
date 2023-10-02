@@ -38,4 +38,8 @@ final class CampaignService implements CampaignServiceInterface
         return $this->campaignRepository->campaignFilterData($input);
     }
 
+    public function delete($id)
+    {
+        return $this->campaignRepository->delete($id);
+    }
 }

@@ -31,7 +31,7 @@ class ArticleRepository  extends AbstractNativeRepository implements ArticleRepo
      return Article::class;
    }
 
-   public function getGridData() : iterable
+   public function getGridData(array $filters = []) : iterable
    {
        $query = Article::join('users', 'articles.created_by', '=', 'users.id')
                 ->join('article_categories', 'articles.article_category_id', '=', 'article_categories.id')
