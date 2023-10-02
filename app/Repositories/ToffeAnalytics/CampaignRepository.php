@@ -38,9 +38,25 @@ class CampaignRepository extends AbstractNativeRepository implements CampaignRep
             $query = ToffeeCampaign::join('toffee_agencies', 'toffee_campaigns.agency_id', '=', 'toffee_agencies.id')
                 ->join('toffee_brands', 'toffee_campaigns.brand_id', '=', 'toffee_brands.id')
                 ->get(['toffee_campaigns.*', 'toffee_brands.name as brandName', 'toffee_agencies.name as agencyName']);
-        }
-        else{
-            return [];
+
+        } else {
+            if (Auth::user()->getToffeeAgencyId()) {
+                $query = ToffeeCampaign::where('agency_id', Auth::user()->getToffeeAgencyId())
+                    ->join('toffee_agencies', 'toffee_campaigns.agency_id', '=', 'toffee_agencies.id')
+                    ->join('toffee_brands', 'toffee_campaigns.brand_id', '=', 'toffee_brands.id')
+                    ->get(['toffee_campaigns.*', 'toffee_brands.name as brandName', 'toffee_agencies.name as agencyName']);
+            } else {
+                $query = ToffeeCampaign::whereIn('agency_id', function ($query) {
+                    $query->select('agency_id')->from('toffee_agency_user_maps')->where('user_id', Auth::user()->id);
+                })
+                    ->orWhereIn('brand_id', function ($query) {
+                        $query->select('brand_id')->from('toffee_brand_user_maps')->where('user_id', Auth::user()->id);
+                    })
+                    ->join('toffee_agencies', 'toffee_campaigns.agency_id', '=', 'toffee_agencies.id')
+                    ->join('toffee_brands', 'toffee_campaigns.brand_id', '=', 'toffee_brands.id')
+                    ->get(['toffee_campaigns.*', 'toffee_brands.name as brandName', 'toffee_agencies.name as agencyName']);
+            }
+            // dd($query);
         }
 
         return $query;

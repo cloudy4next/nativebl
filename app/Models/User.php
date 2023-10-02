@@ -74,7 +74,10 @@ class User extends Authenticatable
         $isAdmin = false;
         $userRole = $this->roles();
         foreach ($userRole as $role) {
-            $isAdmin = ($role['name'] == "toffe-super-admin") ? true : false;
+            if($role['name'] == "toffe-super-admin")
+            {
+                $isAdmin = true;
+            }
         }
         return $isAdmin;
     }
@@ -103,6 +106,7 @@ class User extends Authenticatable
             $query = ToffeeCampaign::all();
         } else {
             if ($this->isAgency()) {
+                dd("here");
                 $query = ToffeeCampaign::where('agency_id', $this->isAgency())->get();
             } else {
                 $query = ToffeeCampaign::where('brand_id', $this->isBrand())->where('agency_id', $this->getToffeeAgencyId())->get();
