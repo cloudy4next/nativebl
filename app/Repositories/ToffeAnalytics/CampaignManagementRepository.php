@@ -281,16 +281,16 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
 
     }
 
-    public function applyFilterData(Collection $data, array $filters): Collection
-    {
-        foreach ($filters as $field => $value) {
-            if ($value !== null) {
-                $data = $data->filter(function ($item) use ($field, $value) {
-                    return stripos($item[$field], $value) !== false;
-                });
-            }
-        }
-        return $data;
-    }
+    // public function applyFilterData(Collection $data, array $filters): Collection
+    // {
+    //     foreach ($filters as $field => $value) {
+    //         if ($value !== null) {
+    //             $data = $data->filter(function ($item) use ($field, $value) {
+    //                 return stripos($item[$field], $value) !== false;
+    //             });
+    //         }
+    //     }
+    //     return $data;
+    // }
 
 }

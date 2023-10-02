@@ -130,7 +130,7 @@ class CampaignController extends AbstractController
 
         $validator = \Validator::make($request->all(), [
             'campaign_name' => 'required|string|max:255',
-            'campaign_id' => 'required|string|max:255',
+            'campaign_id' => 'required|integer|max:255',
             'agency_id' => 'required|integer',
             'brand_id' => 'required|integer',
         ]);

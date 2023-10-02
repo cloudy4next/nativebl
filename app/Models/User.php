@@ -106,7 +106,7 @@ class User extends Authenticatable
             $query = ToffeeCampaign::all();
         } else {
             if ($this->isAgency()) {
-                dd("here");
+
                 $query = ToffeeCampaign::where('agency_id', $this->isAgency())->get();
             } else {
                 $query = ToffeeCampaign::where('brand_id', $this->isBrand())->where('agency_id', $this->getToffeeAgencyId())->get();

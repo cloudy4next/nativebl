@@ -56,12 +56,13 @@ class CampaignManagementController extends AbstractController
         $fields = [
             TextField::init('status')
         ];
+        if (Auth::user()->isSuperAdmin()) {
+            array_push($fields, TextField::init('agency'), TextField::init('brand'));
+        }
         if (Auth::user()->isbrand()) {
             array_push($fields, TextField::init('brand'));
         } elseif (Auth::user()->isAgency()) {
             array_push($fields, TextField::init('agency'));
-        } else {
-            array_push($fields, TextField::init('agency'), TextField::init('brand'));
         }
 
         $this->getFilter($fields);
@@ -97,7 +98,7 @@ class CampaignManagementController extends AbstractController
         $startDate = urldecode($request->startDate);
         $endDate = urldecode($request->endDate);
         $status = $request->status;
-        $singleItemReport = $this->campaignManagementInterface->campaignReportByLineItem((int)$id, $startDate, $endDate, $status);
+        $singleItemReport = $this->campaignManagementInterface->campaignReportByLineItem((int) $id, $startDate, $endDate, $status);
         return view('home.toffe.single-lineitem-report')->with('data', $singleItemReport);
 
     }
