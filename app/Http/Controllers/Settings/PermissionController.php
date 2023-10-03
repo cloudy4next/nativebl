@@ -41,8 +41,8 @@ class PermissionController extends AbstractController
     {
         $fields = [
             ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->permissionService->getApplication()),
-            InputField::init('title'),
-            InputField::init('shortDescription', 'Short Description', 'textarea'),
+            InputField::init('title')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>11]),
+            InputField::init('shortDescription', 'Short Description', 'textarea')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>11]),
         ];
 
         $this->getForm($fields)

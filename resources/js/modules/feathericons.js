@@ -1,6 +1,6 @@
 // https://feathericons.com
 // https://github.com/feathericons/feather
 
-import feather from "feather-icons"
+const feather = require('feather-icons');
 
-feather.replace()
+window.feather = feather;

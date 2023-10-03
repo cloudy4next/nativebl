@@ -20,4 +20,4 @@ import "./modules/tree-view";
 // Maps
 import "./modules/vector-maps";
 
-import "./modules/nativebl";
+import "./modules/custom";

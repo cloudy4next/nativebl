@@ -12,14 +12,16 @@
 namespace App\Repositories\TigerWeb;
 
 
+use App\Models\TigerWeb\ArticleReview;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use NativeBL\Repository\AbstractNativeRepository;
 use App\Contracts\TigerWeb\ArticleRepositoryInterface;
 use App\Models\TigerWeb\Article;
 use App\Models\TigerWeb\TagKey;
 use App\Models\TigerWeb\ArticleTag;
 use NativeBL\Contracts\Service\CrudBoard\CrudGridLoaderInterface;
-
-use DB;
+use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Request;
 
@@ -187,6 +189,17 @@ class ArticleRepository  extends AbstractNativeRepository implements ArticleRepo
     }
    }
 
+    public function article_review_submit(Request $request)
+    {
+        $article_review = new ArticleReview();
+        $article_review->article_id = $request->article_id;
+        $article_review->review_status = $request->review_status;
+        $article_review->review_comments = $request->review_comments;
+        $article_review->created_at = Carbon::now()->format('Y-m-d H:i:s');
+        $article_review->created_by = Auth::user()->id;
+        $article_review->save();
+        return 1;
+    }
 
 
 }

@@ -36,6 +36,10 @@ final class ArticleService implements ArticleServiceInterface
         return $this->articleRepository->store($request);
     }
 
+    public function article_review_submit(Request $request)
+    {
+        return $this->articleRepository->article_review_submit($request);
+    }
 
     public function showAllArticle($input)
     {

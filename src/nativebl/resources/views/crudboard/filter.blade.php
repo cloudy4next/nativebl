@@ -5,12 +5,15 @@
     <div class="col-12 col-lg-12">
         <div class="card">
             <div class="card-body">
-                <form method="get" name='filter'>
+                <form method="get" name='filter' class="row g-3">
                     <div class="row">
                         @foreach($filter->getFields() as $field)
-                        <x-dynamic-component :component="$field->getComponent()" :$field />
+                        @php $htmlAttributes = $field->getAttributesAsHtml() ; @endphp
+                        <div class=" mt-3 {{ $field->getLayoutClass() }}">
+                            <x-dynamic-component :component="$field->getComponent()" :$field :$htmlAttributes />
+                        </div>
                         @endforeach
-                        <div class="col-lg-12 text-end">  <button type="submit" class="btn btn-success">Search</button> </div>
+                        <div class="col-lg-12 text-end mt-3">  <button type="submit" class="btn btn-success">Search</button> </div>
                     </div>
                 </form>   
             </div>

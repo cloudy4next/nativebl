@@ -8,6 +8,7 @@ use App\Contracts\Services\Settings\UserServiceInterface;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use NativeBL\Field\ButtonField;
 use NativeBL\Field\ChoiceField;
+use NativeBL\Field\Field;
 use NativeBL\Field\InputField;
 use Illuminate\Http\Request;
 use NativeBL\Field\TextField;
@@ -61,13 +62,13 @@ class UserController extends AbstractController
                 choiceList: $applications,
                 selected: $this->userService->userApplicationID()
             )->setDisabled(),
-            InputField::init('fullName')->validate('required|max:255'),
-            InputField::init('userName')->validate('required|max:255'),
-            InputField::init('emailAddress', 'Email', "email"),
-            InputField::init('mobileNumber')->validate('requried|numeric'),
-            InputField::init('password', 'Password', "password")->validate('requried|numeric|min:8'),
+            InputField::init('fullName')->setHtmlAttributes(['required' => true, 'maxlength' => 50, 'minlength' => 6]),
+            InputField::init('userName')->setHtmlAttributes(['required' => true, 'maxlength' => 50, 'minlength' => 6]),
+            InputField::init('emailAddress', 'Email', "email")->setHtmlAttributes(['required' => true, 'maxlength' => 50, 'minlength' => 6]),
+            InputField::init('mobileNumber')->validate('requried|numeric')->setHtmlAttributes(['required' => true, 'maxlength' => 15, 'minlength' => 11]),
+            InputField::init('password', 'Password', "password")->validate('requried|numeric|min:8')->setLayoutClass('col-md-12')->setHtmlAttributes(['required' => true]),
             // TO - Do
-            InputField::init('roles')->setComponent('settings.user.user-menu-permission'),
+            InputField::init('roles')->setComponent('settings.user.user-menu-permission')->setLayoutClass('col-md-12')->setHtmlAttributes(['required' => true]),
         ];
         if ($this->userService->checkIfToffee() == false) {
             array_splice($fields, 4, 0, [ChoiceField::init('GrantType', 'Authenticaction Type', choiceType: 'select', choiceList: $authList)->setCssClass('my-class')]);
@@ -81,7 +82,7 @@ class UserController extends AbstractController
     public function configureFilter(): void
     {
         $fields = [
-            TextField::init('userID'),
+            // TextField::init('userID'),
             TextField::init('userName'),
             TextField::init('fullName'),
             TextField::init('mobileNumber'),
@@ -92,7 +93,12 @@ class UserController extends AbstractController
 
     public function user()
     {
-        $this->initGrid(['userID', 'userName', 'fullName', 'mobileNumber', 'emailAddress'], pagination: 5);
+        $this->initGrid([
+            Field::init('userName','User Name'),
+            Field::init('fullName','Full Name'),
+            Field::init('mobileNumber','Mobile Number'),
+            Field::init('emailAddress','Email Address'),
+        ], pagination: 5); //'userID',
         return view('components.settings.user.user');
     }
 
@@ -104,7 +110,7 @@ class UserController extends AbstractController
 
     }
 
-        public function show($id)
+    public function show($id)
     {
         $singleUser = $this->userService->getSingleUser($id);
         return view('components.settings.user.single-user')->with('data', $singleUser->data);
@@ -114,13 +120,13 @@ class UserController extends AbstractController
     {
         $validator = \Validator::make($request->all(), [
             'emailAddress' => 'required|email',
-            'fullName' => 'required|string|max:255',
+            'fullName' => 'required|string',
             'password' => 'required|string|min:6',
             'mobileNumber' => [
                 'required',
                 'string',
                 function ($attribute, $value, $fail) {
-                    $pattern = '/^(?:\+88|88)?(01[3-9]\d{8})$/';
+                    $pattern = '/^(?:\+880|880)?(01[3-9]\d{8})$/';
                     if (!preg_match($pattern, $value)) {
                         $fail('Number is not a valid Bangladeshi mobile number.');
                     }
@@ -167,6 +173,30 @@ class UserController extends AbstractController
 
     public function update(Request $request)
     {
+        $validator = \Validator::make($request->all(), [
+            'emailAddress' => 'required|email',
+            'fullName' => 'required|string',
+            'password' => 'required|string|min:6',
+            'mobileNumber' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    $pattern = '/^(?:\+880|880)?(01[3-9]\d{8})$/';
+                    if (!preg_match($pattern, $value)) {
+                        $fail('Number is not a valid Bangladeshi mobile number.');
+                    }
+                },
+            ],
+            'GrantType' => 'string',
+            'roles' => 'required|array',
+            'permissions' => 'required|array',
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator->errors())
+                ->withInput();
+        }
 
         $id = $request->get('id');
         $this->userService->updateUser($request);
@@ -181,32 +211,6 @@ class UserController extends AbstractController
         $this->userService->userOldPasswordCheck($request->old_password);
         $this->userService->updateUserPassword($request);
         return redirect('/');
-    }
-
-    public function validator($request)
-    {
-        $validator = \Validator::make($request->all(), [
-            'fullName' => 'required|string|max:255',
-            'password' => 'required|string|min:6',
-            'mobileNumber' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    $pattern = '/^(?:\+88|88)?(01[3-9]\d{8})$/';
-                    if (!preg_match($pattern, $value)) {
-                        $fail('Number is not a valid Bangladeshi mobile number.');
-                    }
-                },
-            ],
-            'roles' => 'array',
-            'permissions' => 'array',
-        ]);
-
-        if ($validator->fails()) {
-            return back()
-                ->withErrors($validator->errors())
-                ->withInput();
-        }
     }
 
 }

@@ -24,14 +24,13 @@ final class FileField implements FieldInterface
 {
     use FormFieldTrait;
 
-    public static function init(string $name, ?string $label = null, ...$params): self
+    public static function init(string $name, ?string $label = null, mixed ...$params): self
     {
         return (new self())
         ->setName($name)
         ->setComponent('native::crudboard.fields.file')
         ->setHtmlElementName('input')
         ->setPlaceholder($label ?? self::humanizeString($name))
-        ->setInputType('text')
         ->setLabel($label ?? self::humanizeString($name));
     }
 

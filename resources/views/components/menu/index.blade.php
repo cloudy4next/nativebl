@@ -1,23 +1,28 @@
 <nav class="sidebar js-sidebar" id="sidebar">
     <div class="sidebar-content js-simplebar">
-        <a class="sidebar-brand" href="/">
-            <span class="align-middle">Native BL</span>
-        </a>
+        @if (session()->has('applicationID') == 4)
+            <a class="sidebar-brand" href="/all-campaign">
+                <span class="align-middle">{{ env('APP_NAME') }}</span>
+            </a>
+        @else
+            <a class="sidebar-brand" href="/">
+                <span class="align-middle">Native BL</span>
+            </a>
+        @endif
+
         @if (session()->has('menus'))
             <ul class="sidebar-nav">
                 @foreach (session()->get('menus') as $key => $subMenu)
                     @if (count($subMenu) == 0)
                         <li class="sidebar-item">
-                            <a class="sidebar-link collapsed" data-bs-target="#{{ $key }}"
-                                href="{{ '/' . $key }}">
+                            <a class="sidebar-link" href="{{ '/' . $key }}">
                                 <i data-feather="{{ ucfirst(str_replace('-', ' ', $key)) }}"></i>
-                                <span class="align-middle">{{ ucfirst(str_replace('-', ' ', $key)) }}</span>
+                                <span class="align-middle">{{ ucwords(str_replace('-', ' ', $key)) }}</span>
                             </a>
                         </li>
                     @else
                         <li class="sidebar-item">
-                            <a class="sidebar-link collapsed" data-bs-target="#{{ $key }}"
-                                data-bs-toggle="collapse">
+                            <a class="sidebar-link collapsed" data-bs-target="#{{ $key }}" data-bs-toggle="collapse">
                                 <i data-feather="{{ ucfirst(str_replace('-', ' ', $key)) }}"></i>
                                 <span class="align-middle">{{ ucwords(str_replace('-', ' ', $key)) }}</span>
                             </a>

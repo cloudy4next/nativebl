@@ -16,10 +16,11 @@ use NativeBL\Support\OptionValueStore;
 
 final class FormFieldDto extends AbstractHtmlElementDto
 {
+
     private OptionValueStore $customOptions;
     private $validationRule;
     private ?string $inputType = null;
-    
+
     public function __construct()
     {
         parent::__construct();
@@ -70,7 +71,9 @@ final class FormFieldDto extends AbstractHtmlElementDto
         return $this->inputType;
     }
 
-
-
+    public function isHiddenInput()
+    {
+        return $this->inputType == self::INPUT_TYPE_HIDDEN;
+    }
 
 }

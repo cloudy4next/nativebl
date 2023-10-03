@@ -38,6 +38,8 @@
    // these are actions that can be applied to filter
      public const TYPE_FILTER = 'filter';
 
+     const INPUT_TYPE_HIDDEN = 'hidden';
+
     private ?string $name = null;
     private $label;
     private $help;
@@ -51,9 +53,11 @@
     private $displayCallable;
     private string $component; 
     private ?bool $disable = null;
+    private ?bool $readonly = null;
     private ?string $placeholder = null;
     private mixed $value = null;
-    
+    private ?string $layoutClass = null;
+    private bool $required = false;
     public function __construct()
     {
         $this->htmlAttributes = OptionValueStore::init(); 
@@ -84,7 +88,7 @@
         $this->value = $value;
     }
 
-    public function setLabel(float|int|string|false|null $label): void
+    public function setLabel(mixed $label): void
     {
         $this->label = \is_string($label)? \ucwords(\str_replace('_',' ',$label)): $label;
     }
@@ -159,6 +163,28 @@
         $this->disable = $disable;
     }
 
+    public function isReadonly(): ?bool
+    {
+        return $this->readonly;
+    }
+
+    public function setReadonly(bool $readonly): void
+    {
+        $this->readonly = $readonly;
+    }
+
+    public function isRequired(): ?bool
+    {
+        return $this->required;
+    }
+
+    public function setRequired(bool $required): void
+    {
+        $this->required = $required;
+    }
+
+
+
     public function getHtmlElement(): string
     {
         return $this->htmlElement;
@@ -214,20 +240,54 @@
         $html = '';
         $attributes = $this->htmlAttributes->get();
         foreach($attributes as $attr=>$val) {
-            $html .= ($attr == 'class') ? $this->setCssClass($val) : "$attr ".($val? "= $val":"");
-        };
+            $html .= $this->prepareHtmlAttributes($attr,$val);
+        }
         return $html;
     }
 
+    private function prepareHtmlAttributes(string $attr, mixed $val) : string
+    {
+        $html = '';
+        switch(strtolower($attr)) {
+            case 'class':
+                 $this->cssClass .=  " $val ";
+                 break;
+            case 'readonly':
+                $this->readonly = (bool) $val;
+                break;
+            case 'disabled':
+                $this->disable = (bool) $val;
+                break;  
+            case 'required':
+                $this->required = (bool) $val;
+                break;
+            case 'placeholder':
+                    $this->placeholder =  $val;
+                    break;
+            default:
+                $html =  " $attr =  $val ";
+       }
+       return $html;
+    }
 
-    public function setPlaceholder(string $placeholder)
+
+    public function setPlaceholder(string $placeholder): void
     {
         $this->placeholder = $placeholder;
     }
 
-    public function getPlaceholder(string $placeholder): ?string
+    public function getPlaceholder(): ?string
     {
         return $this->placeholder ;
+    }
+
+    public function setLayoutClass(string $class) : void
+    {
+        $this->layoutClass = $class;
+    }
+    public function getLayoutClass() : ?string
+    {
+        return $this->layoutClass;
     }
 
  }

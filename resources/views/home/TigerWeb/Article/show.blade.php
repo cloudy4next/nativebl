@@ -25,7 +25,7 @@
             </div>
         </div>
 
-        <div class="col-md-3 col-xl-3s">
+            <div class="col-md-3 col-xl-3s">
             <div class="card mb-3">
 
                 <div class="card">
@@ -40,7 +40,7 @@
                                 <div class="post-item clearfix">
                                   <h4><a href="#">{{ $parent->parentTree->title }}</a></h4>
                                   <p>{!! html_entity_decode(substr($parent->parentTree->content, 0, 150).'...') !!}...</p>
-                                </div>               
+                                </div>
 
                               </div><!-- End sidebar recent posts-->
                             @endif
@@ -52,7 +52,27 @@
 
         </div>
     </div>
-    </div>
+        </div>
+
+        <div class="row">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><b>Article Review: </b></h5>
+                    <div class="card-body">
+                        <form action="{{ route('article_review_submit') }}" method="post">
+                            @csrf
+
+                            <textarea class="form-control" rows="4" name="review_comments"></textarea>
+
+                            <br>
+                            <input type="hidden" name="article_id" value="{{$articleDetails[0]['id']}}">
+                            <input type="hidden" name="review_status" value="NEED CORRECTION">
+                            <input class="btn btn-primary" type="submit">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </x-main-layout>
 

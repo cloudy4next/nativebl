@@ -49,8 +49,6 @@ Route::middleware('auth')->group(function () {
     Route::get("/", [HomeController::class, 'main'])->name('home');
 
 
-
-
     Route::prefix('profile')->group(function () {
         Route::get("password/change", [UserController::class, 'passwordChange'])->name('password.change');
         Route::post("password/update", [UserController::class, 'passwordUpdate'])->name('password.update')->withoutMiddleware([ForcePasswordChange::class]);

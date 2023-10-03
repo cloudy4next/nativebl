@@ -10,6 +10,7 @@ use App\Models\ToffeAnalytics\CampaginReport;
 use DB;
 use Illuminate\Database\Eloquent\Builder;
 use App\Traits\ToffeAnalytics\AdsManagerTrait;
+use Illuminate\Support\Facades\Request;
 
 
 class UserCampaignRepository extends AbstractNativeRepository implements UserCampaignRepositoryInterface
@@ -23,7 +24,9 @@ class UserCampaignRepository extends AbstractNativeRepository implements UserCam
 
     public function getGridData(array $filters = []): iterable
     {
-        return CampaginReport::all();
+        $id = Request::get('lineitem');
+        return CampaginReport::where('campaign_id', $id)->get();
+
     }
 
 
@@ -32,19 +35,18 @@ class UserCampaignRepository extends AbstractNativeRepository implements UserCam
         if ($filters == null) {
             return $query;
         }
-        $filterDate = $this->makeDateTime($filters['individual_date']);
-        $startDate = clone $filterDate;
-        $filterDate->modify('+6 days');
+        $filterDate = explode(" - ", $filters['date_range']);
 
-        $query->whereBetween('individual_date', [$startDate, $filterDate]);
-
+        $query->whereBetween('individual_date', [$filterDate[0], $filterDate[1]]);
         return $query;
 
     }
-    public function getGridQuery(): ?Builder
-    {
-        return CampaginReport::select();
-    }
+    // public function getGridQuery(): ?Builder
+    // {
+    //     // return CampaginReport::select();
+    //     $id = Request::get('lineitem');
+    //     return CampaginReport::where('campaign_id', $id)->select();
+    // }
 
 
 }

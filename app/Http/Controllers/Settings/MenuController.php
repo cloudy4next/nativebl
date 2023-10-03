@@ -46,11 +46,11 @@ class MenuController extends AbstractController
         $fields = [
             // InputField::init('applicationID', 'Application ID', 'number'),
             ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->MenuService->getApplication())->setCssClass('my-class'),
-            InputField::init('title'),
-            InputField::init('iconName'),
-            ChoiceField::init('parentID', 'Parent Select', choiceType: 'select', choiceList: $menus)->setCssClass('my-class'),
-            InputField::init('displayOrder', 'Display Order', 'number'),
-            InputField::init('target'),
+            InputField::init('title')->setHtmlAttributes(['required'=>true,'maxlength'=>20,'minlength'=>6]),
+            InputField::init('iconName')->setHtmlAttributes(['required'=>true,'maxlength'=>20,'minlength'=>6]),
+            ChoiceField::init('parentID', 'Parent Select', choiceType: 'select', choiceList: $menus)->setHtmlAttributes(['required'=>true,'maxlength'=>20,'minlength'=>6]),
+            InputField::init('displayOrder', 'Display Order', 'number')->setHtmlAttributes(['required'=>true,'maxlength'=>20,'minlength'=>6]),
+            InputField::init('target')->setHtmlAttributes(['required'=>true,'maxlength'=>20,'minlength'=>6]),
 
         ];
         $this->getForm($fields)

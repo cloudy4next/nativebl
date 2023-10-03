@@ -13,6 +13,9 @@ namespace App\Repositories\TigerWeb;
 
 use App\Contracts\TigerWeb\FaqRepositoryInterface;
 use App\Models\TigerWeb\Faq;
+use App\Models\TigerWeb\FaqTag;
+use App\Models\TigerWeb\TagKey;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use NativeBL\Contracts\Service\CrudBoard\CrudGridLoaderInterface;
@@ -25,7 +28,7 @@ class FaqRepository extends AbstractNativeRepository implements FaqRepositoryInt
         return Faq::class;
     }
 
-    public function getGridData() : iterable
+    public function getGridData(array $filters=[]): ?iterable
     {
         $faq_type = \Request::segment(2);
         $faq_type_id = \Request::segment(3);
@@ -49,13 +52,80 @@ class FaqRepository extends AbstractNativeRepository implements FaqRepositoryInt
 
     public function store(Request $request)
     {
-        if($request['id'] != null){
-            $faq = $this->find($request['id']);
-            $data = $request->except('_token');
-            $faq->update($data);
+        if($request['id'] != null){ // update
+            $faqId = $request['id'];
+
+            try {
+                DB::beginTransaction();
+                $faq = $this->find($request['id']);
+                $data = $request->except('_token');
+                $faq->update($data);
+
+                if($request['tag_name'] != null){
+                    FaqTag::where('faq_id', $faqId)->delete();
+
+                    $tagData = TagKey::where('title', $request['tag_name'])->first();
+
+                    if($tagData == null){
+                        $tagKey = new TagKey();
+                        $tagKey->title = $request['tag_name'];
+                        $tagKey->slug = str_replace(' ', '-', $request['tag_name']);
+                        $tagKey->save();
+                        $tagId = $tagKey->id;
+
+                        $faqTag = new FaqTag();
+                        $faqTag->tag_key_id = $tagId;
+                        $faqTag->faq_id = $faqId;
+                        $faqTag->save();
+                    }
+                    else{
+                        $faqTag = new FaqTag();
+                        $faqTag->tag_key_id = $tagData['id'];
+                        $faqTag->faq_id = $faqId;
+                        $faqTag->save();
+                    }
+                }
+
+                DB::commit();
+                return 1;
+            }
+            catch (\Exception $e) {
+                DB::rollBack();
+                return $e->getMessage();
+
+            }
         }
-        else{
-            return Faq::create($request->all());
+        else{ // store
+            try {
+                DB::beginTransaction();
+                $faqId = Faq::create($request->all())->id;
+                $tagData = TagKey::where('title', $request['tag_name'])->first();
+                if($tagData == null){ // new tag key so create both tag_key & faq_tag
+                    $tagKey = new TagKey();
+                    $tagKey->title = $request['tag_name'];
+                    $tagKey->slug = str_replace(' ', '-', $request['tag_name']);
+                    $tagKey->save();
+                    $tagId = $tagKey->id;
+
+                    $faqTag = new FaqTag();
+                    $faqTag->tag_key_id = $tagId;
+                    $faqTag->faq_id = $faqId;
+                    $faqTag->save();
+                }
+                else{ // create only faq tag
+                    $faqTag = new FaqTag();
+                    $faqTag->tag_key_id = $tagData['id'];
+                    $faqTag->faq_id = $faqId;
+                    $faqTag->save();
+                }
+                DB::commit();
+                return 1;
+
+            }
+            catch (\Exception $e) {
+                DB::rollBack();
+                return $e->getMessage();
+            }
         }
     }
 

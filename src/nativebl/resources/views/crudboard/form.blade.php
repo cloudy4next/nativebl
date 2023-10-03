@@ -16,18 +16,23 @@
                 </div>
             </div>
             @endif
-            <form name="{{$form->getName()}}" action="{{$form->getActionUrl()}}" method="{{$form->getMethod()}}" class="{{$form->getCssClass()}}" {!! $form->getAttributesAsHtml() !!}>
+            <form name="{{$form->getName()}}" action="{{$form->getActionUrl()}}" method="{{$form->getMethod()}}" class="row g-3 {{$form->getCssClass()}}" {!! $form->getAttributesAsHtml() !!}>
                 @foreach($form->getFields() as $field)
-                <x-dynamic-component :component="$field->getComponent()" :$field />
-                @endforeach
-                @csrf
-                @foreach($form->getActions()->getFormActions() as $action)
-                @if($action->isSubmitAction())
-                <button class="btn btn-primary {{ $action->getCssClass() }}" type="submit">{{ $action->getLabel() }}</button>
+                @php $htmlAttributes = $field->getAttributesAsHtml() ; @endphp
+                 @if($field->isHiddenInput())
+                     <x-dynamic-component :component="$field->getComponent()" :$field :$htmlAttributes />
                 @else
-                <a href="{{route($action->getRouteName(),$action->getRouteParameters())}}" class="btn {{$action->getCssClass() }}"> {{$action->getLabel() }} </a>
+                <div class="{{ $field->getLayoutClass() }}">
+                     <x-dynamic-component :component="$field->getComponent()" :$field :$htmlAttributes />
+                </div>
                 @endif
                 @endforeach
+                @csrf
+                <div class="mt-3 form-row">
+                    @foreach($form->getActions()->getFormActions() as $action)
+                      <x-dynamic-component :component="$action->getComponent()" :$action />
+                    @endforeach
+                </div>
             </form>
         </div>
     </div>

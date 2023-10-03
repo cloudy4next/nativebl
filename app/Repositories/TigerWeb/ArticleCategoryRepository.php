@@ -27,7 +27,7 @@ class ArticleCategoryRepository  extends AbstractNativeRepository implements Art
      return ArticleCategory::class;
    }
 
-   public function getGridData() : iterable
+   public function getGridData(array $filters=[]): ?iterable
    {
       // $with = ['parentCategory', 'createdBy', 'updatedBy'];
     // $query = ArticleCategory::query();
@@ -60,7 +60,7 @@ class ArticleCategoryRepository  extends AbstractNativeRepository implements Art
       $prevCategory->save();
 
       $request['ref_id'] = $request['id'];
-      $request['id'] = NULL;      
+      $request['id'] = NULL;
       return ArticleCategory::create($request->all());
     }
     else{

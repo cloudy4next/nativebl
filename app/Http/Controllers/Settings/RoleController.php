@@ -45,9 +45,9 @@ class RoleController extends AbstractController
     {
         $fields = [
             ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->roleService->getApplication())->setCssClass('my-class'),
-            InputField::init('title'),
-            InputField::init('shortDescription', 'Short Description', 'textarea'),
-            InputField::init('menus')->setComponent('settings.user.role-custom-component'),
+            InputField::init('title')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>11]),
+            InputField::init('shortDescription', 'Short Description', 'textarea')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>11]),
+            InputField::init('menus')->setComponent('settings.user.role-custom-component')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>11])->setLayoutClass('col-md-12'),
 
         ];
         $this->getForm($fields)

@@ -12,15 +12,15 @@ use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\ToffeAnalytics\UserCampaignRepositoryInterface;
 use NativeBL\Field\DateTimeField;
 use NativeBL\Field\Field;
+use NativeBL\Field\TextField;
 
 class UserCampaingController extends AbstractController
 {
 
     public function __construct(
         private readonly CampaignManagementServiceInterface $campaignManagementInterface,
-        private readonly UserCampaignRepositoryInterface    $userCampaignRepositoryInterface
-    )
-    {
+        private readonly UserCampaignRepositoryInterface $userCampaignRepositoryInterface
+    ) {
     }
 
     public function getRepository()
@@ -43,7 +43,8 @@ class UserCampaingController extends AbstractController
     public function configureFilter(): void
     {
         $fields = [
-            DateTimeField::init('individual_date', 'Date'),
+            // DateTimeField::init('individual_date', 'Date'),
+            TextField::init('date_range')->setHtmlAttributes(['id' => 'daterangepicker']),
 
         ];
         $this->getFilter($fields);
@@ -62,9 +63,10 @@ class UserCampaingController extends AbstractController
             'ctr' => urldecode($request->ctr),
             'view' => $request->view,
             'status' => $request->status,
+            'name' => $request->name,
         ];
         if (isset($request->filters) == null) {
-            $this->campaignManagementInterface->campaignReportByLineItem((int)$id, $startDate, $endDate, $status);
+            $this->campaignManagementInterface->campaignReportByLineItem((int) $id, $startDate, $endDate, $status);
         }
 
         $this->initGrid(
@@ -74,9 +76,15 @@ class UserCampaingController extends AbstractController
                 Field::init('clicks', 'Clicks'),
                 Field::init('complete_views', 'Complete Views'),
                 Field::init('active_viewable_impression', 'Active Viewable Impression'),
-                Field::init('viewable_impression', 'Viewable Impression %'),
-                Field::init('ctr', 'CTR %'),
-                Field::init('completion_rate', 'Completion Rate %'),
+                Field::init('viewable_impression', 'Viewable Impression (%)')->formatValue(function ($value) {
+                    return $value . " %";
+                }),
+                Field::init('ctr', 'CTR (%)')->formatValue(function ($value) {
+                    return $value . " %";
+                }),
+                Field::init('completion_rate', 'Completion Rate (%)')->formatValue(function ($value) {
+                    return $value . " %";
+                }),
 
             ],
             pagination: 1000
@@ -103,7 +111,7 @@ class UserCampaingController extends AbstractController
         $status = $request->status;
         $type = $request->type;
 
-        $data = $this->campaignManagementInterface->campaignReportByLineItem((int)$id, $startDate, $endDate, $status);
+        $data = $this->campaignManagementInterface->campaignReportByLineItem((int) $id, $startDate, $endDate, $status);
         $view = view('home.toffe.Report.all-campaign-report', compact('data'));
         $filename = "Campaign Report [$id] " . Carbon::now()->format('d-m-Y h-i-s A');
 

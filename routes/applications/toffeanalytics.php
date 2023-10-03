@@ -44,7 +44,7 @@ Route::middleware('auth')->group(function () {
         Route::get("/delete-agency-user-map/{id}/{agency_id}", [AgencyController::class, 'deleteAgencyUserMap'])->name('agency_user_map_delete');
     });
 
-    Route::prefix('campaigns')->group(function () {
+    Route::prefix('map-campaigns')->group(function () {
         Route::get("/", [CampaignController::class, 'campaigns'])->name('toffee_campaign_list');
         Route::get("/create", [CampaignController::class, 'create'])->name('toffee_campaign_create');
         Route::post("/save", [CampaignController::class, 'store'])->name('toffee_campaign_save');

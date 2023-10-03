@@ -29,7 +29,8 @@ final class Field implements FieldInterface
     {
         return (new self())
         ->setName($name)
-        ->setLabel($label);
+        ->setLabel($label)
+        ->setComponent('native::crudboard.fields.grid_cell');
     }
 
 }

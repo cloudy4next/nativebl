@@ -84,6 +84,7 @@ class FaqController extends AbstractController
             IdField::init('id'),
             TextField::init('question')->validate('required'),
             TextareaField::init('answer')->validate('required'),
+            TextField::init('tag_name')->validate('required'),
             HiddenField::init('faq_type')->setDefaultValue($faq_type),
             HiddenField::init('ref_id')->setDefaultValue($faq_type_id),
             HiddenField::init('created_at')->setDefaultValue(date("Y-m-d H:i:s")),
@@ -93,6 +94,16 @@ class FaqController extends AbstractController
             ->setName('faq_form')
             ->setMethod('post')
             ->setActionUrl(route('faq_save'));
+    }
+
+    public function configureFilter(): void
+    {
+        $fields = [
+            TextField::init('question'),
+            TextField::init('answer'),
+            // TextField::init('other')
+        ];
+        $this->getFilter($fields);
     }
 
 

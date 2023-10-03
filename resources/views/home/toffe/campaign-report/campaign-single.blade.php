@@ -41,7 +41,7 @@
                     <div class="card-body">
                         <i class="fas fa-question-circle"></i>
                         <h6 class="card-title">Total CTR</h6>
-                        <p class="card-text">{{ $data['ctr'] }}</p>
+                        <p class="card-text">{{ $data['ctr'] }} </p>
                     </div>
                 </div>
             </div>
@@ -52,7 +52,7 @@
                     <div class="card-body">
                         <i class="fas fa-question-circle"></i>
                         <h6 class="card-title">Total Clicks</h6>
-                        <p class="card-text">{{ $data['clicks'] }}</p>
+                        <p class="card-text">{{ $data['clicks'] }} </p>
                     </div>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <i class="fas fa-question-circle"></i>
-                        <h6 class="card-title">Total View</h6>
+                        <h6 class="card-title">Complete View</h6>
                         <p class="card-text">{{ $data['view'] }}</p>
                     </div>
                 </div>
@@ -96,6 +96,6 @@
         </div>
     </div>
 
-    <x-native::crud-grid title="Single Campaign Report"/>
+    <x-native::crud-grid title="{{$data['name']}} Campaign Report"/>
 
 </x-main-layout>

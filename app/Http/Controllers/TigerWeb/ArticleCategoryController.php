@@ -76,6 +76,15 @@ class ArticleCategoryController extends AbstractController
             ->setActionUrl(route('article_category_save'));
     }
 
+    public function configureFilter(): void
+    {
+        $fields = [
+            TextField::init('title'),
+            TextField::init('service_type'),
+            // TextField::init('other')
+        ];
+        $this->getFilter($fields);
+    }
 
     public function index(Request $request)
     {

@@ -24,9 +24,11 @@
                          <tr>
                              <th scope="col">#</th>
                              @foreach ($grid->getColumns() as $column)
-                                 <th scope="col {{ $column->getCssClass() }}">{{ $column->getLabel() }}</th>
+                                 <th scope="col" class="{{ $column->getCssClass() }}">{{ $column->getLabel() }}</th>
                              @endforeach
+                             @if ($grid->getRowActions()->count())
                              <th scope="col" style="width: 15%">Action</th>
+                             @endif
                          </tr>
                      </thead>
                      <tbody>
@@ -34,11 +36,18 @@
                              <tr>
                                  <th scope="row">{{ $k + 1 }}</th>
                                  @foreach ($grid->getColumns() as $column)
-                                     <td>{{ $row[$column->getName()] }}</td>
+                                     <td  class="{{ $column->getCssClass() }}" >
+                                        @php
+                                            $value =  $row[$column->getName()] ;
+                                            if($formaterFunc = $column->getFormatValueCallable()){ 
+                                                $value = $formaterFunc($value,$row);
+                                            }
+                                        @endphp
+                                        <x-dynamic-component :component="$column->getComponent()" :$value />
+                                     </td>
                                  @endforeach
-
+                                 @if($grid->getRowActions()->count())
                                  <td class="text-center">
-                                     @if ($grid->getActions()->count())
                                          @foreach ($grid->getRowActions() as $rowAction)
                                              @php
                                                  $routeParams = $rowAction->getRouteParameters();
@@ -80,13 +89,19 @@
                                                      </a>
                                              @endswitch
                                          @endforeach
-                                     @endif
                                  </td>
+                                 @endif
 
                              </tr>
                              @empty
                                  <tr>
-                                     <td colspan="{{ $grid->getColumns()->count() + 2 }}" class="text-center">No record is
+                                     <td 
+                                     @if ($grid->getRowActions()->count())
+                                     colspan="{{ $grid->getColumns()->count() + 2 }}" 
+                                     @else
+                                     colspan="{{ $grid->getColumns()->count() + 1 }}" 
+                                     @endif
+                                     class="text-center">No record is
                                          found
                                      </td>
                                  </tr>

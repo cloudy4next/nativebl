@@ -31,7 +31,7 @@ final class FieldDto
     private $help;
     private ?bool $sortable = null;
     private ?bool $virtual = null;
-    private string $component;
+    private ?string $component = null;
     private ?bool $hidden = null;
     private ?bool $disable  = null;
     private ?string $inputType = null;
@@ -213,9 +213,5 @@ final class FieldDto
     {
         return $this->validationRule;
     }
-
-   
-
-    
 
 }

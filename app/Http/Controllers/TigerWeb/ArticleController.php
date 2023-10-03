@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\TigerWeb;
 
 use App\Contracts\Services\TigerWeb\ArticleServiceInterface;
+use App\Models\TigerWeb\ArticleReview;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\TigerWeb\ArticleRepositoryInterface;
 use NativeBL\Contracts\Repository\NativeRepositoryInterface;
@@ -22,8 +25,6 @@ use NativeBL\Field\DateTimeField;
 use App\Services\TigerWeb\ArticleService;
 use App\Services\TigerWeb\CommonService;
 use Illuminate\Support\Facades\Redirect;
-
-use Auth;
 
 class ArticleController extends AbstractController
 {
@@ -85,6 +86,15 @@ class ArticleController extends AbstractController
             ->setActionUrl(route('article_save'));
     }
 
+    public function configureFilter(): void
+    {
+        $fields = [
+            TextField::init('title'),
+            TextField::init('complaint_path'),
+            // TextField::init('other')
+        ];
+        $this->getFilter($fields);
+    }
 
     public function index(Request $request)
     {
@@ -146,6 +156,11 @@ class ArticleController extends AbstractController
         return to_route('article_list');
     }
 
+    public function article_review_submit(Request $request): RedirectResponse
+    {
+        $this->articleService->article_review_submit($request);
+        return to_route('article_list');
+    }
 
     public function correction(Request $request): RedirectResponse
     {

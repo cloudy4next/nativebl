@@ -68,8 +68,8 @@ class AgencyController extends AbstractController
         $userList = $this->userServiceInterface->getAllUserIDNameArr();
         $fields = [
             IdField::init('id'),
-            TextField::init('name')->validate('required|max:255'),
-            TextField::init('icon', 'Icon'),
+            TextField::init('name')->validate('required|max:255')->setHtmlAttributes(['required'=>true,'maxlength'=>100,'minlength'=>6]),
+            TextField::init('icon', 'Icon')->setHtmlAttributes(['required'=>true,'maxlength'=>100,'minlength'=>6]),
             ChoiceField::init('user[]', 'Map User', choiceType: 'checkbox', choiceList: $userList)->setCssClass('my-class'),
             HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
         ];

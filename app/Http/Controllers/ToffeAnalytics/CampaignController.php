@@ -69,10 +69,10 @@ class CampaignController extends AbstractController
         $toffeeBrandList = $this->commonService->toffeeBrandList();
         $fields = [
             IdField::init('id'),
-            TextField::init('campaign_name')->validate('required|max:255'),
-            TextField::init('campaign_id', 'Campaign ID')->validate('required|max:255'),
-            ChoiceField::init('agency_id', 'Map Agency', choiceType: 'select', choiceList: $toffeeAgencyList)->setCssClass('my-class'),
-            ChoiceField::init('brand_id', 'Map Brand', choiceType: 'select', choiceList: $toffeeBrandList)->setCssClass('my-class'),
+            TextField::init('campaign_name')->validate('required|max:255')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>6]),
+            TextField::init('campaign_id', 'Campaign ID')->setHtmlAttributes(['required'=>true,'maxlength'=>100,'minlength'=>6]),
+            ChoiceField::init('agency_id', 'Map Agency', choiceType: 'select', choiceList: $toffeeAgencyList)->setHtmlAttributes(['required'=>true,'maxlength'=>100,'minlength'=>6]),
+            ChoiceField::init('brand_id', 'Map Brand', choiceType: 'select', choiceList: $toffeeBrandList)->setCssClass('my-class')->setHtmlAttributes(['required'=>true,'maxlength'=>100,'minlength'=>6]),
             HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
         ];
         $this->getForm($fields)
@@ -130,7 +130,7 @@ class CampaignController extends AbstractController
 
         $validator = \Validator::make($request->all(), [
             'campaign_name' => 'required|string|max:255',
-            'campaign_id' => 'required|integer|max:255',
+            'campaign_id' => 'required|integer',
             'agency_id' => 'required|integer',
             'brand_id' => 'required|integer',
         ]);

@@ -46,13 +46,12 @@ final class ButtonField
      * @param mixed       $label Use FALSE to hide the label; use NULL to autogenerate it
      * @param string|null $icon  The full CSS classes of the FontAwesome icon to render (see https://fontawesome.com/v6/search?m=free)
      */
-    public static function init(string $name, ?string $label = null, iterable ...$prarms): self
+    public static function init(string $name, ?string $label = null, mixed ...$prarms): self
     {
-
-
         $dto = new ActionDto();
         $dto->setType($params['type'] ?? ActionDto::TYPE_ROW);
         $dto->setName($name);
+        $dto->setValue($name);
         $dto->setLabel($label ?? self::humanizeString($name));
         isset($params['icon']) && $dto->setIcon($params['icon']);
         isset($params['cssClass']) && $dto->setCssClass($params['cssClass']);
@@ -83,6 +82,7 @@ final class ButtonField
     {
         $this->dto->setType(ActionDto::TYPE_FORM);
         $this->dto->setCssClass('btn-secondary');
+        $this->dto->setComponent("native::crudboard.actions.button");
         return $this;
     }
 
@@ -98,7 +98,9 @@ final class ButtonField
     {
         $this->dto->setType(ActionDto::TYPE_FORM);
         $this->dto->setHtmlElement('button');
-        $this->setHtmlAttributes(['type' => 'submit']);
+        $this->setHtmlAttributes(['type' => 'submit'])
+            ->setComponet("native::crudboard.actions.button")
+            ;
         $this->dto->setUrl('/');
         return $this;
     }

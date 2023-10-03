@@ -43,7 +43,8 @@ final class ChoiceField implements FieldInterface
         ->setCustomOption(self::LIST,$choiceList)
         ->setCustomOption(self::EMPTY,$empty)
         ->setDefault($selected)
-        ->setInputType($type);
+        ->setInputType($type)
+        ;
         
     }
 

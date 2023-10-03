@@ -1,5 +1,6 @@
-<div class="mb-3 col-lg-6" >
-    <label class="form-label" for="{{ $field->getName() }}">{{ $field->getLabel() }}</label>
-    <input class="form-control  {{ $field->getCssClass() }}" id="{{ $field->getName() }}"  name="{{ $field->getName() }}" 
-    type="{{ $field->getInputType() }}" placeholder="{{ $field->getHtmlAttributes()->get('placeholder')}}"  value="{{ old($field->getName(),$field->getValue()) }}" />
-</div>
+    
+    <label class="form-label" for="{{ $field->getName() }}">{{ $field->getLabel() }}  @if($field->isRequired()) <span class="required">*</span> @endif </label>
+    <input  class="form-control  {{ $field->getCssClass() }}"  name="{{ $field->getName() }}" 
+    type="{{ $field->getInputType() }}" placeholder="{{ $field->getPlaceholder() }}"  value="{{ old($field->getName(),$field->getValue()) }}"
+    {{ $htmlAttributes }} @if($field->isDisabled()) disabled @endif @if($field->isReadonly()) readonly @endif  @if($field->isRequired()) required @endif 
+    />

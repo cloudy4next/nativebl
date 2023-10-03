@@ -26,8 +26,7 @@ final class CampaignManagementService implements CampaignManagementServiceInterf
         $newStartDate->modify('-6 days');
 
         return match ($status) {
-            'PAUSED' => $this->GetFromDbOrGoogle($id, $this->makeDateTime($startDate), $endDate, true),
-            'COMPLETED' => $this->GetFromDbOrGoogle($id, $this->makeDateTime($startDate), $endDate),
+            'PAUSED', 'COMPLETED' => $this->GetFromDbOrGoogle($id, $this->makeDateTime($startDate), $endDate, true),
             default => $this->GetFromDbOrGoogle($id, $newStartDate, $newEndDate),
         };
 
@@ -41,20 +40,20 @@ final class CampaignManagementService implements CampaignManagementServiceInterf
 
     }
 
-//    public function GetFromDbOrGoogle($lineItem, $startDate, $endDate, bool $isPaused = false)
-//    {
-//        $fromDb = $this->campaignManagementRepositoryInterface->checkIdDateRangeExits($lineItem, $startDate, $endDate);
-//        if ($fromDb) {
-//            return true;
-//        }
-//        $this->campaignManagementRepositoryInterface->campaignReportFetchSaveService($lineItem, $startDate, $endDate, $isPaused);
-//        return false;
-//    }
+    // public function GetFromDbOrGoogle($lineItem, $startDate, $endDate, bool $isPaused = false)
+    // {
+    //     // dd($isPaused);
+    //     $fromDb = $this->campaignManagementRepositoryInterface->checkIdDateRangeExits($lineItem, $startDate, $endDate);
+    //     dd($fromDb);
+    //     if ($fromDb) {
+    //         return $fromDb;
+    //     }
+    //     return $this->campaignManagementRepositoryInterface->campaignReportFetchSaveService($lineItem, $startDate, $endDate, $isPaused);
+    // }
 
-    public function getFromDbOrGoogle($lineItem, $startDate, $endDate, bool $isPaused = false)
+    public function GetFromDbOrGoogle($lineItem, $startDate, $endDate, bool $isPaused = false)
     {
         $fromDb = $this->campaignManagementRepositoryInterface->checkIdDateRangeExits($lineItem, $startDate, $endDate);
-
         return $fromDb ?: $this->campaignManagementRepositoryInterface->campaignReportFetchSaveService($lineItem, $startDate, $endDate, $isPaused);
     }
 

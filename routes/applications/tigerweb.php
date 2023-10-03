@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
         Route::get("/delete/{id}", [ArticleController::class, 'delete'])->name('article_delete');
         Route::get("/correction", [ArticleController::class, 'correction'])->name('article_correction');
         Route::get("/raise-ticket/{id}", [ArticleController::class, 'raiseTicketAgainstArticle'])->name('article_raise_ticket');
+        Route::post("/article_review_submit", [ArticleController::class, 'article_review_submit'])->name('article_review_submit');
     });
 
     Route::prefix('article-category')->group(function () {

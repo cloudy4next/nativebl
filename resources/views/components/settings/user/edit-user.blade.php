@@ -5,6 +5,17 @@
                 <h5 class="card-title mb-0">Edit User</h5>
             </div>
             <div class="card-body">
+                @if ($errors->any())
+                    <div class="row">
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                @endif
                 <form name="user_form" action={{ route('user_update') }} method="post" class="">
                     @csrf
                     <input type="hidden" name="id" value="{{ $user->userID }}" />
@@ -59,7 +70,8 @@
                     <div class="col-md-4">
                         <div class="form-check">
                             <label class="form-check-label" for="isActiveUser"><strong>Active</strong></label>
-                            <input type="checkbox" class="form-check-input" name="isActiveUser" id="isActiveUser" value="1" {{ $user->isUserActive ? 'checked' : '' }}>
+                            <input type="checkbox" class="form-check-input" name="isActiveUser" id="isActiveUser"
+                                value="1" {{ $user->isUserActive ? 'checked' : '' }}>
                         </div>
                     </div>
 

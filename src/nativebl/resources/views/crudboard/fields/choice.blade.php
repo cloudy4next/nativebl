@@ -1,22 +1,25 @@
-<div class="mb-3">
-    <label class="form-label" for="{{ $field->getName() }}">{{ $field->getLabel() }}</label>
-    <div>
+    <label class="form-label" for="{{ $field->getName() }}">{{ $field->getLabel() }}  @if($field->isRequired()) <span class="required">*</span> @endif</label>
     @switch($field->getInputType())
         @case("radio")
         @case("checkbox")
              @foreach ($field->getCustomOption('choiceList') as $key=>$value)
              <label class="form-check form-check-inline">
-                <input class="form-check-input {{ $field->getCssClass() }}" type="{{ $field->getInputType() }}" name="{{ $field->getName() }}" value="{{ $key }}"
+                <input  {{ $field->getAttributesAsHtml() }} class="form-check-input {{ $field->getCssClass() }}" type="{{ $field->getInputType() }}" name="{{ $field->getName() }}" value="{{ $key }}"
                 @if($field->getCustomOption(NativeBL\Field\ChoiceField::SELECTED.".".$key) !==null )
                     checked
                  @endif   
+                 @if($field->isDisabled()) disabled @endif
+                 @if($field->isReadonly()) readonly @endif
                 >
                 <span class="form-check-label">{{ $value }}</span>
 			</label>
             @endforeach
         @break
         @default
-            <select class="form-control {{ $field->getCssClass() }}" name="{{ $field->getName() }}" id="{{ $field->getName() }}"  {{ $field->getAttributesAsHtml() }}>
+            <select {{ $field->getAttributesAsHtml() }} class="form-control {{ $field->getCssClass() }}" name="{{ $field->getName() }}" id="{{ $field->getName() }}"  
+            @if($field->isDisabled()) disabled @endif @if($field->isReadonly()) readonly @endif  
+            @if($field->isRequired()) required @endif
+            >
             @if ($field->getCustomOption(NativeBL\Field\ChoiceField::EMPTY))
             <option value="">{{ $field->getCustomOption(NativeBL\Field\ChoiceField::EMPTY) }}</option>
             @endif
@@ -28,8 +31,6 @@
                  @endif                
                 >{{ $value}}</option>
             @endforeach
+            
             </select>
     @endswitch
-   </div>
-  
-</div>

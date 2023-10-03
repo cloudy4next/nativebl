@@ -8,8 +8,8 @@
             alt="cloudy4next"
           /> --}}
         </x-slot>
-
-        <form method="POST" action="{{ route('login') }}">
+        <x-utils.error :messages="$errors->get('email')" class="mt-2" />
+            <form method="POST" action="{{ route('login') }}">
             @csrf
             <div class="input-group mb-3">
                 <input class="form-control mt-1" type="email" name="email" :value="old('email')"
@@ -18,7 +18,6 @@
                     <i class="fa fa-envelope"> </i>
                 </span>
             </div>
-            <x-utils.error :messages="$errors->get('email')" class="mt-2" />
             <div class="input-group mb-3">
                 <input class="form-control" type="password" name="password" placeholder="Enter Password" required
                     autocomplete="current-password">

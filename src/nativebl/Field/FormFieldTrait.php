@@ -12,8 +12,6 @@
 namespace NativeBL\Field;
 
 
-use NativeBL\Contracts\Field\FieldInterface;
-
 use NativeBL\Dto\CrudBoard\FormFieldDto;
 use function Symfony\Component\String\u;
 
@@ -31,6 +29,7 @@ trait FormFieldTrait
     private function __construct()
     {
         $this->dto = new FormFieldDto();
+        $this->setLayoutClass('col-lg-6');
     }
 
     public function setName(string $name): self
@@ -63,11 +62,15 @@ trait FormFieldTrait
         return $this;
     }
 
-   
-
     public function setDisabled(bool $disabled = true): self
     {
         $this->dto->setDisable($disabled);
+        return $this;
+    }
+
+    public function setReadonly(bool $readonly = true): self
+    {
+        $this->dto->setReadonly($readonly);
         return $this;
     }
 
@@ -180,6 +183,18 @@ trait FormFieldTrait
     public function setDefaultValue(?string $value = null): self
     {
         $this->dto->setValue($value);
+        return $this;
+    }
+
+    public function setLayoutClass(string $class) : self
+    {
+        $this->dto->setLayoutClass($class);
+        return $this;
+    }
+
+    public function makeHiddenType() : self
+    {
+        $this->dto->setInputType(FormFieldDto::INPUT_TYPE_HIDDEN);
         return $this;
     }
 }

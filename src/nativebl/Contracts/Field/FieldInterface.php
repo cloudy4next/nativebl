@@ -21,6 +21,7 @@ namespace NativeBL\Contracts\Field;
 
 interface FieldInterface
 {
-    public static function init(string $name, ?string $label = null, ...$params): self;
+
+    public static function init(string $name, ?string $label = null, mixed ...$params): self;
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Traits\HelperTrait;
 use Illuminate\Http\Request;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\TigerWeb\CustomerRepositoryInterface;
@@ -22,6 +23,7 @@ use NativeBL\Services\CrudBoard\GridFilter;
 
 class HomeController extends AbstractController
 {
+    use HelperTrait;
     public function __construct(private CustomerRepositoryInterface $repo)
     {
     }
@@ -36,43 +38,50 @@ class HomeController extends AbstractController
         return [
             ButtonField::init(ButtonField::EDIT)->linkToRoute('customer_edit')->addCssClass('fa-file-lines'),
             ButtonField::init(ButtonField::DELETE)->linkToRoute('customer_delete'),
-            ButtonField::init(ButtonField::DETAIL)->linkToRoute('customer_detail',function($row){ return ['id'=>$row['id']]; }),
-            ButtonField::init('custom')->linkToRoute('customer_custom',['name'=>'msisdn'])->addCssClass('btn-danger')->setIcon('fa-square'),
-            ButtonField::init('new','new')->linkToRoute('customer_create')->createAsCrudBoardAction()->iconForNew(),
-            ButtonField::init('custom','Custom')->linkToRoute('customer_list')->createAsCrudBoardAction()->setIcon('fa-arrow-right'),
+            ButtonField::init(ButtonField::DETAIL)->linkToRoute('customer_detail', function ($row) {
+                return ['id' => $row['id']]; }),
+            //ButtonField::init('custom1')->linkToRoute('customer_custom',['name'=>'full_name'])->addCssClass('btn-info')->setIcon('fa-square'),
+            ButtonField::init('custom')->linkToRoute('customer_custom', ['name' => 'msisdn'])->addCssClass('btn-danger')->setIcon('fa-square'),
+            ButtonField::init('new', 'new')->linkToRoute('customer_create')->createAsCrudBoardAction()->iconForNew(),
+            ButtonField::init('custom', 'Custom')->linkToRoute('customer_list')->createAsCrudBoardAction()->setIcon('fa-arrow-right'),
             ButtonField::init('submit')->createAsFormSubmitAction(),
             ButtonField::init('cancel')->linkToRoute('customer_list')->createAsFormAction(),
             ButtonField::init('back')->linkToRoute('customer_list')->createAsShowAction()->setIcon('fa-arrow-left'),
             ButtonField::init('cancel')->linkToRoute('customer_list')->createAsShowAction()->setIcon('fa-arrow-left'),
             //ButtonField::init('other')->linkToRoute('other_link')->addCssClass('btn-secondary')->setIcon('fa-pencil')
-          ];
+        ];
     }
 
-
-
-
-    public function configureForm() : void
+    public function configureForm(): void
     {
-        $fields =  [
+        $fields = [
             IdField::init('id'),
             TextField::init('full_name')->validate('required|max:255'),
-            TextField::init('msisdn'),
-           // HiddenField::init('msisdn')->setDefaultValue('0000000111122'),
-            ChoiceField::init('type','User Type',choiceType:'checkbox', choiceList:[1=>'Super Admin','Admin','User'],
-            empty:"-- Select Item --", selected:2
-           )->setCssClass('my-class'),
+            TextField::init('msisdn')->setHtmlAttributes(['required' => true, 'maxlength' => 13, 'minlength' => 11]),
+            // HiddenField::init('msisdn')->setDefaultValue('0000000111122'),
+            ChoiceField::init(
+                'type',
+                'User Type',
+                choiceType: 'checkbox',
+                choiceList: [1 => 'Super Admin', 'Admin', 'User'],
+        empty
+                : "-- Select Item --",
+                selected: 2
+            )->setCssClass('my-class'),
             FileField::init('image'),
-            DateTimeField::init('start_date'),
-            InputField::init('password','Password', "password"),
-            InputField::init('email','Email', "email")->setComponent('custom.email'),
-            InputField::init('dob','DOB', "date"),
-            TextareaField::init('remarks','Remarks',rows:4)->validate('required|max:255|min:4'),
-            InputField::init('daterangepicker')->setComponent('custom.daterangepicker'),
-            ];
+            TextField::init('date_range')->setHtmlAttributes(['id' => 'daterangepicker']),
+            // InputField::init('date_range','Date Range')->setAttribute('id','daterangepicker'),
+            InputField::init('password', 'Password', "password"),
+            InputField::init('email', 'Email', "email")->setReadonly(),
+            InputField::init('dob', 'DOB', "date"),
+            TextareaField::init('remarks', 'Remarks', rows: 2)->validate('required|max:255|min:4')->setLayoutClass('col-md-12')
+                ->setHtmlAttributes(['id' => 'editor']),
+            // InputField::init('daterangepicker')->setComponent('custom.daterangepicker'),
+        ];
         $this->getForm($fields)
-        ->setName('customer_form')
-        ->setMethod('post')
-        ->setActionUrl(route('customer_save'));
+            ->setName('customer_form')
+            ->setMethod('post')
+            ->setActionUrl(route('customer_save'));
     }
 
     public function configureFilter(): void
@@ -80,34 +89,43 @@ class HomeController extends AbstractController
         $fields = [
             TextField::init('full_name'),
             TextField::init('msisdn'),
-           // TextField::init('other')
+            // TextField::init('other')
         ];
-         $this->getFilter($fields);
+        $this->getFilter($fields);
     }
 
 
     public function index(Request $request)
     {
-       return view('base');
+        return view('base');
     }
 
     public function main(Request $request)
     {
+        if ($this->SessionCheck('applicationID') == 4) {
+            return redirect('/all-campaign');
+        }
         return view('main');
 
     }
 
     public function customer()
     {
-       // $this->initGrid(['full_name','msisdn'])
-        $this->initGrid([Field::init('full_name','Name'),Field::init('msisdn','Mobile')], pagination: 5)
+        // $this->initGrid(['full_name','msisdn'])
+        $this->initGrid(
+            [
+                Field::init('full_name', 'Name')->setComponent('custom.grid.customer_full_name')->setCssClass('text-center'),
+                Field::init('msisdn', 'Mobile')->formatValue(fn($value) => ltrim($value, '0'))
+            ],
+            pagination: 5
+        )
         ;
         return view('native::list');
     }
 
     public function show($id)
     {
-        $this->initShow($id,['full_name','msisdn','Remarks']);
+        $this->initShow($id, ['full_name', 'msisdn', 'Remarks']);
         return view('native::show');
     }
 
@@ -118,20 +136,21 @@ class HomeController extends AbstractController
     }
     public function delete($id)
     {
-        echo $id; exit();
+        echo $id;
+        exit();
     }
     public function create_old()
     {
-       $this->initForm('customer_form',route('customer_save'),'post', ['id'=>'myForm']);
+        $this->initForm('customer_form', route('customer_save'), 'post', ['id' => 'myForm']);
 
-       return view('create');
+        return view('create');
     }
 
-   public function create()
-   {
-      $this->initCreate();
-      return view('native::create');
-   }
+    public function create()
+    {
+        $this->initCreate();
+        return view('native::create');
+    }
 
 
     public function store(Request $request): RedirectResponse
@@ -144,7 +163,7 @@ class HomeController extends AbstractController
         //     'msisdn' => 'required',
         // ]);
         $data = $form->getData();
-        return to_route('customer_detail', ['id' =>$data['id']]);
+        return to_route('customer_detail', ['id' => $data['id']]);
     }
 
 
@@ -155,7 +174,8 @@ class HomeController extends AbstractController
 
     public function custom(string $name)
     {
-       echo $name; exit();
+        echo $name;
+        exit();
     }
 
 

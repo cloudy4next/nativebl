@@ -24,12 +24,12 @@ final class IdField implements FieldInterface
 {
     use FormFieldTrait;
 
-    public static function init(string $name, ?string $label = null, ...$params): self
+    public static function init(string $name, ?string $label = null, mixed ...$params): self
     {
         return (new self())
         ->setName($name)
-        ->setComponent('native::crudboard.fields.id')
-        ->setHtmlAttributes(['type'=>'hidden'])
+        ->setComponent('native::crudboard.fields.hidden')
+        ->makeHiddenType()
         ->setLabel($label ?? self::humanizeString($name));
     }
     
