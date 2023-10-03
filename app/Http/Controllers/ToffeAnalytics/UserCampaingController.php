@@ -12,6 +12,7 @@ use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\ToffeAnalytics\UserCampaignRepositoryInterface;
 use NativeBL\Field\DateTimeField;
 use NativeBL\Field\Field;
+use NativeBL\Field\HiddenField;
 use NativeBL\Field\TextField;
 
 class UserCampaingController extends AbstractController
@@ -42,10 +43,11 @@ class UserCampaingController extends AbstractController
 
     public function configureFilter(): void
     {
-        $fields = [
-            // DateTimeField::init('individual_date', 'Date'),
-            TextField::init('date_range')->setHtmlAttributes(['id' => 'daterangepicker']),
+        $id = \Request::segment(3);
 
+        $fields = [
+            TextField::init('date_range')->setHtmlAttributes(['id' => 'daterangepicker']),
+            HiddenField::init('lineitem', 'lineitem', $id)
         ];
         $this->getFilter($fields);
     }
@@ -63,7 +65,7 @@ class UserCampaingController extends AbstractController
             'ctr' => urldecode($request->ctr),
             'view' => $request->view,
             'status' => $request->status,
-            'name' => $request->name,
+            'name' => (string) $request->name,
         ];
         if (isset($request->filters) == null) {
             $this->campaignManagementInterface->campaignReportByLineItem((int) $id, $startDate, $endDate, $status);

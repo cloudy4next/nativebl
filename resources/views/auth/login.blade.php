@@ -1,12 +1,7 @@
 <x-layouts.login-layout>
     <x-layouts.auth-card>
         <x-slot name="logo">
-            {{-- <img
-            src="{{asset('img/cloudy4next.ico')}}"
-            class="img-control"
-            style="width: 120px; height: 120px"
-            alt="cloudy4next"
-          /> --}}
+
         </x-slot>
         <x-utils.error :messages="$errors->get('email')" class="mt-2" />
             <form method="POST" action="{{ route('login') }}">
@@ -32,11 +27,6 @@
             </div>
         </form>
 
-        {{-- <div class="row">
-            <div class="col-mb-8 text-right">
-                <a href="{{ route('password.reset') }}"> Forgot Password?</a>
-            </div>
-        </div> --}}
 
     </x-layouts.auth-card>
 </x-layouts.login-layout>

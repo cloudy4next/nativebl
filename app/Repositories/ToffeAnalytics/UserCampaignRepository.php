@@ -36,17 +36,14 @@ class UserCampaignRepository extends AbstractNativeRepository implements UserCam
             return $query;
         }
         $filterDate = explode(" - ", $filters['date_range']);
-
-        $query->whereBetween('individual_date', [$filterDate[0], $filterDate[1]]);
-        return $query;
+        return CampaginReport::where('campaign_id', $filters['lineitem'])->whereBetween('individual_date', [$filterDate[0], $filterDate[1]]);
 
     }
-    // public function getGridQuery(): ?Builder
-    // {
-    //     // return CampaginReport::select();
-    //     $id = Request::get('lineitem');
-    //     return CampaginReport::where('campaign_id', $id)->select();
-    // }
+    public function getGridQuery(): ?Builder
+    {
+        $id = Request::get('lineitem');
+        return CampaginReport::where('campaign_id', $id)->select();
+    }
 
 
 }

@@ -91,19 +91,6 @@ class CampaignManagementController extends AbstractController
         return view('home.toffe.campaign-report.campaign');
     }
 
-
-    public function show(Request $request)
-    {
-
-        $id = $request->id;
-        $startDate = urldecode($request->startDate);
-        $endDate = urldecode($request->endDate);
-        $status = $request->status;
-        $singleItemReport = $this->campaignManagementInterface->campaignReportByLineItem((int) $id, $startDate, $endDate, $status);
-        return view('home.toffe.single-lineitem-report')->with('data', $singleItemReport);
-
-    }
-
     public function campaignRangeData(Request $request)
     {
         $id = $request->input('id');
