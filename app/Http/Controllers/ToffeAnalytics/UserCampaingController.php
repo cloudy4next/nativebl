@@ -107,8 +107,9 @@ class UserCampaingController extends AbstractController
         }
 
         $individualDate = $request->input('filters.individual_date');
-        $startDate = $individualDate ?? $request->startDate;
-        $endDate = $individualDate ?? $request->endDate;
+        $newDate = explode(" - ", $individualDate);
+        $startDate = $newDate[0] ?? $request->startDate;
+        $endDate = $newDate[1] ?? $request->endDate;
 
         $status = $request->status;
         $type = $request->type;
