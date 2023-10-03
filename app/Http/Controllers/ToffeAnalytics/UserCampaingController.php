@@ -46,7 +46,7 @@ class UserCampaingController extends AbstractController
         $id = \Request::segment(3);
 
         $fields = [
-            TextField::init('date_range')->setHtmlAttributes(['id' => 'daterangepicker']),
+            TextField::init('individual_date')->setHtmlAttributes(['id' => 'daterangepicker']),
             HiddenField::init('lineitem', 'lineitem', $id)
         ];
         $this->getFilter($fields);

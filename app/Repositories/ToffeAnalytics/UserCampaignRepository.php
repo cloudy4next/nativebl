@@ -35,7 +35,7 @@ class UserCampaignRepository extends AbstractNativeRepository implements UserCam
         if ($filters == null) {
             return $query;
         }
-        $filterDate = explode(" - ", $filters['date_range']);
+        $filterDate = explode(" - ", $filters['individual_date']);
         return CampaginReport::where('campaign_id', $filters['lineitem'])->whereBetween('individual_date', [$filterDate[0], $filterDate[1]]);
 
     }
