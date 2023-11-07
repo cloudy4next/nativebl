@@ -19,6 +19,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * This interface defines blueprints of NativeBL Repository.
@@ -34,7 +35,11 @@ abstract class AbstractNativeRepository implements NativeRepositoryInterface, Cr
         return $this->getModelFqcn()::all();
     }
 
-    public function find($id)
+    public function findOrFail(int | string $id) : object
+    {
+        return $this->getModelFqcn()::findOrFail($id);
+    }
+    public function find($id) 
     {
        return $this->getModelFqcn()::find($id);
     }
@@ -65,9 +70,10 @@ abstract class AbstractNativeRepository implements NativeRepositoryInterface, Cr
        return $this->find($id);
     }
 
-    public function getRecordForEdit(int|string $id)
+    public function getRecordForEdit(int|string $id) : object
     {
-        return $this->find($id);
+        $record = $this->findOrFail($id);
+        return $record;
     }
 
     public function getGridData(array $filters=[]): ?iterable

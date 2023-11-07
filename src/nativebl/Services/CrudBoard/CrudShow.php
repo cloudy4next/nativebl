@@ -21,10 +21,11 @@ class CrudShow implements CrudShowInterface
     private FieldCollection $fields;
     private ActionCollection $actions;
     
-    private function __construct( array $fields, \ArrayAccess $record)
+    private function __construct( array $fields, private \ArrayAccess $record)
     {
        $this->addFields($fields)
        ->prepareRecord($record);   
+
     }
 
     public static function init(array $fields, \ArrayAccess $record)
@@ -64,5 +65,10 @@ class CrudShow implements CrudShowInterface
       {
          $field->setValue($record[$name]);
       }
+   }
+
+   public function getRecord() : \ArrayAccess
+   {
+      return $this->record;
    }
 }

@@ -54,7 +54,7 @@ class FaqController extends AbstractController
                     \Request::segment(3),
                     $row['id']
                 ];
-            })->addCssClass('fa-file-lines'),
+            }),
             ButtonField::init(ButtonField::DELETE)->linkToRoute('faq_delete', function ($row) {
                 return [
                     \Request::segment(2),
@@ -62,7 +62,13 @@ class FaqController extends AbstractController
                     $row['id']
                 ];
             }),
-            // ButtonField::init(ButtonField::DETAIL)->linkToRoute('faq_detail'),
+            ButtonField::init(ButtonField::DETAIL)->linkToRoute('faq_detail', function ($row) {
+                return [
+                    \Request::segment(2),
+                    \Request::segment(3),
+                    $row['id']
+                ];
+            }),
             ButtonField::init('new', 'new')->linkToRoute('faq_create', [$faq_type, $faq_type_id])->createAsCrudBoardAction(),
             ButtonField::init('submit')->createAsFormSubmitAction(),
             ButtonField::init('cancel')->linkToRoute('faq_list', [$faq_type, $faq_type_id])->createAsFormAction(),
@@ -82,9 +88,12 @@ class FaqController extends AbstractController
         // dd($faq_type);
         $fields = [
             IdField::init('id'),
-            TextField::init('question')->validate('required'),
-            TextareaField::init('answer')->validate('required'),
-            TextField::init('tag_name')->validate('required'),
+            TextField::init('question')->validate('required')->setHtmlAttributes(['required'=>true,'minlength'=>2]),
+            TextareaField::init('answer','Answer',rows:2)
+                ->setLayoutClass('col-md-12 pb-5')
+                ->setHtmlAttributes(['id'=>'editor'])
+                ->setHtmlAttributes(['required'=>true,'minlength'=>2]), 
+            TextField::init('tag_name')->validate('required')->setHtmlAttributes(['required' => true, 'maxlength' => 255, 'minlength' => 2]),
             HiddenField::init('faq_type')->setDefaultValue($faq_type),
             HiddenField::init('ref_id')->setDefaultValue($faq_type_id),
             HiddenField::init('created_at')->setDefaultValue(date("Y-m-d H:i:s")),
@@ -124,22 +133,22 @@ class FaqController extends AbstractController
             'faq_type',
             Field::init('Title','Ref. Title'),
             Field::init('question','Question'),
-            Field::init('answer','Answer')
-        ]);
+            Field::init('answer','Answer')->formatValue(fn($value) => html_entity_decode(substr(trim($value), 0, 150).'...'))
+        ], pagination: 5);
         return view('home.TigerWeb.Faq.list');
     }
 
-    public function show($id)
+    public function show($faq_type, $faq_type_id, $id)
     {
-        $this->initShow($id, ['title','slug','content', 'article_id', 'created_by', 'updated_by', 'start_date', 'end_date']);
-        return view('home.TigerWeb.faq.show');
+        $faqResults = $this->faqService->details($id);
+        return view('home.TigerWeb.Faq.show', compact('faqResults'));
     }
 
     public function edit($faq_type, $faq_type_id, $id)
     {
         //dd($id);
         $this->initEdit($id);
-        return view('home.TigerWeb.faq.edit');
+        return view('home.TigerWeb.Faq.edit');
     }
     public function delete($faq_type, $faq_type_id, $id)
     {
@@ -161,17 +170,34 @@ class FaqController extends AbstractController
     public function create()
     {
         $this->initCreate();
-        return view('home.TigerWeb.faq.create');
+        return view('home.TigerWeb.Faq.create');
     }
 
 
     public function store(Request $request): RedirectResponse
     {
-        //$form = $this->initStore($request);
-        //$data = $form->getData();
 
-        $this->faqService->store($request);
-        return to_route('faq_list', ['faq_type' => $request->faq_type, 'faq_type_id' => $request->ref_id]);
+        $validator = \Validator::make($request->all(), [
+            'question' => 'required|string',
+            'answer' => 'required|string',
+            'tag_name' => 'required|string',
+
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator->errors())
+                ->withInput();
+        }
+
+        $message = $this->faqService->store($request);
+        if($message == 1){
+            return to_route('faq_list', ['faq_type' => $request->faq_type, 'faq_type_id' => $request->ref_id]);
+        } 
+        else{
+            throw new NotFoundException($message);
+        }
+        
     }
 
 
@@ -191,8 +217,8 @@ class FaqController extends AbstractController
             dd($faqs);
             //return view('articles.index', compact('articles', 'request'));
         } catch (\Exception $e) {
-        	dd("faqs table not found!");
-            return Redirect::to('/faq/list');
+        	throw new NotFoundException($message);
+            // return Redirect::to('/faq/list');
         }
     }
 

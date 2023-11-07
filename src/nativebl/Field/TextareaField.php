@@ -30,13 +30,14 @@ final class TextareaField implements FieldInterface
 
     public static function init(string $name, ?string $label = null, ...$params): self
     {
+        $label = $label ?? self::humanizeString($name);
         $finalParams = $params + self::$defaultParams;
-//dd($finalParams);
         return (new self())
         ->setName($name)
         ->setComponent('native::crudboard.fields.textarea')
-        ->setLabel($label ?? self::humanizeString($name))
-        ->setCustomOption(self::ROW, $finalParams[self::ROW]);
+        ->setLabel($label)
+        ->setCustomOption(self::ROW, $finalParams[self::ROW])
+        ->setPlaceholder($label);
     }
 
     public function setNumOfRows(int $rows): self

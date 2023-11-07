@@ -13,6 +13,8 @@ namespace NativeBL\Collection;
 
 use NativeBL\Dto\CrudBoard\FormFieldDto;
 use NativeBL\Field\Field;
+use NativeBL\Field\FormField;
+
 /**
  * This class is for field creation in crudboard  .
  *
@@ -88,6 +90,16 @@ final class FormFieldCollection extends AbstractCollection
         }
         $dto = $field->getDto();
         $this->set($dto);
+    }
+
+    public function hasFileInput() : bool
+    {
+        foreach($this->items as $FieldDto){ 
+            if($result = $FieldDto->isFileInput()){
+               break;
+            }
+        }
+        return $result;
     }
 
 

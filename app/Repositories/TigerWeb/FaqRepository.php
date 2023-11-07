@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use NativeBL\Contracts\Service\CrudBoard\CrudGridLoaderInterface;
 use NativeBL\Repository\AbstractNativeRepository;
-
+use Illuminate\Support\Collection;
 class FaqRepository extends AbstractNativeRepository implements FaqRepositoryInterface, CrudGridLoaderInterface
 {
     public function getModelFqcn(): string
@@ -42,7 +42,9 @@ class FaqRepository extends AbstractNativeRepository implements FaqRepositoryInt
 
     public function details($id)
     {
-        dd($id);
+        return Faq::query()
+            ->where('id',$id)
+            ->get();
     }
 
     public function faqFilterData($filter)
@@ -129,10 +131,37 @@ class FaqRepository extends AbstractNativeRepository implements FaqRepositoryInt
         }
     }
 
+    public function applyFilterData(Collection $data, array $filters): Collection
+    {
+        foreach ($filters as $field => $value) {
+            if ($value !== null) {
+                $data = $data->filter(function ($item) use ($field, $value) {
+                    return $item[$field] !== null && stripos($item[$field], $value) !== false;
+                });
+            }
+        }
+        return $data;
+
+    }
+
+    public function getRecordForEdit(int|string $id) : object
+    {
+       $faq = Faq::query()
+           ->join('faq_tags', 'faqs.id', '=', 'faq_tags.faq_id')
+           ->join('tag_keys', 'faq_tags.tag_key_id', '=', 'tag_keys.id')
+           ->where('faqs.id', $id)
+           ->get(['faqs.*', 'tag_keys.title as tag_name'])
+           ->first();
+// dd($faq);
+       return $faq;
+        // return $this->find($id);
+    }
+
     public function delete($id)
     {
         try {
             DB::beginTransaction();
+            FaqTag::where('faq_id', $id)->delete();
             Faq::where('id', $id)->delete();
 
             DB::commit();

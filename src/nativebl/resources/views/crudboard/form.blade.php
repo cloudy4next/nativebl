@@ -16,7 +16,11 @@
                 </div>
             </div>
             @endif
-            <form name="{{$form->getName()}}" action="{{$form->getActionUrl()}}" method="{{$form->getMethod()}}" class="row g-3 {{$form->getCssClass()}}" {!! $form->getAttributesAsHtml() !!}>
+            <form name="{{$form->getName()}}" action="{{$form->getActionUrl()}}" method="{{$form->getMethod()}}" class="row g-3 {{$form->getCssClass()}}" {{ $form->getAttributesAsHtml() }}
+            @if($form->getFields()->hasFileInput())
+            enctype="multipart/form-data"
+            @endif
+            >
                 @foreach($form->getFields() as $field)
                 @php $htmlAttributes = $field->getAttributesAsHtml() ; @endphp
                  @if($field->isHiddenInput())
@@ -30,8 +34,11 @@
                 @csrf
                 <div class="mt-3 form-row">
                     @foreach($form->getActions()->getFormActions() as $action)
-                      <x-dynamic-component :component="$action->getComponent()" :$action />
-                    @endforeach
+                     @if($action->shouldBeDisplayedFor(null))
+                       @php $htmlActionAttributes = $action->getAttributesAsHtml() ; @endphp
+                      <x-dynamic-component :component="$action->getComponent()" :$action :$htmlActionAttributes />
+                     @endif
+                     @endforeach
                 </div>
             </form>
         </div>

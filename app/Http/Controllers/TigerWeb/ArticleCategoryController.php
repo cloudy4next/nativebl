@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\TigerWeb;
 
 use App\Contracts\Services\TigerWeb\ArticleCategoryServiceInterface;
+use App\Exceptions\NotFoundException;
 use Illuminate\Http\Request;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\TigerWeb\ArticleCategoryRepositoryInterface;
@@ -41,7 +42,7 @@ class ArticleCategoryController extends AbstractController
     public function configureActions(): iterable
     {
         return [
-            ButtonField::init(ButtonField::EDIT)->linkToRoute('article_category_edit')->addCssClass('fa-file-lines'),
+            ButtonField::init(ButtonField::EDIT)->linkToRoute('article_category_edit'),
             ButtonField::init(ButtonField::DELETE)->linkToRoute('article_category_delete'),
             // ButtonField::init(ButtonField::DETAIL)->linkToRoute('article_category_detail'),
             ButtonField::init('new', 'new')->linkToRoute('article_category_create')->createAsCrudBoardAction(),
@@ -59,16 +60,10 @@ class ArticleCategoryController extends AbstractController
     {
         $fields = [
             IdField::init('id'),
-            TextField::init('title')->validate('required|max:255'),
-            // TextField::init('slug')->validate('required|max:255'),
-            ChoiceField::init('service_type','Service Type',choiceType:'select', choiceList:['ARTICLE'=>'ARTICLE','CAMPAIGN'=>'CAMPAIGN','VAS'=>'VAS'])->setCssClass('my-class'),
-            TextareaField::init('description', 'Description'),
+            TextField::init('title')->validate('required|max:255')->setHtmlAttributes(['required'=>true,'maxlength'=>255,'minlength'=>2]),
+            ChoiceField::init('service_type','Service Type',choiceType:'select', choiceList:['ARTICLE'=>'ARTICLE','CAMPAIGN'=>'CAMPAIGN','VAS'=>'VAS'])->setCssClass('my-class')->setHtmlAttributes(['required'=>true,'maxlength'=>255,'minlength'=>2]),
+            TextareaField::init('description', 'Description')->setHtmlAttributes(['required'=>true,'minlength'=>2]),
             HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
-            // IdField::init('created_by', '', value:[Auth::user()->id]),
-            // TextField::init('created_by'),
-            // InputField::init('start_date','Start Date', "date"),
-            // InputField::init('end_date','End Date', "date")
-            // TextareaField::init('my_remarks')
         ];
         $this->getForm($fields)
             ->setName('article_category_form')
@@ -99,15 +94,15 @@ class ArticleCategoryController extends AbstractController
 
     public function articleCategories()
     {
-        $this->initGrid(['title','slug','service_type','description', Field::init('parentCategory','Parent'), Field::init("createdBy",'Created By'), 'start_date', 'end_date'])
+        $this->initGrid(['title','slug','service_type','description', Field::init('parentCategory','Parent'), Field::init("createdBy",'Created By'), Field::init("start_date",'Start Date')->formatValue(fn($value) => ($value != null)?(date("F j, Y", strtotime($value))):''), Field::init("end_date",'End Date')->formatValue(fn($value) => ($value != null)?(date("F j, Y", strtotime($value))):'')], pagination: 5)
         ;
-        return view('home.tigerweb.articlecategory.list');
+        return view('home.TigerWeb.ArticleCategory.list');
     }
 
     public function show($id)
     {
         $this->initShow($id, ['title','slug','service_type','description', 'ref_id', 'created_by', 'start_date', 'end_date']);
-        return view('home.tigerweb.ArticleCategory.show');
+        return view('home.TigerWeb.ArticleCategory.show');
     }
 
     public function edit($id)
@@ -117,8 +112,8 @@ class ArticleCategoryController extends AbstractController
     }
     public function delete($id)
     {
-        echo $id;
-        exit();
+        $this->articleCategoryService->categoryArchive($id);
+        return to_route('article_category_list');
     }
     public function create_old()
     {
@@ -136,10 +131,28 @@ class ArticleCategoryController extends AbstractController
 
     public function store(Request $request): RedirectResponse
     {
+        $validator = \Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'service_type' => 'required|string',
+            'description' => 'required|string',
+
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator->errors())
+                ->withInput();
+        }
+
         $request['slug'] = str_replace(' ', '-', $request['title']);
         $request['start_date'] = date('Y-m-d h:i:s');
-        $this->articleCategoryService->store($request);
-        return to_route('article_category_list');
+
+        $message = $this->articleCategoryService->store($request);
+        if ($message == 1) {
+            return to_route('article_category_list');
+        } else {
+            throw new NotFoundException($message);
+        }
     }
 
 

@@ -20,4 +20,12 @@ import "./modules/tree-view";
 // Maps
 import "./modules/vector-maps";
 
+import "./modules/sweetalert2";
+
+//Date-rangePicker
+import "./modules/daterangepicker";
+
+//Ckeditor
+import "./modules/ckeditor";
+
 import "./modules/custom";

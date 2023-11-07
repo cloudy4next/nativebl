@@ -25,4 +25,5 @@ interface CrudShowInterface
 {
    function getActions(): ActionCollection;
    function getFields(): FieldCollection; 
+   function getRecord(): \ArrayAccess;
 }

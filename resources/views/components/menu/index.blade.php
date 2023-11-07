@@ -1,6 +1,10 @@
+@php
+    $segment = request()->segment(1)??'null';
+@endphp
+
 <nav class="sidebar js-sidebar" id="sidebar">
     <div class="sidebar-content js-simplebar">
-        @if (session()->has('applicationID') == 4)
+        @if (session()->get('applicationID') == config('nativebl.base.toffee_analytics_application_id'))
             <a class="sidebar-brand" href="/all-campaign">
                 <span class="align-middle">{{ env('APP_NAME') }}</span>
             </a>
@@ -10,35 +14,38 @@
             </a>
         @endif
 
+{{--        @dd(session()->get('menus'))--}}
+
         @if (session()->has('menus'))
             <ul class="sidebar-nav">
                 @foreach (session()->get('menus') as $key => $subMenu)
-                    @if (count($subMenu) == 0)
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ '/' . $key }}">
+
+                    @php
+                        $active = in_array($segment, getChildrenKeys($subMenu))
+                    @endphp
+
+                    <li class="sidebar-item">
+                        @if (empty($subMenu['children']))
+                            <a class="sidebar-link {{$active || $key == $segment?'active-menu':''}}"
+                               href="{{ '/' . $key }}">
                                 <i data-feather="{{ ucfirst(str_replace('-', ' ', $key)) }}"></i>
-                                <span class="align-middle">{{ ucwords(str_replace('-', ' ', $key)) }}</span>
+                                <span class="align-middle">{{ $subMenu['title'] }}</span>
                             </a>
-                        </li>
-                    @else
-                        <li class="sidebar-item">
-                            <a class="sidebar-link collapsed" data-bs-target="#{{ $key }}" data-bs-toggle="collapse">
+                        @else
+                            <a class="sidebar-link collapsed" data-bs-target="#{{ Str::slug($key) }}"
+                               data-bs-toggle="collapse">
                                 <i data-feather="{{ ucfirst(str_replace('-', ' ', $key)) }}"></i>
-                                <span class="align-middle">{{ ucwords(str_replace('-', ' ', $key)) }}</span>
+                                <span class="align-middle">{{ $subMenu['title'] }}</span>
                             </a>
-                        </li>
-                        @if (is_array($subMenu) && count($subMenu) > 0)
-                            <ul class="sidebar-dropdown list-unstyled collapse" id="{{ $key }}"
-                                data-bs-parent="#sidebar">
-                                @foreach ($subMenu as $subItem)
-                                    <li class="sidebar-item">
-                                        <a class="sidebar-link"
-                                            href="{{ '/' . $subItem['url'] }}">{{ $subItem['title'] }}</a>
-                                    </li>
-                                @endforeach
+                            <ul class="sidebar-dropdown collapse list-unstyled {{ $active ? 'show' : '' }}"
+                                id="{{ Str::slug($key) }}">
+                                @include('components.menu.render-sub-menu', [
+                                    'segment' => $segment,
+                                    'children' => $subMenu['children'],
+                                ])
                             </ul>
                         @endif
-                    @endif
+                    </li>
                 @endforeach
             </ul>
         @endif

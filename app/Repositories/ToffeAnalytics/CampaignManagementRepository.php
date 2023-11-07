@@ -84,7 +84,7 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
             if ($impressionsDelivered != null) {
 
                 $imression = number_format($impressionsDelivered->getImpressionsDelivered());
-                $clicks = number_format($impressionsDelivered->getClicksDelivered()) . '%';
+                $clicks = number_format($impressionsDelivered->getClicksDelivered());
                 $crt = number_format((float) $this->calculatePercentage((int) $clicks, (int) $imression), 2) . '%';
                 $complete = number_format($impressionsDelivered->getVideoCompletionsDelivered());
 
@@ -155,15 +155,15 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
             ->setDimensions([Dimension::LINE_ITEM_ID, Dimension::LINE_ITEM_NAME, Dimension::DATE])
             ->setDimensionAttributes([DimensionAttribute::LINE_ITEM_GOAL_QUANTITY])
             ->setColumns([
-                    Column::AD_SERVER_IMPRESSIONS,
-                    Column::AD_SERVER_CLICKS,
-                    Column::AD_SERVER_CTR,
-                        // Column::TOTAL_LINE_ITEM_LEVEL_IMPRESSIONS,
-                    Column::AD_SERVER_ACTIVE_VIEW_VIEWABLE_IMPRESSIONS,
-                    Column::VIDEO_VIEWERSHIP_COMPLETION_RATE,
-                    Column::AD_SERVER_ACTIVE_VIEW_VIEWABLE_IMPRESSIONS_RATE,
+                Column::AD_SERVER_IMPRESSIONS,
+                Column::AD_SERVER_CLICKS,
+                Column::AD_SERVER_CTR,
+                Column::AD_SERVER_ACTIVE_VIEW_VIEWABLE_IMPRESSIONS,
+                Column::VIDEO_VIEWERSHIP_COMPLETION_RATE,
+                Column::AD_SERVER_ACTIVE_VIEW_VIEWABLE_IMPRESSIONS_RATE,
+                Column::VIDEO_VIEWERSHIP_COMPLETE,
 
-                ]);
+            ]);
         if ($isPuaused) {
             $reportQuery->setDateRangeType(DateRangeType::REACH_LIFETIME);
         } else {
@@ -187,7 +187,6 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
         }
 
         $reportDownloadUrl = $reportService->getReportDownloadUrl($reportJob->getId(), ExportFormat::CSV_DUMP);
-
         $this->prepareReportArray(gzdecode(file_get_contents($reportDownloadUrl)));
 
         return $this->getAllCampaignRecordById($lineItemId);
@@ -214,28 +213,18 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
                 $report = new CampaginReport();
                 $report->campaign_id = $campaginData[0];
                 $report->individual_date = $campaginData[2];
-                $report->impression = number_format((float) $campaginData[3]);
+                $report->impression = number_format((float) $campaginData[4]);
                 $report->clicks = number_format((float) $campaginData[5]);
-                $report->complete_views = number_format((float) $campaginData[4]);
+                $report->ctr = number_format(((float) $campaginData[6] * 100), 2);
                 $report->active_viewable_impression = number_format((float) $campaginData[7]);
+                $report->completion_rate = number_format(((float) $campaginData[8] * 100), 2);
                 $report->viewable_impression = number_format((float) $campaginData[9], 2);
-                $report->ctr = number_format((float) $campaginData[6], 2);
-                $report->completion_rate = number_format((float) $campaginData[8], 2);
+                $report->complete_views = number_format((float) $campaginData[10]);
                 $report->save();
             }
         } catch (\Exception $e) {
             throw $e;
         }
-    }
-
-    /**
-     * @return DateTime|bool if true the return's latest pull time or flase
-     */
-    public function checkChamapignExistance(int $id): DateTime|bool
-    {
-        $lastItem = CampaginReport::where('campaign_id', $id)->latest('created_at')->first();
-
-        return ($lastItem !== null) ? $lastItem->created_at : false;
     }
 
     public function deleteDateinSameDay(string $date, int $id): void
@@ -247,11 +236,6 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
     {
         return CampaginReport::where("campaign_id", $id)->get()->toArray();
 
-    }
-
-    public function checkLineItemExitance(int $id): bool
-    {
-        return (bool) CampaginReport::where('campaign_id', $id)->exists();
     }
 
     public function checkIdDateRangeExits(int $id, $startDate, $endDate): bool|array
@@ -299,6 +283,12 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
     public function getBrandName($id)
     {
         return ToffeeBrand::where('id', $id)->first('name');
+    }
+
+    public function getLastSavedDate(int $id): string|null
+    {
+        return CampaginReport::where('campaign_id', $id)->latest('individual_date')
+            ->value('individual_date');
     }
 
 }

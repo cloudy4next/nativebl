@@ -3,16 +3,18 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Contracts\Services\Settings\MenuServiceInterface;
+use App\Traits\HelperTrait;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use NativeBL\Field\ButtonField;
 use NativeBL\Field\ChoiceField;
+use NativeBL\Field\Field;
 use NativeBL\Field\InputField;
 use NativeBL\Field\TextField;
 use Illuminate\Http\Request;
 
 class MenuController extends AbstractController
 {
-
+    use HelperTrait;
     private MenuServiceInterface $MenuService;
     public function __construct(MenuServiceInterface $MenuService)
     {
@@ -44,15 +46,20 @@ class MenuController extends AbstractController
         $menus = $this->MenuService->keyPairParentID();
         $menus[-1] = 'None';
         $fields = [
-            // InputField::init('applicationID', 'Application ID', 'number'),
-            ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->MenuService->getApplication())->setCssClass('my-class'),
-            InputField::init('title')->setHtmlAttributes(['required'=>true,'maxlength'=>20,'minlength'=>6]),
-            InputField::init('iconName')->setHtmlAttributes(['required'=>true,'maxlength'=>20,'minlength'=>6]),
-            ChoiceField::init('parentID', 'Parent Select', choiceType: 'select', choiceList: $menus)->setHtmlAttributes(['required'=>true,'maxlength'=>20,'minlength'=>6]),
-            InputField::init('displayOrder', 'Display Order', 'number')->setHtmlAttributes(['required'=>true,'maxlength'=>20,'minlength'=>6]),
-            InputField::init('target')->setHtmlAttributes(['required'=>true,'maxlength'=>20,'minlength'=>6]),
+
+            ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->MenuService->getApplication()),
+            InputField::init('title')->setHtmlAttributes(['required' => true]),
+            // InputField::init('iconName')->setHtmlAttributes(['required' => true]),
+            ChoiceField::init('parentID', 'Parent Select', choiceType: 'select', choiceList: $menus)->setHtmlAttributes(['required' => true]),
+            // InputField::init('displayOrder', 'Display Order', 'number')->setHtmlAttributes(['required' => true]),
+            // InputField::init('target')->setHtmlAttributes(['required' => true]),
 
         ];
+        // 4 is toffee here
+        if ($this->checkifExitsApplication(4) == false) {
+            array_splice($fields, 2, 0, [InputField::init('name')->setHtmlAttributes(['required' => true])]);
+        }
+
         $this->getForm($fields)
             ->setName('menu_form')
             ->setMethod('post')
@@ -70,7 +77,18 @@ class MenuController extends AbstractController
 
     public function menu()
     {
-        $this->initGrid(['title', 'name', 'applicationID', 'parentID'], pagination: 5);
+        $this->initGrid([
+            'title',
+            'name',
+            'applicationID',
+            'parentID',
+            Field::init('isActive', 'Active Status')->formatValue(function($value) {
+                return $value== 1 ? "Active" : "Inactive";
+            }),
+            Field::init('isDeleted', 'Is Deleted')->formatValue(function($value) {
+                return $value== 1 ? "Yes" : "No";
+            }),
+        ], pagination: 5);
         return view('home.settings.menu.list');
     }
 
@@ -85,9 +103,9 @@ class MenuController extends AbstractController
         $validator = \Validator::make($request->all(), [
             'parentID' => 'required',
             'title' => 'required|string',
-            'iconName' => 'required|string',
-            'displayOrder' => 'required|integer',
-            'target' => 'required|string',
+            //'iconName' => 'required|string',
+            //'displayOrder' => 'required|integer',
+            //'target' => 'required|string',
 
         ]);
 
@@ -97,7 +115,7 @@ class MenuController extends AbstractController
                 ->withInput();
         }
         $this->MenuService->saveMenu($request);
-        return to_route('menu_list');
+        return to_route('menu_list')->with('success', 'Menu Created Successfully');
     }
 
     public function update(Request $request)
@@ -105,9 +123,9 @@ class MenuController extends AbstractController
         $validator = \Validator::make($request->all(), [
             'parentID' => 'required',
             'title' => 'required|string',
-            'iconName' => 'required|string',
-            'displayOrder' => 'required|integer',
-            'target' => 'required|string',
+            //'iconName' => 'required|string',
+            //'displayOrder' => 'required|integer',
+            //'target' => 'required|string',
 
         ]);
 
@@ -117,7 +135,7 @@ class MenuController extends AbstractController
                 ->withInput();
         }
         $this->MenuService->saveMenu($request);
-        return to_route('menu_list');
+        return to_route('menu_list')->with('success', 'Menu Updated Successfully');
     }
 
     public function edit(int $id, )
@@ -132,6 +150,6 @@ class MenuController extends AbstractController
     public function delete($id)
     {
         $this->MenuService->deleteMenu($id);
-        return to_route('menu_list');
+        return to_route('menu_list')->with('success', 'Menu Deleted Successfully');
     }
 }

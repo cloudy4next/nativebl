@@ -65,10 +65,10 @@ class CampaignController extends AbstractController
         $fields = [
             IdField::init('id'),
             TextField::init('title')->validate('required|max:255'),
-            ChoiceField::init('article_id','Article',choiceType:'select', choiceList:$articles)->setCssClass('my-class'),
-            HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
+            ChoiceField::init('article_id','Article',choiceType:'select', choiceList:$articles)->setCssClass('my-class'),            
             DateTimeField::init('start_date'),
             DateTimeField::init('end_date'),
+            HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
             // TextareaField::init('my_remarks')
         ];
         $this->getForm($fields)
@@ -77,6 +77,14 @@ class CampaignController extends AbstractController
             ->setActionUrl(route('campaign_save'));
     }
 
+    public function configureFilter(): void
+    {
+        $fields = [
+            TextField::init('title'),
+            TextField::init('slug'),
+        ];
+        $this->getFilter($fields);
+    }
 
     public function index(Request $request)
     {

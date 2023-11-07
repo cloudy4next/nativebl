@@ -3,9 +3,11 @@
 </a>
 @php
     $userName = Auth::user()->user_name;
+    $image = Auth::user()->userImage();
 @endphp
-<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-    <img class="avatar img-fluid rounded me-1" src="https://dummyimage.com/50x50/d63384/fff.jpg" alt="Charles Hall">
+<a class="nav-link dropdown-toggle d-none d-sm-inline-block" data-bs-toggle="dropdown">
+    <img class="avatar img-fluid rounded me-1" src="data:image/png;base64, {{ $image }}" alt="{{ $userName }}">
+
     <span>{{ $userName }}</span>
 </a>
 

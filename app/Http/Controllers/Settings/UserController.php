@@ -5,16 +5,21 @@ namespace App\Http\Controllers\Settings;
 use App\Contracts\Services\Settings\PermissionServiceInterface;
 use App\Contracts\Services\Settings\RoleServiceInterface;
 use App\Contracts\Services\Settings\UserServiceInterface;
+use App\Traits\APITrait;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use NativeBL\Field\ButtonField;
 use NativeBL\Field\ChoiceField;
 use NativeBL\Field\Field;
+use NativeBL\Field\FileField;
 use NativeBL\Field\InputField;
 use Illuminate\Http\Request;
 use NativeBL\Field\TextField;
+use Session;
+use Auth;
 
 class UserController extends AbstractController
 {
+    use APITrait;
     public function __construct(
         private UserServiceInterface $userService,
         private RoleServiceInterface $roleServiceInterface,
@@ -52,27 +57,35 @@ class UserController extends AbstractController
     public function configureForm()
     {
         $applications = $this->userService->getApplication();
-        $authList = ['bl_active_directory' => 'BL Active Directory', 'email_password' => 'Email & Password'];
+        $authList = ['email_password' => 'Email & Password', 'bl_active_directory' => 'BL Active Directory'];
 
         $fields = [
-            ChoiceField::init(
-                'applicationID',
-                'Default Application ID',
-                choiceType: 'select',
-                choiceList: $applications,
-                selected: $this->userService->userApplicationID()
-            )->setDisabled(),
-            InputField::init('fullName')->setHtmlAttributes(['required' => true, 'maxlength' => 50, 'minlength' => 6]),
-            InputField::init('userName')->setHtmlAttributes(['required' => true, 'maxlength' => 50, 'minlength' => 6]),
-            InputField::init('emailAddress', 'Email', "email")->setHtmlAttributes(['required' => true, 'maxlength' => 50, 'minlength' => 6]),
-            InputField::init('mobileNumber')->validate('requried|numeric')->setHtmlAttributes(['required' => true, 'maxlength' => 15, 'minlength' => 11]),
-            InputField::init('password', 'Password', "password")->validate('requried|numeric|min:8')->setLayoutClass('col-md-12')->setHtmlAttributes(['required' => true]),
+            InputField::init('fullName')->setHtmlAttributes(['required' => true]),
+            InputField::init('userName')->setHtmlAttributes(['required' => true]),
+            InputField::init('emailAddress', 'Email', "email")->setHtmlAttributes(['required' => true]),
+            InputField::init('mobileNumber')->validate('requried|numeric')->setHtmlAttributes(['required' => true]),
+            InputField::init('password', 'Password', "password"),
+            FileField::init('image'),
             // TO - Do
-            InputField::init('roles')->setComponent('settings.user.user-menu-permission')->setLayoutClass('col-md-12')->setHtmlAttributes(['required' => true]),
+            InputField::init('roles')->setComponent('settings.user.role-component')->setLayoutClass('col-md-12')->setHtmlAttributes(['required' => true]),
+            InputField::init('permissions')->setComponent('settings.user.permission-component')->setLayoutClass('col-md-12')->setHtmlAttributes(['required' => true]),
         ];
-        if ($this->userService->checkIfToffee() == false) {
-            array_splice($fields, 4, 0, [ChoiceField::init('GrantType', 'Authenticaction Type', choiceType: 'select', choiceList: $authList)->setCssClass('my-class')]);
+
+        switch ($this->getApplictionId()) {
+            case $this->getApplictionId() != config('nativebl.base.toffee_analytics_application_id'):
+                array_splice($fields, 4, 0, [ChoiceField::init('GrantType', 'Authenticaction Type', choiceType: 'select', choiceList: $authList)->setCssClass('my-class')]);
+            default:
+                array_splice($fields, 0, 0, [
+                    ChoiceField::init(
+                        'applicationID',
+                        'Default Application ID',
+                        choiceType: 'select',
+                        choiceList: $applications,
+                        selected: $this->userService->userApplicationID()
+                    )
+                ]);
         }
+
         $this->getForm($fields)
             ->setName('user_form')
             ->setMethod('post')
@@ -94,10 +107,16 @@ class UserController extends AbstractController
     public function user()
     {
         $this->initGrid([
-            Field::init('userName','User Name'),
-            Field::init('fullName','Full Name'),
-            Field::init('mobileNumber','Mobile Number'),
-            Field::init('emailAddress','Email Address'),
+            Field::init('userName', 'User Name'),
+            Field::init('fullName', 'Full Name'),
+            Field::init('mobileNumber', 'Mobile Number'),
+            Field::init('emailAddress', 'Email Address'),
+            Field::init('isActive', 'Active Status')->formatValue(function ($value) {
+                return $value == 1 ? "Active" : "Inactive";
+            }),
+            Field::init('isDeleted', 'Is Deleted')->formatValue(function ($value) {
+                return $value == 1 ? "Yes" : "No";
+            }),
         ], pagination: 5); //'userID',
         return view('components.settings.user.user');
     }
@@ -107,7 +126,6 @@ class UserController extends AbstractController
     {
         $this->initCreate();
         return view('home.settings.user.create');
-
     }
 
     public function show($id)
@@ -118,15 +136,15 @@ class UserController extends AbstractController
 
     public function store(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $rules = [
             'emailAddress' => 'required|email',
             'fullName' => 'required|string',
-            'password' => 'required|string|min:6',
+            'userName' => 'required|string',
             'mobileNumber' => [
                 'required',
                 'string',
                 function ($attribute, $value, $fail) {
-                    $pattern = '/^(?:\+880|880)?(01[3-9]\d{8})$/';
+                    $pattern = '/^(?:\+88|88|0)(1[3-9]\d{8})$/';
                     if (!preg_match($pattern, $value)) {
                         $fail('Number is not a valid Bangladeshi mobile number.');
                     }
@@ -134,9 +152,15 @@ class UserController extends AbstractController
             ],
             'GrantType' => 'string',
             'roles' => 'required|array',
-            'applicationID' => 'required|integer',
             'permissions' => 'required|array',
-        ]);
+        ];
+
+        if ($request->get('GrantType') != 'bl_active_directory') {
+            $rules['password'] = 'required|min:8';
+        }
+
+        $validator = \Validator::make($request->all(), $rules);
+
 
         if ($validator->fails()) {
             return back()
@@ -145,12 +169,12 @@ class UserController extends AbstractController
         }
 
         $this->userService->saveUser($request);
-        return to_route('user_list');
+        return to_route('user_list')->with('success', 'User Created Successfully');
     }
     public function delete($id)
     {
         $this->userService->deleteUser($id);
-        return to_route('user_list');
+        return to_route('user_list')->with('success', 'User Deleted Successfully');
     }
 
     public function edit($id)
@@ -160,7 +184,8 @@ class UserController extends AbstractController
         $userRole = $this->userService->dataParseFromArr((array) $singleUser->data, 'roles');
         $userPermission = $this->userService->dataParseFromArr((array) $singleUser->data, 'permissions');
         $authList = ['bl_active_directory' => 'BL Active Directory', 'email_password' => 'Email & Password'];
-
+        $permissionFromCurrentApplication = $this->permissionServiceInterface->getAllPermission();
+        $permissions = Session::get('applicationID') == config('nativebl.base.core_application_id') ? $permissionFromCurrentApplication : $this->getTotalListItem($this->getUserInformation('permissions'), $permissionFromCurrentApplication);
         return view('components.settings.user.edit-user')
             ->with('user', $singleUser->data)
             ->with('userRole', $userRole)
@@ -168,29 +193,36 @@ class UserController extends AbstractController
             ->with('authList', $authList)
             ->with('userPermission', $userPermission)
             ->with('roles', $this->roleServiceInterface->getAllRole())
-            ->with('permissions', $this->permissionServiceInterface->getAllPermission());
+            ->with('permissions', $permissions);
     }
 
     public function update(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+
+        $rules = [
             'emailAddress' => 'required|email',
             'fullName' => 'required|string',
-            'password' => 'required|string|min:6',
+            'userName' => 'required|string',
             'mobileNumber' => [
                 'required',
                 'string',
                 function ($attribute, $value, $fail) {
-                    $pattern = '/^(?:\+880|880)?(01[3-9]\d{8})$/';
+                    $pattern = '/^(?:\+88|88|0)(1[3-9]\d{8})$/';
                     if (!preg_match($pattern, $value)) {
                         $fail('Number is not a valid Bangladeshi mobile number.');
                     }
                 },
             ],
-            'GrantType' => 'string',
             'roles' => 'required|array',
             'permissions' => 'required|array',
-        ]);
+        ];
+
+        if ($request->get('GrantType') != 'bl_active_directory') {
+            $rules['password'] = 'required|min:8';
+        }
+
+        $validator = \Validator::make($request->all(), $rules);
+
 
         if ($validator->fails()) {
             return back()
@@ -200,17 +232,20 @@ class UserController extends AbstractController
 
         $id = $request->get('id');
         $this->userService->updateUser($request);
-        return redirect('users/edit/' . $id);
+        return redirect('users/edit/' . $id)->with('success', 'User Updated Successfully');
     }
     public function passwordChange()
     {
+        $singleUser = $this->userService->getSingleUser(Auth::user()->id);
+        if ($singleUser->data->password == null) {
+            return redirect('/')->with('warning', 'Please Change Your Windows Password To Reset');
+        }
         return view('home.settings.user.user-password-reset');
     }
     public function passwordUpdate(Request $request)
     {
         $this->userService->userOldPasswordCheck($request->old_password);
         $this->userService->updateUserPassword($request);
-        return redirect('/');
+        return redirect()->back()->with('success', 'Password Reset Succecssfully');
     }
-
 }

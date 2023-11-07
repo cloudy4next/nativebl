@@ -19,7 +19,7 @@ final class RoleService extends AbstractNativeRepository implements RoleServiceI
     }
 
 
-    public function getGridData(array $filters=[]): iterable
+    public function getGridData(array $filters = []): iterable
     {
         $role = $this->featureSet($this->getAllRole());
         return $role;
@@ -41,9 +41,9 @@ final class RoleService extends AbstractNativeRepository implements RoleServiceI
     public function getAllRole()
     {
         $path = '/Api/AppUserManagement/AppRoles?id=' . (int) $this->SessionCheck('applicationID');
-        $response = $this->apiResponse('GET', null, null, $path);
+        $response = $this->apiResponse('GET', null, null, $path, true);
 
-        return $response->data;
+        return $response['data'];
     }
     public function getApplication(): array
     {
@@ -56,6 +56,7 @@ final class RoleService extends AbstractNativeRepository implements RoleServiceI
      */
     public function saveRole($request): bool
     {
+        // dd($request->dd());
         $json = [
             "title" => $request->get('title'),
             "shortDescription" => $request->get('shortDescription'),

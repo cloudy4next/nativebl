@@ -6,6 +6,7 @@ use App\Contracts\Services\Settings\PermissionServiceInterface;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use NativeBL\Field\ButtonField;
 use NativeBL\Field\ChoiceField;
+use NativeBL\Field\Field;
 use NativeBL\Field\InputField;
 use NativeBL\Field\TextField;
 use Illuminate\Http\Request;
@@ -41,8 +42,8 @@ class PermissionController extends AbstractController
     {
         $fields = [
             ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->permissionService->getApplication()),
-            InputField::init('title')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>11]),
-            InputField::init('shortDescription', 'Short Description', 'textarea')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>11]),
+            InputField::init('title')->setHtmlAttributes(['required'=>true,'minlength'=>8]),
+            InputField::init('shortDescription', 'Short Description', 'textarea')->setHtmlAttributes(['required'=>true,'minlength'=>8]),
         ];
 
         $this->getForm($fields)
@@ -63,7 +64,17 @@ class PermissionController extends AbstractController
 
     public function permission()
     {
-        $this->initGrid(['title', 'name', 'shortDescription'], pagination: 5);
+        $this->initGrid([
+            'title',
+            'name',
+            'shortDescription',
+            Field::init('isActive', 'Active Status')->formatValue(function($value) {
+                return $value== 1 ? "Active" : "Inactive";
+            }),
+            Field::init('isDeleted', 'Is Deleted')->formatValue(function($value) {
+                return $value== 1 ? "Yes" : "No";
+            }),
+        ], pagination: 5);
         return view('home.settings.permission.list');
     }
 
@@ -88,7 +99,7 @@ class PermissionController extends AbstractController
                 ->withInput();
         }
         $this->permissionService->savePermission($request);
-        return redirect('permission');
+        return redirect('permission')->with('success', 'Permission Created Successfully');
 
     }
     public function edit(int $id)
@@ -114,13 +125,13 @@ class PermissionController extends AbstractController
                 ->withInput();
         }
         $this->permissionService->updatePermission($request);
-        return redirect('permission/edit/'. $request->get('id'));
+        return redirect('permission/edit/'. $request->get('id'))->with('success', 'Permission Updated Successfully');
     }
 
     public function delete(int $id)
     {
         $this->permissionService->deletePermission($id);
-        return redirect('permission');
+        return redirect('permission')->with('success', 'Permission Deleted Successfully');
     }
 
 

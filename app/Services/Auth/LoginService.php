@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
  * @author @cloudy4next
  * @email cloudy4next@gmail.com
@@ -28,11 +30,12 @@ use App\Exceptions\NotFoundException;
 class LoginService
 {
     use HelperTrait, APITrait;
+
     /**
      * UserLoginCred
      * return and redirect user to home route.
      */
-    public function UserLoginCred($request)
+    public function UserLoginCred($request): User
     {
         $checkUser = $this->CheckIfUserExits($request->email);
 
@@ -40,25 +43,23 @@ class LoginService
             $tokenUser = $this->TokenGenNSetCookie($request->email, $request->password, $request);
 
             $this->CreateUser($tokenUser[0], $tokenUser[1], $tokenUser[2]);
-            $newUser = $this->CheckIfUserExits($request->email);
-
-            return $newUser;
+            return $this->CheckIfUserExits($request->email);
         }
         // Application@@2023
 
-
         $this->TokenGenNSetCookie($request->email, $request->password, $request);
-
         return $checkUser;
     }
 
     private function TokenGenNSetCookie(string $email, string $password, $request)
     {
         $payload = $this->AccessTokenRequest($email, $password);
-        $userObject = $this->GetUserPayload($payload, $this->GetUserIdFToken($payload));
+
+        $userObject = $this->GetUserPayload($payload, $this->GetUserIdFToken($payload, 'userID'), $this->GetUserIdFToken($payload, 'userEmail'));
         $this->CookieSessTokenSet($userObject, $request);
         return $userObject;
     }
+
     private function CookieSessTokenSet(array $tokenWRole, mixed $request): void
     {
 
@@ -68,50 +69,55 @@ class LoginService
         $request->session()->put('refresh_token', $tokenWRole[7]);
         $request->session()->put('role', $tokenWRole[4]);
         $request->session()->put('menus', $tokenWRole[3]);
-        $request->session()->put('permission', $tokenWRole[5]);
         $request->session()->put('applicationID', $tokenWRole[8]);
-        $request->session()->put('is_must_password_change', $tokenWRole[9]);
+        $request->session()->put('profilePicID', $tokenWRole[5]);
 
         Cookie::queue('access_token', $tokenWRole[6]);
         Cookie::queue('refresh_token', $tokenWRole[7]);
     }
 
-    private function AccessTokenRequest(string $email, string $password): mixed
+    private function AccessTokenRequest(string $email, string $password)
     {
         $apiUser = 'e828a561ac324ae1b4f7c2be757c24a9';
         $apiPassword = 'd8bcfe752d2844afa0f9ad0c0dcbc483';
         $baseEncode = base64_encode($apiUser . ':' . $apiPassword);
-        $grantTypes = ['bl_active_directory', 'email_password'];
+        $grantTypes = ['email_password']; // 'bl_active_directory'
+
         $client = new Client();
 
-        $json = [
-            'email' => $email,
-            'password' => $password,
-            'grant_type' => 'email_password',
-            'scope' => 'APIGW3 IDM3'
-        ];
-        $headers = [
-            'grant_type' => 'email_password',
-            'Scope' => 'APIGW3 IDM3',
-            'client_id' => $apiUser,
-            'Custome-Exception' => 'Y',
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Basic ' . $baseEncode,
-        ];
+        $allFailed = true;
+        foreach ($grantTypes as $grantType) {
+            $headers = [
+                'grant_type' => $grantType,
+                'Scope' => 'APIGW3 IDM3',
+                'client_id' => $apiUser,
+                'Custome-Exception' => 'Y',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Basic ' . $baseEncode,
+            ];
+            $json = [
+                'email' => $email,
+                'password' => $password,
+                'grant_type' => $grantType,
+                'scope' => 'APIGW3 IDM3'
+            ];
 
-        try {
-            $response = $client->request('POST', env('AUTH_SERVER') . '/api/auth/token', [
-                'headers' => $headers,
-                'json' => $json
-            ]);
-            $res = $response->getBody()->getContents();
-            $decodedPayloads = json_decode($res);
+            try {
+                $response = $client->request('POST', env('AUTH_SERVER') . '/api/auth/token', [
+                    'headers' => $headers,
+                    'json' => $json
+                ]);
+                $res = $response->getBody()->getContents();
+                $decodedPayloads = json_decode($res);
 
-        } catch (\Exception $e) {
-            throw new NotFoundException(['email'=>'User Not Found']);
+                $allFailed = false;
+
+                return $decodedPayloads;
+            } catch (\Exception $e) {
+            }
         }
 
-        return $decodedPayloads;
+        throw new NotFoundException('User Not Found');
     }
 
     // need to verifiy token
@@ -134,7 +140,7 @@ class LoginService
         return $token->claims();
     }
 
-    private function GetUserIdFToken(object $payload): string
+    private function GetUserIdFToken(object $payload, string $Item): string
     {
         $accessToken = $payload->access_token;
         $parser = new Parser(new JoseEncoder());
@@ -142,10 +148,10 @@ class LoginService
 
         assert($token instanceof UnencryptedToken);
 
-        return $token->claims()->get('userID');
+        return $token->claims()->get($Item);
     }
 
-    private function GetUserPayload(object $accessToken, string $id): mixed
+    private function GetUserPayload(object $accessToken, string $id, string $UserEmail): mixed
     {
         $token = $accessToken->access_token;
         $headers = [
@@ -154,15 +160,13 @@ class LoginService
             'Custome-Exception' => 'Y'
         ];
 
-        $path = '/Api/AppUserManagement/AppUser?id=' . $id;
+        $path = '/Api/AppUserManagement/AppUser?id=' . $id . '&email=' . $UserEmail;
         $response = $this->apiResponse('GET', $headers, null, $path, true);
         if ($response['data']['isUserActive'] == 0) {
-            throw new NotFoundException(['email' => 'User Not Found']);
-
+            throw new NotFoundException('User Not Found');
         }
 
         return $this->UserDataProcessing($response, $accessToken->access_token, $accessToken->refresh_token);
-
     }
 
     private function CreateUser(string $id, string $name, string $email): void
@@ -174,13 +178,31 @@ class LoginService
         $user->save();
     }
 
-    private function CheckIfUserExits(string $id): mixed
+    private function CheckIfUserExits(string $email): User|bool
     {
-        $user = User::where('email', '=', $id)->first();
+        $user = User::where('email', '=', $email)->first();
         if ($user === null) {
             return false;
         }
         return $user;
     }
-
+    public function passwordReset(?array $json)
+    {
+        $apiUser = 'e828a561ac324ae1b4f7c2be757c24a9';
+        $apiPassword = 'd8bcfe752d2844afa0f9ad0c0dcbc483';
+        $baseEncode = base64_encode($apiUser . ':' . $apiPassword);
+        $headers = [
+            'Scope' => 'APIGW3 IDM3',
+            'client_id' => $apiUser,
+            'Custome-Exception' => 'Y',
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Basic ' . $baseEncode,
+        ];
+        $path = '/api/DBSS/PasswordReset';
+        try {
+            $this->apiResponse('POST', null, $json, $path, false, true);
+        } catch (\Exception $e) {
+            throw new NotFoundException("Email or Token is invlid");
+        }
+    }
 }

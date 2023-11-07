@@ -35,6 +35,11 @@ final class ArticleCategoryService implements ArticleCategoryServiceInterface
         return $this->articleCategoryRepository->articleCategoryFilterData($input);
     }
 
+    public function categoryArchive($id)
+    {
+        return $this->articleCategoryRepository->categoryArchive($id);
+    }
+
 
     public function updateArticleCategory($id, $data)
     {

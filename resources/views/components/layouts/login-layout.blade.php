@@ -18,9 +18,20 @@
 </head>
 
 <body>
-    <main >
+    <main>
         {{ $slot }}
         <script src="/js/app.js"></script>
+        @stack('scripts')
+
+        @if (session('success'))
+            <x-native::toast type="success" message="{{ session('success') }}" />
+        @elseif(session('info'))
+            <x-native::toast type="info" message="{{ session('info') }}" />
+        @elseif(session('warning'))
+            <x-native::toast type="warning" message="{{ session('warning') }}" />
+        @elseif(session('error'))
+            <x-native::toast type="error" message="{{ session('error') }}" />
+        @endif
     </main>
 
 </body>

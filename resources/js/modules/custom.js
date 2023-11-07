@@ -1,104 +1,31 @@
-import daterangepicker from "daterangepicker";
-import Quill from "quill";
+document.addEventListener("DOMContentLoaded", function () {
+    const selectField = document.getElementById("GrantType");
+    const passwordInput = document.querySelector('input[type="password"]');
 
-//daterangepicker
+    // Check if both elements exist in the DOM
+    if (selectField && passwordInput) {
+        const selectedValue = localStorage.getItem("selectedValue");
 
-const options = {
-    locale: {
-        format: "YYYY-MM-DD",
-    },
-    maxSpan: {
-        days: 7, 
-    },
-};
+        if (selectedValue) {
+            selectField.value = selectedValue;
+        }
 
+        function handleDropdownChange() {
+            if (selectField.value === "bl_active_directory") {
+                passwordInput.disabled = true;
+                passwordInput.value = "";
+            } else {
+                passwordInput.disabled = false;
+            }
 
-const test = new daterangepicker(
-    document.getElementById("daterangepicker"),
-    options
-);
+            localStorage.setItem("selectedValue", selectField.value);
+        }
 
-// AutoComplete
-const autocompleteData = [
-    "Apple",
-    "Banana",
-    "Cherry",
-    "Date",
-    "Grape",
-    "Lemon",
-    "Mango",
-    "Orange",
-    "Peach",
-    "Pear",
-];
+        selectField.addEventListener("change", handleDropdownChange);
 
-const autocompleteInput = document.getElementById("autocomplete");
-const datalist = document.getElementById("autocomplete-datalist");
-
-autocompleteInput.addEventListener("input", function () {
-    const inputText = this.value.toLowerCase();
-    const matchingItems = autocompleteData.filter((item) =>
-        item.toLowerCase().includes(inputText)
-    );
-
-    datalist.innerHTML = "";
-
-    if (matchingItems.length > 0) {
-        matchingItems.forEach((item) => {
-            const option = document.createElement("option");
-            option.value = item;
-            datalist.appendChild(option);
-        });
+        // Run the change handler once on page load to set the correct state
+        handleDropdownChange();
+    } else {
+        // console.error("The select field or password input does not exist in the DOM.");
     }
 });
-
-// chain select
-const categorySelect = document.getElementById("category");
-const itemSelect = document.getElementById("chain-select");
-
-const itemsData = {
-    fruits: ["Apple", "Banana", "Cherry"],
-    vegetables: ["Carrot", "Lettuce", "Tomato"],
-};
-
-categorySelect.addEventListener("change", function () {
-    const selectedCategory = this.value;
-    const items = itemsData[selectedCategory];
-
-    itemSelect.innerHTML = "";
-
-    if (items) {
-        items.forEach((item) => {
-            const option = document.createElement("option");
-            option.value = item;
-            option.textContent = item;
-            itemSelect.appendChild(option);
-        });
-    }
-});
-
-//quill etidor
-
-var toolbarOptions = [
-    ["bold", "italic", "underline", "strike"], // toggled buttons
-    ["blockquote", "code-block"],
-
-    [{ header: 1 }, { header: 2 }], // custom button values
-    [{ list: "ordered" }, { list: "bullet" }],
-    [{ script: "sub" }, { script: "super" }], // superscript/subscript
-    [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
-    [{ direction: "rtl" }], // text direction
-
-    [{ size: ["small", false, "large", "huge"] }], // custom dropdown
-    [{ header: [1, 2, 3, 4, 5, 6, false] }],
-
-    ["link", "image"],
-    ["clean"], // remove formatting button
-];
-
-var quill = new Quill(document.getElementById("editor"), {
-    modules: { toolbar: toolbarOptions },
-    theme: "snow",
-});
-
-document.addEventListener("DOMContentLoaded", document);

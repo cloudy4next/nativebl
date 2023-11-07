@@ -13,22 +13,35 @@ final class CampaignManagementService implements CampaignManagementServiceInterf
 {
     use AdsManagerTrait;
 
-    public function __construct(private readonly CampaignManagementRepositoryInterface $campaignManagementRepositoryInterface)
+    private CampaignManagementRepositoryInterface $campaignManagementRepositoryInterface;
+
+    public function __construct(CampaignManagementRepositoryInterface $campaignManagementRepositoryInterface)
     {
+        $this->campaignManagementRepositoryInterface = $campaignManagementRepositoryInterface;
     }
 
     public function campaignReportByLineItem(int $id, string $startDate, string $endDate, string $status)
     {
         $today = $this->makeDateTime('now');
         $endDate = $this->makeDateTime($endDate);
-        $newEndDate = ($today < $endDate) ? clone $today : clone $endDate;
-        $newStartDate = clone $newEndDate;
-        $newStartDate->modify('-6 days');
+        $newEndDate = min($today, $endDate);
+        $pauseCompleteDate = $this->makeDateTime($startDate);
+        /*
+        | Campaign Status: Delivering 🛒
+        | if no data exits then pull from startdate to today.
+        | if exits then pull from lastSavedDate to today.
+        | if last save data is today then it will fetch latest data on each call. 😵
+        */
+        $lastSavedDate = $this->campaignManagementRepositoryInterface->getLastSavedDate($id);
 
+        if ($lastSavedDate != null) {
+            $startDate = $lastSavedDate;
+        }
         return match ($status) {
-            'PAUSED', 'COMPLETED' => $this->GetFromDbOrGoogle($id, $this->makeDateTime($startDate), $endDate, true),
-            default => $this->GetFromDbOrGoogle($id, $newStartDate, $newEndDate),
+            'PAUSED', 'COMPLETED' => $this->getFromDbOrGoogle($id, $pauseCompleteDate, $endDate, true),
+            default => $this->getFromDbOrGoogle($id, $this->makeDateTime($startDate), $newEndDate),
         };
+
 
     }
 
@@ -36,22 +49,10 @@ final class CampaignManagementService implements CampaignManagementServiceInterf
     {
         $startDate = $this->makeDateTime($startDate);
         $endDate = $this->makeDateTime($endDate);
-        return $this->GetFromDbOrGoogle($id, $startDate, $endDate);
+        return $this->getFromDbOrGoogle($id, $startDate, $endDate);
 
     }
-
-    // public function GetFromDbOrGoogle($lineItem, $startDate, $endDate, bool $isPaused = false)
-    // {
-    //     // dd($isPaused);
-    //     $fromDb = $this->campaignManagementRepositoryInterface->checkIdDateRangeExits($lineItem, $startDate, $endDate);
-    //     dd($fromDb);
-    //     if ($fromDb) {
-    //         return $fromDb;
-    //     }
-    //     return $this->campaignManagementRepositoryInterface->campaignReportFetchSaveService($lineItem, $startDate, $endDate, $isPaused);
-    // }
-
-    public function GetFromDbOrGoogle($lineItem, $startDate, $endDate, bool $isPaused = false)
+    public function getFromDbOrGoogle($lineItem, $startDate, $endDate, bool $isPaused = false)
     {
         $fromDb = $this->campaignManagementRepositoryInterface->checkIdDateRangeExits($lineItem, $startDate, $endDate);
         return $fromDb ?: $this->campaignManagementRepositoryInterface->campaignReportFetchSaveService($lineItem, $startDate, $endDate, $isPaused);

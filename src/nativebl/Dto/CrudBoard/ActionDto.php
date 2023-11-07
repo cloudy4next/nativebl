@@ -73,7 +73,10 @@ final class ActionDto extends AbstractHtmlElementDto
         return self::TYPE_SHOW === $this->type;
     }
 
-
+    public function isGridDeleteAction() : bool
+    {
+        return self::GRID_DELETE_ACTION == $this->getOption('role');
+    }
     public function getRouteName(): ?string
     {
         return $this->routeName;

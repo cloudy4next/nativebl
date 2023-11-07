@@ -36,6 +36,12 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label" for="title">Name</label>
+                        <input class="form-control  " id="name" name="name" type="text" placeholder="name"
+                            value="{{ $menu->name }}" />
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label" for="parentID">Parent ID</label>
                         <select class="form-select" name="parentID">
                             @foreach ($all_menu as $item)
@@ -48,14 +54,14 @@
                         </select>
                     </div>
 
-                    <div class="mb-3">
+                    {{-- <div class="mb-3">
                         <label class="form-label" for="iconName">Icon Name</label>
                         <input class="form-control  " id="iconName" name="iconName" type="text"
                             value="{{ $menu->iconName }}" />
-                    </div>
+                    </div> --}}
 
 
-                    <div class="mb-3">
+                    {{-- <div class="mb-3">
                         <label class="form-label" for="displayOrder">Display Orders</label>
                         <input class="form-control  " id="displayOrder" name="displayOrder" type="text"
                             value="{{ $menu->displayOrder }}" />
@@ -65,7 +71,7 @@
                         <label class="form-label" for="target">Target</label>
                         <input class="form-control  " id="target" name="target" type="text"
                             value="{{ $menu->target }}" />
-                    </div>
+                    </div> --}}
 
                     <button class="btn btn-primary " type="submit">Submit</button>
                     <a href="{{ route('menu_list') }}" class="btn btn-secondary"> Cancel </a>

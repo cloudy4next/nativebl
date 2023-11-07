@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\ToffeAnalytics\UserCampaignRepositoryInterface;
-use NativeBL\Field\DateTimeField;
 use NativeBL\Field\Field;
 use NativeBL\Field\HiddenField;
 use NativeBL\Field\TextField;
@@ -20,8 +19,9 @@ class UserCampaingController extends AbstractController
 
     public function __construct(
         private readonly CampaignManagementServiceInterface $campaignManagementInterface,
-        private readonly UserCampaignRepositoryInterface $userCampaignRepositoryInterface
-    ) {
+        private readonly UserCampaignRepositoryInterface    $userCampaignRepositoryInterface
+    )
+    {
     }
 
     public function getRepository()
@@ -46,7 +46,7 @@ class UserCampaingController extends AbstractController
         $id = \Request::segment(3);
 
         $fields = [
-            TextField::init('individual_date')->setHtmlAttributes(['id' => 'daterangepicker']),
+            TextField::init('individual_date','Date')->setHtmlAttributes(['id' => 'daterangepicker']),
             HiddenField::init('lineitem', 'lineitem', $id)
         ];
         $this->getFilter($fields);
@@ -65,10 +65,10 @@ class UserCampaingController extends AbstractController
             'ctr' => urldecode($request->ctr),
             'view' => $request->view,
             'status' => $request->status,
-            'name' => (string) $request->name,
+            'name' => json_decode($request->name),
         ];
         if (isset($request->filters) == null) {
-            $this->campaignManagementInterface->campaignReportByLineItem((int) $id, $startDate, $endDate, $status);
+            $this->campaignManagementInterface->campaignReportByLineItem((int)$id, $startDate, $endDate, $status);
         }
 
         $this->initGrid(
@@ -91,8 +91,12 @@ class UserCampaingController extends AbstractController
             ],
             pagination: 1000
         );
-
-        return view('home.toffe.campaign-report.campaign-single')->with('data', $newCardArray);
+        $dateArray = getDateArray($request);
+        $dateArray['id'] = \Request::segment(3);
+        $dataset = $this->userCampaignRepositoryInterface->getHalfMonthData($dateArray);
+        return view('home.toffe.campaign-report.campaign-single')
+            ->with('data', $newCardArray)
+            ->with('dataset', $dataset);
 
     }
 
@@ -106,15 +110,13 @@ class UserCampaingController extends AbstractController
             throw new NotFoundException(['id' => 'Campaign ID Not Found']);
         }
 
-        $individualDate = $request->input('filters.individual_date');
-        $newDate = explode(" - ", $individualDate);
-        $startDate = $newDate[0] ?? $request->startDate;
-        $endDate = $newDate[1] ?? $request->endDate;
+        $dateArray = getDateArray($request);
+        $startDate = $dateArray['startDate'];
+        $endDate = $dateArray['endDate'];
 
-        $status = $request->status;
         $type = $request->type;
 
-        $data = $this->campaignManagementInterface->campaignReportByLineItem((int) $id, $startDate, $endDate, $status);
+        $data = $this->userCampaignRepositoryInterface->getExportData((int)$id, $startDate, $endDate);
         $view = view('home.toffe.Report.all-campaign-report', compact('data'));
         $filename = "Campaign Report [$id] " . Carbon::now()->format('d-m-Y h-i-s A');
 

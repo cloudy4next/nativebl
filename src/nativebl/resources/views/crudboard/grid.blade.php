@@ -6,34 +6,39 @@
          </div>
          <div class="col-lg-6 text-end">
              @foreach ($grid->getActions() as $crudAction)
-                 <a class="btn btn-primary"
-                     href="{{ route($crudAction->getRouteName(), $crudAction->getRouteParameters()) }}">
-                     @if ($crudAction->getIcon())
-                         <i class="fas {{ $crudAction->getIcon() }}"></i>
-                     @endif
-                     {{ $crudAction->getLabel() }}
-                 </a>
+                @php
+                 $htmlAttributes  = $crudAction->getAttributesAsHtml();
+                @endphp
+                <x-dynamic-component :component="$crudAction->getComponent()" :$crudAction :$htmlAttributes  />
              @endforeach
          </div>
      </div>
      <div class="card">
          <div class="card-body">
              <div class="table-responsive">
-                 <table class="table table-sm table-bordered">
-                     <thead>
+                 <table class="table table-sm table-bordered {{ $grid->getTableCssClass() }}">
+                     <thead class="{{ $grid->getHeaderRowCssClass() }}">
                          <tr>
                              <th scope="col">#</th>
                              @foreach ($grid->getColumns() as $column)
                                  <th scope="col" class="{{ $column->getCssClass() }}">{{ $column->getLabel() }}</th>
                              @endforeach
                              @if ($grid->getRowActions()->count())
-                             <th scope="col" style="width: 15%">Action</th>
+                             <th scope="col" style="width: 15%">{{$grid->getActionLevel() }}</th>
                              @endif
                          </tr>
                      </thead>
                      <tbody>
                          @forelse($grid->getGridData() as $k=>$row)
-                             <tr>
+                           @php 
+                                $rowCssClass = $grid->getRowCssClass($row);
+                                $rowCss = $grid->getRowCss($row);
+                            @endphp
+                             <tr 
+                             @if($rowCssClass)
+                              class = "{{ $rowCssClass }}"
+                             @endif
+                             >
                                  <th scope="row">{{ $k + 1 }}</th>
                                  @foreach ($grid->getColumns() as $column)
                                      <td  class="{{ $column->getCssClass() }}" >
@@ -59,35 +64,11 @@
                                                      }
                                                      empty($routeParams) && ($routeParams['id'] = $row['id']);
                                                  }
+                                                 $htmlAttributes = $rowAction->getAttributesAsHtml();
                                              @endphp
-                                             @switch($rowAction->getName())
-                                                 @case('detail')
-                                                     <a class="btn btn-info btn-sm"
-                                                         href="{{ route($rowAction->getRouteName(), $routeParams) }}">
-                                                         <i class="fas fa-file-lines"></i>
-                                                     </a>
-                                                 @break
-
-                                                 @case('edit')
-                                                     <a class="btn btn-primary btn-sm"
-                                                         href="{{ route($rowAction->getRouteName(), $routeParams) }}">
-                                                         <i class="fas fa-pen-to-square"></i>
-                                                     </a>
-                                                 @break
-
-                                                 @case('delete')
-                                                     <a class="btn btn-danger btn-sm"
-                                                         href="{{ route($rowAction->getRouteName(), $routeParams) }}">
-                                                         <i class="fas fa-times"></i>
-                                                     </a>
-                                                 @break
-
-                                                 @default
-                                                     <a class="btn btn-sm {{ $rowAction->getCssClass() }}"
-                                                         href="{{ route($rowAction->getRouteName(), $routeParams) }}">
-                                                         <i class="fas {{ $rowAction->getIcon() }}"> </i>
-                                                     </a>
-                                             @endswitch
+                                             @if($rowAction->shouldBeDisplayedFor($row))
+                                             <x-dynamic-component :component="$rowAction->getComponent()" :$rowAction :$routeParams :$htmlAttributes  />
+                                             @endif
                                          @endforeach
                                  </td>
                                  @endif

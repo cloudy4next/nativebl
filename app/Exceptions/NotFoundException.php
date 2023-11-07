@@ -18,21 +18,15 @@ class NotFoundException extends Exception
         parent::__construct($message, 404);
     }
 
-    // public function render($request)
-    // {
-    //     $errorMessage = is_array($this->getMessage()) ? json_decode($this->getMessage()) : [$this->getMessage()];
 
-    //     return response()->json(['errors' => $errorMessage], 404);
-    // }
 
     public function render($request)
     {
         $test = json_decode($this->getMessage());
         if (isset($test->email)) {
-            return redirect()->back()->withErrors(['email' => $test->email]);
+            return redirect()->back()->with('error', $test->email);
         }
 
-        return redirect()->back()->withErrors(['errors' => $this->getMessage()]);
-
+        return redirect()->back()->with('error', $this->getMessage());
     }
 }

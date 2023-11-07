@@ -39,6 +39,9 @@
      public const TYPE_FILTER = 'filter';
 
      const INPUT_TYPE_HIDDEN = 'hidden';
+     const INPUT_TYPE_FILE = 'file';
+
+     public const GRID_DELETE_ACTION = 'grid-delete';
 
     private ?string $name = null;
     private $label;
@@ -58,9 +61,13 @@
     private mixed $value = null;
     private ?string $layoutClass = null;
     private bool $required = false;
+    private OptionValueStore $options;
+
     public function __construct()
     {
         $this->htmlAttributes = OptionValueStore::init(); 
+        $this->options = OptionValueStore::init(); 
+
     }
 
     public function getName(): string
@@ -125,6 +132,8 @@
 
     public function getFormattedValue(): mixed
     {
+        $this->formattedValue = ($this->formatValueCallable && $this->value ) ?  \call_user_func($this->formatValueCallable, $this->value)
+            : $this->value ?? $this->formattedValue ;
         return $this->formattedValue;
     }
 
@@ -143,7 +152,7 @@
         $this->textAlign = $textAlign;
     }
 
-    public function shouldBeDisplayedFor(iterable $row): bool
+    public function shouldBeDisplayedFor(mixed $row): bool
     {
         return null === $this->displayCallable || (bool) \call_user_func($this->displayCallable, $row);
     }
@@ -288,6 +297,16 @@
     public function getLayoutClass() : ?string
     {
         return $this->layoutClass;
+    }
+
+    public function getOption($name) : mixed
+    {
+        return $this->options->get($name);
+    }
+
+    public function setOption(mixed $name, mixed $value) : void
+    {
+        $this->options->set($name,$value);
     }
 
  }

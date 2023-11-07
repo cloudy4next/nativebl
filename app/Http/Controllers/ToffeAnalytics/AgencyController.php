@@ -50,7 +50,7 @@ class AgencyController extends AbstractController
     public function configureActions(): iterable
     {
         return [
-            ButtonField::init(ButtonField::EDIT)->linkToRoute('agency_edit')->addCssClass('fa-file-lines'),
+            ButtonField::init(ButtonField::EDIT)->linkToRoute('agency_edit'),
             ButtonField::init(ButtonField::DELETE)->linkToRoute('agency_delete'),
             ButtonField::init(ButtonField::DETAIL)->linkToRoute('agency_detail'),
             ButtonField::init('new', 'new')->linkToRoute('agency_create')->createAsCrudBoardAction(),
@@ -68,8 +68,8 @@ class AgencyController extends AbstractController
         $userList = $this->userServiceInterface->getAllUserIDNameArr();
         $fields = [
             IdField::init('id'),
-            TextField::init('name')->validate('required|max:255')->setHtmlAttributes(['required'=>true,'maxlength'=>100,'minlength'=>6]),
-            TextField::init('icon', 'Icon')->setHtmlAttributes(['required'=>true,'maxlength'=>100,'minlength'=>6]),
+            TextField::init('name')->validate('required|max:255')->setHtmlAttributes(['required' => true, 'maxlength' => 100, 'minlength' => 6]),
+            TextField::init('icon', 'Icon')->setHtmlAttributes(['required' => true, 'maxlength' => 100, 'minlength' => 6]),
             ChoiceField::init('user[]', 'Map User', choiceType: 'checkbox', choiceList: $userList)->setCssClass('my-class'),
             HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
         ];
@@ -115,15 +115,14 @@ class AgencyController extends AbstractController
         return view('home.toffe.Agency.edit')
             ->with('agencyDetails', $agencyDetails)
             ->with('userList', $userList)
-            ->with('mappedUserArray', $mappedUserArray)
-        ;
+            ->with('mappedUserArray', $mappedUserArray);
     }
 
     public function delete($id)
     {
         $message = $this->agencyService->delete($id);
         if ($message == 1) {
-            return to_route('agency_list');
+            return to_route('agency_list')->with('success', 'Agency Deleted Successfully');
         } else {
             throw new NotFoundException($message);
         }
@@ -133,7 +132,7 @@ class AgencyController extends AbstractController
     {
         $message = $this->agencyService->deleteAgencyUser($id);
         if ($message == 1) {
-            return to_route('agency_edit', $agencyId);
+            return to_route('agency_edit', $agencyId)->with('success', 'Agency Removed Successfully');
         } else {
             throw new NotFoundException($message);
         }
@@ -171,15 +170,12 @@ class AgencyController extends AbstractController
         $message = $this->agencyService->store($request);
         if ($message == 1) {
             if ($request['id'] != null) {
-                return to_route('agency_edit', $request['id']);
+                return to_route('agency_edit', $request['id'])->with('success', 'Agency Added Successfully');
             } else {
-                return to_route('agency_list');
+                return to_route('agency_list')->with('success', 'Agency Created Successfully');
             }
         } else {
             throw new NotFoundException($message);
         }
-
     }
-
-
 }

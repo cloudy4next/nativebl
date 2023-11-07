@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Exceptions\NotFoundException;
 use GuzzleHttp\Client;
 use App\Traits\HelperTrait;
+use Auth;
 
 trait APITrait
 {
@@ -18,8 +19,9 @@ trait APITrait
      * @param string $path eg: /API/AppManagement or /{}/AppManagement
      * @param bool $jsonDeacodeFlag bool
      * @return mixed
+     * @throws NotFoundException
      */
-    public function apiResponse(string $method, array|null $header, array $body = null, string $path, bool $jsonDecodeFlag = false): mixed
+    public function apiResponse(string $method, array|null $header, array $body = null, string $path, bool $jsonDecodeFlag = false, bool $secondLevelError = false): mixed
     {
         if ($header == null) {
 
@@ -36,7 +38,7 @@ trait APITrait
                 'json' => $body
             ]);
         } catch (\Exception $e) {
-            throw new NotFoundException($this->extractErrorSummary($e->getMessage()));
+            throw new NotFoundException($this->extractErrorSummary($e->getMessage(), $secondLevelError));
         }
 
         $res = $response->getBody()->getContents();
@@ -52,10 +54,30 @@ trait APITrait
         return $this->getMultiValueFromArr($response->data);
     }
 
-    function extractErrorSummary($text): string|null
+    public function userPermission(): array
     {
-        $pattern = '/"errorSummary"\s*:\s*"([^"]+)"/';
+        $path = '/Api/AppUserManagement/AppUserPermissions?id=' . Auth::user()->id;
+        $response = $this->apiResponse('GET', null, null, $path, true);
+        return $this->setOnlyArray($this->featureSet($this->GetFeatSets($response['data'], null)));
+    }
 
+    private function getUserInformation(string $accessKey = null): array|object
+    {
+        $path = '/Api/AppUserManagement/AppUser?id=' . Auth::user()->id . '&email=null';
+        $response = $this->apiResponse('GET', null, null, $path, false);
+        switch ($response) {
+            case $accessKey == 'menu':
+                return $response->data->menus;
+            case $accessKey == 'permissions':
+                return $response->data->permissions;
+            default:
+                return $response->data;
+        }
+    }
+
+    function extractErrorSummary($text, bool $secondLevelError): string|null
+    {
+        $pattern = ($secondLevelError == true) ? '/"ErrorDescription"\s*:\s*\["([^"]+)"\]/' : '/"errorSummary"\s*:\s*"([^"]+)"/';
         if (preg_match($pattern, $text, $matches)) {
             $errorSummary = $matches[1];
             return $errorSummary;

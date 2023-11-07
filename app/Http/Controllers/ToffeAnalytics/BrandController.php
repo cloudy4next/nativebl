@@ -21,11 +21,13 @@ use Auth;
 class BrandController extends AbstractController
 {
     private BrandServiceInterface $brandService;
-    public function __construct(private BrandRepositoryInterface $repo, BrandServiceInterface $brandService,
-        private UserServiceInterface $userServiceInterface)
-    {
+    public function __construct(
+        private BrandRepositoryInterface $repo,
+        BrandServiceInterface $brandService,
+        private UserServiceInterface $userServiceInterface
+    ) {
         $this->brandService = $brandService;
-        $this->userServiceInterface  = $userServiceInterface ;
+        $this->userServiceInterface  = $userServiceInterface;
     }
 
     public function getRepository()
@@ -37,14 +39,13 @@ class BrandController extends AbstractController
     public function configureActions(): iterable
     {
         return [
-            ButtonField::init(ButtonField::EDIT)->linkToRoute('brand_edit')->addCssClass('fa-file-lines'),
+            ButtonField::init(ButtonField::EDIT)->linkToRoute('brand_edit'),
             ButtonField::init(ButtonField::DELETE)->linkToRoute('brand_delete'),
             ButtonField::init(ButtonField::DETAIL)->linkToRoute('brand_detail'),
             ButtonField::init('new', 'new')->linkToRoute('brand_create')->createAsCrudBoardAction(),
             ButtonField::init('submit')->createAsFormSubmitAction(),
             ButtonField::init('cancel')->linkToRoute('brand_list')->createAsFormAction(),
             ButtonField::init('back')->linkToRoute('brand_list')->createAsShowAction()->setIcon('fa-arrow-left'),
-            //ButtonField::init('other')->linkToRoute('other_link')->addCssClass('btn-secondary')->setIcon('fa-pencil')
         ];
     }
 
@@ -56,9 +57,9 @@ class BrandController extends AbstractController
         $userList = $this->userServiceInterface->getAllUserIDNameArr();
         $fields = [
             IdField::init('id'),
-            TextField::init('name')->validate('required|max:255')->setHtmlAttributes(['required'=>true,'maxlength'=>100,'minlength'=>20]),
-            TextField::init('icon', 'Icon')->setHtmlAttributes(['required'=>true,'maxlength'=>100,'minlength'=>20]),
-            ChoiceField::init('user[]','Map User',choiceType:'checkbox', choiceList:$userList)->setCssClass('my-class'),
+            TextField::init('name')->validate('required|max:255')->setHtmlAttributes(['required' => true, 'maxlength' => 100, 'minlength' => 6]),
+            TextField::init('icon', 'Icon')->setHtmlAttributes(['required' => true, 'maxlength' => 100, 'minlength' => 6]),
+            ChoiceField::init('user[]', 'Map User', choiceType: 'checkbox', choiceList: $userList)->setCssClass('my-class'),
             HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
         ];
         $this->getForm($fields)
@@ -72,20 +73,19 @@ class BrandController extends AbstractController
         $fields = [
             TextField::init('name')
         ];
-         $this->getFilter($fields);
+        $this->getFilter($fields);
     }
 
 
     public function agencies()
     {
-        $this->initGrid(['name','icon'], pagination: 5)
-        ;
+        $this->initGrid(['name', 'icon'], pagination: 5);
         return view('home.toffe.Brand.list');
     }
 
     public function show($id)
     {
-        $this->initShow($id, ['name','icon']);
+        $this->initShow($id, ['name', 'icon']);
         return view('home.toffe.Brand.show');
     }
 
@@ -94,26 +94,25 @@ class BrandController extends AbstractController
         $userList = $this->userServiceInterface->getAllUserIDNameArr();
         $brandDetails = $this->brandService->getBrandDataById($id);
         $mappedUserArray = array();
-        if($brandDetails['brandUserMap']){
-            foreach($brandDetails['brandUserMap'] as $userMap){
+        if ($brandDetails['brandUserMap']) {
+            foreach ($brandDetails['brandUserMap'] as $userMap) {
                 $mappedUserArray[$userMap['id']] = $userMap['user_id'];
             }
         }
 
         return view('home.toffe.Brand.edit')
-        ->with('brandDetails', $brandDetails)
-        ->with('userList', $userList)
-        ->with('mappedUserArray', $mappedUserArray)
-        ;
+            ->with('brandDetails', $brandDetails)
+            ->with('userList', $userList)
+            ->with('mappedUserArray', $mappedUserArray)
+            ->with('success', 'Brand Edited Successfully')->with('success', 'Brand Updated Successfully');
     }
 
     public function delete($id)
     {
         $message = $this->brandService->delete($id);
-        if($message == 1){
-            return to_route('brand_list');
-        }
-        else{
+        if ($message == 1) {
+            return to_route('brand_list')->with('success', 'Brand Deleted Successfully');
+        } else {
             throw new NotFoundException($message);
         }
     }
@@ -122,10 +121,9 @@ class BrandController extends AbstractController
     public function deleteBrandUserMap($id, $brandId)
     {
         $message = $this->brandService->deleteBrandUser($id);
-        if($message == 1){
-            return to_route('brand_edit', $brandId);
-        }
-        else{
+        if ($message == 1) {
+            return to_route('brand_edit', $brandId)->with('success', 'Brand Removed Successfully');
+        } else {
             throw new NotFoundException($message);
         }
     }
@@ -160,15 +158,13 @@ class BrandController extends AbstractController
         }
 
         $message = $this->brandService->store($request);
-        if($message == 1){
-            if($request['id'] != null){
-                return to_route('brand_edit', $request['id']);
+        if ($message == 1) {
+            if ($request['id'] != null) {
+                return to_route('brand_edit', $request['id'])->with('success', 'Brand Added Successfully');
+            } else {
+                return to_route('brand_list')->with('success', 'Brand Created Successfully');
             }
-            else{
-                return to_route('brand_list');
-            }
-        }
-        else{
+        } else {
             throw new NotFoundException($message);
         }
     }
@@ -178,5 +174,4 @@ class BrandController extends AbstractController
     {
         //$this->initDetails();
     }
-
 }

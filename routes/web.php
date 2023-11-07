@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\Common\FileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\HomeController;
@@ -30,11 +31,12 @@ use App\Http\Middleware\ForcePasswordChange;
  */
 
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'loginViewShow'])->name('login.view');
+
+    Route::get('/login', [AuthController::class, 'toffeeLoginViewShow'])->name('login.view');
+    //    Route::get('/toffee-login', [AuthController::class, 'toffeeLoginViewShow'])->name('toffee.login.view');
     Route::post('/login', [AuthController::class, 'login'])->name('login');
-    Route::get('/password-reset', [AuthController::class, 'passwordReset'])->name('password.reset');
-
-
+    Route::get('/password/reset/{token}', [AuthController::class, 'passwordReset'])->name('password.reset');
+    Route::post('/password/reset', [AuthController::class, 'reset'])->name('password.reset.update');
 });
 
 
@@ -42,11 +44,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get("/main", [ThemeController::class, 'main']);
 
-    Route::get('/logout', ['uses' => 'Auth\AuthController@logout', 'as' => 'logout'])->withoutMiddleware([ForcePasswordChange::class]);
+    Route::get('/logout', [AuthController::class, 'logout'])
+        ->withoutMiddleware([ForcePasswordChange::class])->name('logout');
 
     Route::get('/session-check', ['uses' => 'Auth\AuthController@test']);
 
     Route::get("/", [HomeController::class, 'main'])->name('home');
+
+    Route::post("/editor-file-upload", [FileController::class, 'fileUpload'])->name('editor.file.upload');
 
 
     Route::prefix('profile')->group(function () {
@@ -62,7 +67,6 @@ Route::middleware('auth')->group(function () {
         Route::get("/edit/{id}", [UserController::class, 'edit'])->name('user_edit')->middleware('acl:users-update');
         Route::post("/update", [UserController::class, 'update'])->name('user_update')->middleware('acl:users-update');
         Route::get("/delete/{id}", [UserController::class, 'delete'])->name('user_delete')->middleware('acl:users-delete');
-
     });
 
     Route::prefix('permission')->group(function () {
@@ -104,5 +108,4 @@ Route::middleware('auth')->group(function () {
         Route::get("/delete/{id}", [HomeController::class, 'delete'])->name('customer_delete');
         Route::get("/custom/{name}", [HomeController::class, 'custom'])->name('customer_custom');
     });
-
 });

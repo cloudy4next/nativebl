@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use App\Exceptions\NotFoundException;
 use Session;
 use Auth;
 use Illuminate\Support\Str;
@@ -20,19 +19,12 @@ trait HelperTrait
      */
     private function SessionCheck(string $value)
     {
-        if (Session::has($value) == true) {
-            return Session::get($value);
-        }
-        Auth::logout();
+        return Session::get($value);
     }
 
-    private function SessionValueSet(string $name, string|int|array $value)
+    public function checkifExitsApplication(int $id): bool
     {
-        if (Session::has($name)) {
-            return Session::put($name, $value);
-        } else {
-            throw new NotFoundException('No Session Data found');
-        }
+        return ($this->SessionCheck('applicationID') == $id) ? true : false;
     }
 
     /**
@@ -42,13 +34,10 @@ trait HelperTrait
     {
         return $this->featureSet($this->SessionCheck('role'));
     }
-
-    /**
-     * @return mixed user permission from session
-     */
-    public function userPermission(): array
+    //TO--do
+    public function setOnlyArray($set)
     {
-        $permissions = $this->featureSet($this->SessionCheck('permission'));
+        $permissions = $this->featureSet($set);
 
         $newPermmissionArr = array();
         foreach ($permissions as $item) {
@@ -105,28 +94,20 @@ trait HelperTrait
     /**
      * @return array return menu parent child relation
      */
-    public function parentChildMenuItem(array $menu)
+    public function parentChildMenuItem(array $menu, $parentId = null)
     {
-        $parentChild = array();
-        $newParentChildPair = array();
+        $result = [];
         foreach ($menu as $item) {
-            if ($item['parentID'] == null) {
-                array_push($parentChild, $item);
-            }
-        }
+            if ($item['parentID'] == $parentId) {
+                $children = $this->parentChildMenuItem($menu, $item['id']);
 
-        foreach ($parentChild as $parent) {
-            $childIDs = array();
-            foreach ($menu as $value) {
-                if ($parent['id'] == $value['parentID']) {
-                    array_push($childIDs, $value);
-                }
-                $newParentChildPair[$parent['name']] = $childIDs;
+                $item['children'] = !empty($children) ? $children : [];
+
+                $result[$item['name']] = $item;
             }
         }
-        return $newParentChildPair;
+        return $result;
     }
-
 
     /**
      * @param array $haystack
@@ -157,16 +138,17 @@ trait HelperTrait
 
     public function UserDataProcessing($userObj, string $access, string $refresh): array
     {
+        // dd($this->GetFeatSets($userObj['data']['menus'], 'name'));
         $userId = $userObj['data']['userID'];
         $email = $userObj['data']['emailAddress'];
         $userName = $userObj['data']['userName'];
         $menus = $this->parentChildMenuItem($this->GetFeatSets($userObj['data']['menus'], 'name'));
         $roles = $this->GetFeatSets($userObj['data']['roles'], 'name');
-        $permissions = $this->GetFeatSets($userObj['data']['permissions'], null);
         $applicatopnID = $userObj['data']['applicationID'];
         $isMustPasswordChange = $userObj['data']['isMustChangePassword'];
+        $profilePicID = $userObj['data']['profilePicID'];
 
-        return [$userId, $userName, $email, $menus, $roles, $permissions, $access, $refresh, $applicatopnID, $isMustPasswordChange];
+        return [$userId, $userName, $email, $menus, $roles, $profilePicID, $access, $refresh, $applicatopnID, $isMustPasswordChange];
     }
 
     public function getApplications()
@@ -176,9 +158,7 @@ trait HelperTrait
         $response = $this->apiResponse('GET', null, null, $path);
         $applicationArray = $this->getMultiValueFromArr($response->data);
         $singleApplication[$applicationID] = $applicationArray[$applicationID];
-
-        // here key 1 is the master application. need to refactor if needed
-        return ($applicationID == 1) ? $applicationArray : $singleApplication;
+        return ($applicationID == config('nativebl.base.core_application_id')) ? $applicationArray : $singleApplication;
 
     }
     public function generateUUID(): string
@@ -186,6 +166,31 @@ trait HelperTrait
         return (string) Str::orderedUuid();
     }
 
+    public function getApplictionId(): int
+    {
+        return $this->SessionCheck('applicationID');
+    }
 
+    public function getTotalListItem(array|object $userInformation, array $listOfItem): array
+    {
+        $excludeItems = [];
+        foreach ($userInformation as $userItem) {
+            if ($userItem->applicationID != Session::get('applicationID')) {
+                $excludeItems[] = (array) $userItem;
+            }
+        }
+        $result = array_merge($excludeItems, $listOfItem);
+        $result = array_values(array_intersect_key($result, array_unique(array_column($result, 'id'))));
+        return $result;
+
+    }
+    public function getResetHtmlContent($resetToken)
+    {
+
+        $htmlContent = \View::make('auth.reset-view', compact('resetToken'))->render();
+
+        return json_encode(['html_content' => $htmlContent]);
+
+    }
 
 }

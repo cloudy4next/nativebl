@@ -41,6 +41,11 @@ final class ArticleService implements ArticleServiceInterface
         return $this->articleRepository->article_review_submit($request);
     }
 
+    public function articleArchive($id)
+    {
+        return $this->articleRepository->articleArchive($id);
+    }
+
     public function showAllArticle($input)
     {
         return $this->articleRepository->articleFilterData($input);

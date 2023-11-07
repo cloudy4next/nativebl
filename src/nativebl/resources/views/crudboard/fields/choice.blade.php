@@ -5,9 +5,16 @@
              @foreach ($field->getCustomOption('choiceList') as $key=>$value)
              <label class="form-check form-check-inline">
                 <input  {{ $field->getAttributesAsHtml() }} class="form-check-input {{ $field->getCssClass() }}" type="{{ $field->getInputType() }}" name="{{ $field->getName() }}" value="{{ $key }}"
-                @if($field->getCustomOption(NativeBL\Field\ChoiceField::SELECTED.".".$key) !==null )
+                @if($values = old($field->getName(),$field->getValue()))
+                    @php
+                    $values = is_array($values) ? $values : [$values];
+                    @endphp
+                    @if(in_array($key,$values))
+                        checked
+                    @endif
+                @elseif($field->getCustomOption(NativeBL\Field\ChoiceField::SELECTED.".".$key) !==null )
                     checked
-                 @endif   
+                @endif   
                  @if($field->isDisabled()) disabled @endif
                  @if($field->isReadonly()) readonly @endif
                 >
@@ -26,7 +33,14 @@
             @foreach ($field->getCustomOption('choiceList') as $key=>$value)
                  
                 <option value="{{ $key }}"
-                  @if($field->getCustomOption(NativeBL\Field\ChoiceField::SELECTED.".".$key) !==null )
+                @if($values = old($field->getName(),$field->getValue()))
+                 @php
+                  $values = is_array($values) ? $values : [$values];
+                 @endphp
+                    @if(in_array($key,$values))
+                        selected
+                    @endif
+                @elseif($field->getCustomOption(NativeBL\Field\ChoiceField::SELECTED.".".$key) !==null )
                     selected
                  @endif                
                 >{{ $value}}</option>

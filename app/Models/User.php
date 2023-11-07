@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\ToffeAnalytics\ToffeeAgency;
 use App\Models\ToffeAnalytics\ToffeeBrandUserMap;
+use App\Traits\APITrait;
+use App\Traits\AttachmentUploadTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,10 +15,11 @@ use App\Traits\HelperTrait;
 use App\Models\ToffeAnalytics\ToffeeCampaign;
 use App\Models\ToffeAnalytics\ToffeeAgencyUserMap;
 use Auth;
+use File;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HelperTrait;
+    use HasApiTokens, HasFactory, Notifiable, HelperTrait, APITrait, AttachmentUploadTrait;
 
 
     // protected $table = 'users';
@@ -58,6 +61,7 @@ class User extends Authenticatable
 
     public function hasPermission(string $permission): bool
     {
+        // dd($permission,$this->userPermission());
         if (in_array($permission, $this->userPermission())) {
             return true;
         }
@@ -74,8 +78,7 @@ class User extends Authenticatable
         $isAdmin = false;
         $userRole = $this->roles();
         foreach ($userRole as $role) {
-            if($role['name'] == "toffe-super-admin")
-            {
+            if ($role['name'] == "toffe-super-admin") {
                 $isAdmin = true;
             }
         }
@@ -119,6 +122,11 @@ class User extends Authenticatable
             $campaignList[] = $item['campaign_id'];
         }
         return array_unique($campaignList);
+    }
+
+    public function userImage()
+    {
+        return $this->getBase64Attachment($this->SessionCheck('profilePicID'));
     }
 
 

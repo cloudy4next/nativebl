@@ -53,9 +53,25 @@ final class ButtonField
         $dto->setName($name);
         $dto->setValue($name);
         $dto->setLabel($label ?? self::humanizeString($name));
+        switch($name){
+            case self::EDIT :
+                $dto->setIcon('fa-pen-to-square');
+                $dto->setCssClass('btn-primary');
+            break;
+            case self::DELETE :
+                $dto->setIcon('fa-times');
+                $dto->setOption('role',ActionDto::GRID_DELETE_ACTION);
+                $dto->setCssClass('btn-danger');
+            break;
+            case self::DETAIL :
+                $dto->setIcon('fa-file-lines');
+                $dto->setCssClass('btn-info');
+            break;
+        }
         isset($params['icon']) && $dto->setIcon($params['icon']);
         isset($params['cssClass']) && $dto->setCssClass($params['cssClass']);
         $dto->setHtmlElement('a');
+        $dto->setComponent('native::crudboard.actions.grid-button');
         $dto->setHtmlAttributes([]);
         return new self($dto);
     }
@@ -63,6 +79,7 @@ final class ButtonField
     public function createAsCrudBoardAction(): self
     {
         $this->dto->setType(ActionDto::TYPE_CRUD_BOARD);
+        $this->dto->setComponent('native::crudboard.actions.board-button');
         return $this;
     }
 
@@ -109,6 +126,7 @@ final class ButtonField
     {
         $this->dto->setType(ActionDto::TYPE_SHOW);
         $this->dto->setCssClass('btn-secondary');
+        $this->dto->setComponent('native::crudboard.actions.show-button');
         return $this;
     }
 

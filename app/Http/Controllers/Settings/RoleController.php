@@ -8,6 +8,7 @@ use App\Contracts\Services\Settings\RoleServiceInterface;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use NativeBL\Field\ButtonField;
 use NativeBL\Field\ChoiceField;
+use NativeBL\Field\Field;
 use NativeBL\Field\InputField;
 use NativeBL\Field\TextField;
 
@@ -45,9 +46,9 @@ class RoleController extends AbstractController
     {
         $fields = [
             ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->roleService->getApplication())->setCssClass('my-class'),
-            InputField::init('title')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>11]),
-            InputField::init('shortDescription', 'Short Description', 'textarea')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>11]),
-            InputField::init('menus')->setComponent('settings.user.role-custom-component')->setHtmlAttributes(['required'=>true,'maxlength'=>13,'minlength'=>11])->setLayoutClass('col-md-12'),
+            InputField::init('title')->setHtmlAttributes(['required'=>true,'minlength'=>8]),
+            InputField::init('shortDescription', 'Short Description', 'textarea')->setHtmlAttributes(['required'=>true,'minlength'=>8]),
+            InputField::init('menus')->setComponent('settings.user.role-custom-component')->setHtmlAttributes(['required'=>true,'minlength'=>8])->setLayoutClass('col-md-12'),
 
         ];
         $this->getForm($fields)
@@ -68,7 +69,17 @@ class RoleController extends AbstractController
 
     public function role()
     {
-        $this->initGrid(['title', 'name', 'shortDescription'], pagination: 5);
+        $this->initGrid([
+            'title',
+            'name',
+            Field::init('shortDescription', 'Short Description'),
+            Field::init('isActive', 'Active Status')->formatValue(function($value) {
+                return $value== 1 ? "Active" : "Inactive";
+            }),
+            Field::init('isDeleted', 'Is Deleted')->formatValue(function($value) {
+                return $value== 1 ? "Yes" : "No";
+            }),
+        ], pagination: 5);
         return view('home.settings.role.list');
     }
 
@@ -87,7 +98,7 @@ class RoleController extends AbstractController
                 ->withInput();
         }
         $this->roleService->saveRole($request);
-        return to_route('role_list');
+        return to_route('role_list')->with('success', 'Role Created Successfully');
     }
 
     public function create()
@@ -112,13 +123,13 @@ class RoleController extends AbstractController
         }
         $roleID = $request->get('id');
         $this->roleService->updateRole($request);
-        return redirect('role/edit/' . $roleID);
+        return redirect('role/edit/' . $roleID)->with('success', 'Role Updated Successfully');
     }
 
     public function delete(int $id)
     {
         $this->roleService->deleteRole($id);
-        return redirect('role');
+        return redirect('role')->with('success', 'Role Deleted Successfully');
     }
 
     public function edit($id)

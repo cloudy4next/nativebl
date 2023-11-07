@@ -4,5 +4,5 @@ namespace App\Contracts\ToffeAnalytics;
 
 interface UserCampaignRepositoryInterface
 {
-
+    function getHalfMonthData(array $data);
 }

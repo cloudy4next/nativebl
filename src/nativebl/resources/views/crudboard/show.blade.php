@@ -16,12 +16,10 @@
             </tbody>
             </table>
             @foreach($show->getActions()->getShowActions() as $action)
-            <a href="{{route($action->getRouteName(),$action->getRouteParameters())}}" class="btn {{$action->getCssClass() }}"> 
-                @if($action->getIcon())
-                <i class="fas {{$action->getIcon()}}"> </i>
-                @endif
-                {{$action->getLabel() }} 
-            </a>
+             @if($action->shouldBeDisplayedFor($show->getRecord()))
+                @php $htmlActionAttributes = $action->getAttributesAsHtml() ; @endphp
+                <x-dynamic-component :component="$action->getComponent()" :$action :$htmlActionAttributes />
+            @endif
             @endforeach
         </div>
     </div>

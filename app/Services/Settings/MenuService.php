@@ -8,14 +8,14 @@ use NativeBL\Contracts\Service\CrudBoard\CrudGridLoaderInterface;
 use App\Traits\APITrait;
 use App\Traits\HelperTrait;
 use Auth;
-
+use Str;
 use Illuminate\Support\Collection;
 
 final class MenuService extends AbstractNativeRepository implements MenuServiceInterface, CrudGridLoaderInterface
 {
     use APITrait, HelperTrait;
 
-    public function getGridData(array $filters=[]): iterable
+    public function getGridData(array $filters = []): iterable
     {
         return $this->getAllMenu();
 
@@ -45,7 +45,7 @@ final class MenuService extends AbstractNativeRepository implements MenuServiceI
      */
     public function getMenubyID(): mixed
     {
-        $path = '/Api/AppUserManagement/AppUser?id=' . Auth::user()->id;
+        $path = '/Api/AppUserManagement/AppUser?id=' . Auth::user()->id . '&email=null' ;
 
         $response = $this->apiResponse('GET', null, null, $path);
 
@@ -77,12 +77,16 @@ final class MenuService extends AbstractNativeRepository implements MenuServiceI
      */
     public function saveMenu($request)
     {
+        // 4 is toffee here
+        $name = $this->checkifExitsApplication(4) ? Str::slug($request->get('title'), '-') : $request->get('name');
         $json = [
             "applicationID" => $request->get('applicationID'),
             "title" => $request->get('title'),
-            "iconName" => $request->get('iconName'),
-            "displayOrder" => $request->get('displayOrder'),
-            "target" => $request->get('target'),
+            'name' => $name,
+            // close for tigerweb
+            "iconName" => "fa fas-edit",
+            "displayOrder" => 0,
+            "target" => 0,
         ];
 
         if ($request->get('id') != null) {

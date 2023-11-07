@@ -36,6 +36,12 @@ class CustomerRepository  extends AbstractNativeRepository implements CustomerRe
       return $this->all();
    }
 
+   public function getRecordForEdit(int|string $id): object
+   {
+     $row = parent::getRecordForEdit($id);
+     return $row;
+   }
+
    public function findCustomerByMsisdn(string $msisdn):  iterable
    {
        return Customer::where('msisdn',$msisdn)->get();

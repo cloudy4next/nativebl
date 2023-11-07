@@ -76,4 +76,9 @@ final class FormFieldDto extends AbstractHtmlElementDto
         return $this->inputType == self::INPUT_TYPE_HIDDEN;
     }
 
+    public function isFileInput()
+    {
+        return $this->inputType == self::INPUT_TYPE_FILE;
+    }
+
 }

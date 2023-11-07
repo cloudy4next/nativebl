@@ -6,24 +6,21 @@ use App\Traits\HelperTrait;
 use Illuminate\Http\Request;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\TigerWeb\CustomerRepositoryInterface;
-use NativeBL\Contracts\Repository\NativeRepositoryInterface;
-use NativeBL\Support\Facades\CrudBoardFacade;
 use NativeBL\Field\ButtonField;
+use NativeBL\Field\DateTimeField;
 use NativeBL\Field\TextareaField;
 use NativeBL\Field\TextField;
 use Illuminate\Http\RedirectResponse;
 use NativeBL\Field\ChoiceField;
-use NativeBL\Field\DateTimeField;
 use NativeBL\Field\FileField;
 use NativeBL\Field\IdField;
 use NativeBL\Field\InputField;
 use NativeBL\Field\Field;
-use NativeBL\Field\HiddenField;
-use NativeBL\Services\CrudBoard\GridFilter;
 
 class HomeController extends AbstractController
 {
     use HelperTrait;
+
     public function __construct(private CustomerRepositoryInterface $repo)
     {
     }
@@ -36,15 +33,15 @@ class HomeController extends AbstractController
     public function configureActions(): iterable
     {
         return [
-            ButtonField::init(ButtonField::EDIT)->linkToRoute('customer_edit')->addCssClass('fa-file-lines'),
-            ButtonField::init(ButtonField::DELETE)->linkToRoute('customer_delete'),
+            ButtonField::init(ButtonField::EDIT)->linkToRoute('customer_edit'),
+            ButtonField::init(ButtonField::DELETE)->linkToRoute('customer_delete'), //->displayIf(fn($row): bool => $row['id'] == 10 ),
             ButtonField::init(ButtonField::DETAIL)->linkToRoute('customer_detail', function ($row) {
-                return ['id' => $row['id']]; }),
-            //ButtonField::init('custom1')->linkToRoute('customer_custom',['name'=>'full_name'])->addCssClass('btn-info')->setIcon('fa-square'),
-            ButtonField::init('custom')->linkToRoute('customer_custom', ['name' => 'msisdn'])->addCssClass('btn-danger')->setIcon('fa-square'),
+                return ['id' => $row['id']];
+            }),
+            // ButtonField::init('custom1')->linkToRoute('customer_custom',['name'=>'full_name'])->addCssClass('btn-info')->setIcon('fa-square'),
             ButtonField::init('new', 'new')->linkToRoute('customer_create')->createAsCrudBoardAction()->iconForNew(),
-            ButtonField::init('custom', 'Custom')->linkToRoute('customer_list')->createAsCrudBoardAction()->setIcon('fa-arrow-right'),
-            ButtonField::init('submit')->createAsFormSubmitAction(),
+            ButtonField::init('custom', 'Action')->linkToRoute('customer_list')->setIcon('fa-arrow-right')->setHtmlAttributes(['class' => 'btn-custom'])->createAsCrudBoardAction(),
+            ButtonField::init('submit')->createAsFormSubmitAction()->setHtmlAttributes(['data-role' => 'update']),
             ButtonField::init('cancel')->linkToRoute('customer_list')->createAsFormAction(),
             ButtonField::init('back')->linkToRoute('customer_list')->createAsShowAction()->setIcon('fa-arrow-left'),
             ButtonField::init('cancel')->linkToRoute('customer_list')->createAsShowAction()->setIcon('fa-arrow-left'),
@@ -56,26 +53,20 @@ class HomeController extends AbstractController
     {
         $fields = [
             IdField::init('id'),
-            TextField::init('full_name')->validate('required|max:255'),
+            TextField::init('full_name')->validate('required|max:255')->setLayoutClass('col-md-3'),
             TextField::init('msisdn')->setHtmlAttributes(['required' => true, 'maxlength' => 13, 'minlength' => 11]),
             // HiddenField::init('msisdn')->setDefaultValue('0000000111122'),
-            ChoiceField::init(
-                'type',
-                'User Type',
-                choiceType: 'checkbox',
-                choiceList: [1 => 'Super Admin', 'Admin', 'User'],
-        empty
-                : "-- Select Item --",
-                selected: 2
-            )->setCssClass('my-class'),
-            FileField::init('image'),
-            TextField::init('date_range')->setHtmlAttributes(['id' => 'daterangepicker']),
+            //     ChoiceField::init('msisdn','MSISDN',choiceType:'checkbox', choiceList:[1=>'Super Admin','Admin','User','01962424629'=>'Custom'],
+            //     empty:"-- Select Item --",selected:2
+            //    )->setCssClass('mb-3'),
+            // FileField::init('image'),
+            //TextField::init('date_range')->setHtmlAttributes(['id'=>'daterangepicker']),
             // InputField::init('date_range','Date Range')->setAttribute('id','daterangepicker'),
             InputField::init('password', 'Password', "password"),
             InputField::init('email', 'Email', "email")->setReadonly(),
-            InputField::init('dob', 'DOB', "date"),
+            DateTimeField::init('dob', 'DOB', "date"),
             TextareaField::init('remarks', 'Remarks', rows: 2)->validate('required|max:255|min:4')->setLayoutClass('col-md-12')
-                ->setHtmlAttributes(['id' => 'editor']),
+                ->setHtmlAttributes(['class' => 'editor']),
             // InputField::init('daterangepicker')->setComponent('custom.daterangepicker'),
         ];
         $this->getForm($fields)
@@ -114,13 +105,12 @@ class HomeController extends AbstractController
         // $this->initGrid(['full_name','msisdn'])
         $this->initGrid(
             [
-                Field::init('full_name', 'Name')->setComponent('custom.grid.customer_full_name')->setCssClass('text-center'),
-                Field::init('msisdn', 'Mobile')->formatValue(fn($value) => ltrim($value, '0'))
-            ],
-            pagination: 5
-        )
-        ;
-        return view('native::list');
+                Field::init('full_name', 'Name')->setComponent('custom.grid.customer_full_name'),
+                Field::init('msisdn', 'Mobile')->formatValue(fn($value): string => ltrim($value, '019'))
+            ], pagination: 5);
+        // return view('native::list');
+        //  session()->flash('error','this is info');
+        return view('list');
     }
 
     public function show($id)
@@ -134,11 +124,13 @@ class HomeController extends AbstractController
         $this->initEdit($id);
         return view('native::edit');
     }
+
     public function delete($id)
     {
         echo $id;
         exit();
     }
+
     public function create_old()
     {
         $this->initForm('customer_form', route('customer_save'), 'post', ['id' => 'myForm']);
@@ -155,7 +147,6 @@ class HomeController extends AbstractController
 
     public function store(Request $request): RedirectResponse
     {
-        // dd($request);
         $form = $this->initStore($request);
         //print_r($request->all()); exit();
         // $validated = $request->validate([
@@ -177,12 +168,6 @@ class HomeController extends AbstractController
         echo $name;
         exit();
     }
-
-
-
-
-
-
 
 
 }

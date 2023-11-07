@@ -109,13 +109,13 @@ class CampaignController extends AbstractController
     public function edit($id)
     {
         $this->initEdit($id);
-        return view('home.toffe.Campaign.edit');
+        return view('home.toffe.Campaign.edit')->with('success', 'Campaign Edit Successfully');
     }
     public function delete($id)
     {
          $this->campaignService->delete($id);
 
-       return  to_route('toffee_campaign_list');
+       return  to_route('toffee_campaign_list')->with('success', 'Campaign Deleted Successfully');
     }
 
     public function create()
@@ -141,7 +141,7 @@ class CampaignController extends AbstractController
                 ->withInput();
         }
         $this->campaignService->store($request);
-        return to_route('toffee_campaign_list', [$request['user_id']]);
+        return to_route('toffee_campaign_list', [$request['user_id']])->with('success', 'Campaign Created Successfully');
     }
 
 

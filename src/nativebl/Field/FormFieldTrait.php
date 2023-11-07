@@ -197,4 +197,10 @@ trait FormFieldTrait
         $this->dto->setInputType(FormFieldDto::INPUT_TYPE_HIDDEN);
         return $this;
     }
+    public function makeFileType() : self
+    {
+        $this->dto->setInputType(FormFieldDto::INPUT_TYPE_FILE);
+        return $this;
+    }
+
 }

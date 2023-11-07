@@ -44,13 +44,18 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->namespace('App\Http\Controllers\TigerWeb')
                 ->group(base_path('routes/applications/tigerweb.php'));
+
             Route::middleware('web')
                 ->namespace('App\Http\Controllers\ToffeAnalytics')
                 ->group(base_path('routes/applications/toffeanalytics.php'));
+
+            Route::middleware('web')
+                ->namespace('App\Http\Controllers\DBSSESim')
+                ->group(base_path('routes/applications/dbssesim.php'));
+            Route::middleware('web')
+                ->namespace('App\Http\Controllers\DND')
+                ->group(base_path('routes/applications/dnd.php'));
         });
-
-
-
     }
 
     /**

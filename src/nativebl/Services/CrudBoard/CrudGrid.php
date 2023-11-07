@@ -34,11 +34,19 @@ final class CrudGrid implements CrudGridInterface
    private GridFilter $filter;
    private GridPaginator $paginator;
    private array $loaderParams = [];
+   private array $config  = [
+      'actionHeader'    => 'Action',
+      'rowCssCallable' => null,
+      'rowCssClassCallable' => null,
+      'headerRowCssClass' => null,
+      'tableCssClass' => null,
+   ];
 
    private function __construct(private CrudGridLoaderInterface $gridDataLoader,array $params)
    {
       $this->filter = new GridFilter();
       $this->paginator = new GridPaginator($params['pagination']??10);
+      $this->config =  ($params['config'] ?? []) + $this->config  ;
    }
 
    public static function init(CrudGridLoaderInterface $gridDataLoader, array $params): CrudGridInterface
@@ -110,5 +118,38 @@ final class CrudGrid implements CrudGridInterface
    public function getRowActions(): ActionCollection
    {
       return $this->actions->getRowActions();
+   }
+
+   public function getActionLevel() : string
+   {
+      return $this->config['actionHeader'];
+   }
+
+   public function getRowCssClass(mixed $row) : ?string
+   {
+      $cssClass = null;
+      $this->config['rowCssClassCallable'] && 
+      is_callable($this->config['rowCssClassCallable']) &&
+      $cssClass = call_user_func($this->config['rowCssClassCallable'],$row);
+      return $cssClass;
+   }
+
+   public function getRowCss(mixed $row) : ?string
+   {
+      $css = null;
+      $this->config['rowCssCallable'] && 
+      is_callable($this->config['rowCssCallable']) &&
+      $css = call_user_func($this->config['rowCssCallable'],$row);
+      return $css;
+   }
+
+   public function getHeaderRowCssClass(): ?string
+   {
+     return $this->config['headerRowCssClass'];
+   }
+
+   public function getTableCssClass(): ?string
+   {
+     return $this->config['tableCssClass'];
    }
 }

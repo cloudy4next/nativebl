@@ -1,38 +1,43 @@
 .bi {
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.125em;
-  fill: currentcolor;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    fill: currentcolor;
 }
 
 .active .bi {
-  display: block !important;
+    display: block !important;
 }
 
 .settings-toggle {
-  background: $primary;
-  border-radius: 50%;
-  bottom: 20px;
-  color: #fff;
-  cursor: pointer;
-  height: 52px;
-  padding: 1rem;
-  position: fixed;
-  right: 20px;
-  width: 52px;
+    background: $primary;
+    border-radius: 50%;
+    bottom: 20px;
+    color: #fff;
+    cursor: pointer;
+    height: 52px;
+    padding: 1rem;
+    position: fixed;
+    right: 20px;
+    width: 52px;
 
-  svg {
-    height: 20px;
-    margin-top: -0.25rem;
-    width: 20px;
-  }
+    svg {
+        height: 20px;
+        margin-top: -0.25rem;
+        width: 20px;
+    }
 }
 .menu-container {
-    /* No changes needed for grid layout */
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
+    display: flex;
+    /* flex-direction is set to the default 'row', which is horizontal */
+    justify-content: space-between; /* Add space between menu containers */
+    border: 1px solid #ccc; /* Add a border around the container */
+    padding: 10px; /* Add some padding to the container */
+    margin-bottom: 10px; /* Add space between menu containers */
+
+    border-radius: 5px; /* Add rounded corners to the container */
 }
+
 .tree {
     list-style: none;
     padding: 3px;

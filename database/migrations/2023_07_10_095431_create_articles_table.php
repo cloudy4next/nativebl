@@ -19,9 +19,13 @@ return new class extends Migration
             $table->unsignedInteger('article_category_id');
             $table->string('slug');
             $table->integer('ref_id')->nullable()->unsigned();
-            $table->mediumText('content');
+            $table->string('service_manager')->nullable();
+            $table->string('call_disposition_code')->nullable();
+            $table->string('image')->nullable();
+            $table->mediumText('content')->nullable();
+            $table->string('link_redirection')->nullable();
             $table->string('complaint_path')->nullable();
-            $table->string('review_status', 50)->default('IN-PROGRESS')->comment("IN-PROGRESS, APPROVED, NEED CORRECTION");
+            $table->string('review_status', 50)->default('IN-PROGRESS')->comment("IN-PROGRESS, APPROVED, NEED CORRECTION, ARCHIVED");
             $table->uuid('created_by');
             $table->uuid('updated_by')->nullable();
             $table->timestamp('start_date')->nullable();

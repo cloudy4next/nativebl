@@ -30,7 +30,10 @@ final class DateTimeField implements FieldInterface
         return (new self())
         ->setName($name)
         ->setLabel($label ?? self::humanizeString($name))
-        ->setComponent('native::crudboard.fields.datetime');
+        ->setComponent('native::crudboard.fields.datetime')
+        ->formatValue(fn($value):string => (new \DateTime($value))->format('Y-m-d') );
     }
+
+   
 
 }

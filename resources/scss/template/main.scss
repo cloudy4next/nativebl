@@ -3,7 +3,10 @@
 @import "~bootstrap/scss/_functions";
 
 // Variables
-@import "1-variables/variables";
+// @import "1-variables/variables";
+@import "1-variables/variables_toffee";
+// @import "1-variables/variables";
+
 @import "1-variables/variables-dark";
 
 // Bootstrap
@@ -54,3 +57,6 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 
 @import "nativebl-default/daterangepicker";
 @import "nativebl-default/quill.scss";
+
+// Custom Style
+@import "custom";

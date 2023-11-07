@@ -26,11 +26,12 @@ class RepositoryServiceProvider extends ServiceProvider
 
     protected function repositoryServiceBinding(): void
     {
-        // Set As individual repo and interface for each application
+        /* -------------------------Tiger Web Application  ------------------------ */
         $tigerWebRepo = [
             'Customer',
             'ArticleCategory',
             'Article',
+            'ArticleAdvanceSearch',
             'Campaign',
             'TagKey',
             'ArticleTag',
@@ -46,6 +47,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $tigerWebService = [
             'ArticleCategory',
             'Article',
+            'ArticleAdvanceSearch',
             'Campaign',
             'TagKey',
             'ArticleTag',
@@ -59,12 +61,16 @@ class RepositoryServiceProvider extends ServiceProvider
         ];
         $tmsRepo = ['Search'];
         $tmsService = ['Search', 'DailyReport', 'HourlyReport', 'Report'];
+
+        /* -------------------------Serttings Service  ------------------------ */
         $settingsService = [
             'User',
             'Permission',
             'Menu',
             'Role'
         ];
+
+        /* -------------------------Toffee Analytics Application  ------------------------ */
         $toffeAnalyticsrepo = [
             'CampaignManagement',
             'Agency',
@@ -79,19 +85,28 @@ class RepositoryServiceProvider extends ServiceProvider
             'Brand',
         ];
 
-        // set of repository annd service for each application
+        /* -------------------------E-Sim Application  ------------------------ */
+        $dBSSESimRepo = ['ESim'];
+        $dBSSESimServcie = ['ESim'];
+
+        /* -------------------------DND Application  ------------------------ */
+        $baseDNDRepo = ['BaseDND', 'BulkUploadDND'];
+        $baseDNDService = ['BaseDND', 'BulkUploadDND'];
+
+        // set of repository annd service for each application controller
         $applicationPath =
             [
                 'TigerWeb' => [$tigerWebRepo, $tigerWebService],
                 'TMS' => [$tmsRepo, $tmsService],
                 'Settings' => [null, $settingsService],
                 'ToffeAnalytics' => [$toffeAnalyticsrepo, $toffeAnalyticsService],
+                'DBSSESim' => [$dBSSESimRepo, $dBSSESimServcie],
+                'DND' => [$baseDNDRepo, $baseDNDService],
             ];
 
         // now bind the repo & interface for respective application
         foreach ($applicationPath as $key => $value) {
             $this->bindingService($key, $value[0], $value[1]);
-
         }
     }
 
@@ -113,7 +128,6 @@ class RepositoryServiceProvider extends ServiceProvider
         foreach ($services as $serv) {
             $this->app->bind("App\\Contracts\\Services\\$applicationPath\\{$serv}ServiceInterface", "App\\Services\\$applicationPath\\{$serv}Service");
         }
-
     }
 
     /**

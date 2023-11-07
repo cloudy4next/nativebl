@@ -29,7 +29,7 @@ class CampaignRepository  extends AbstractNativeRepository implements CampaignRe
      return Campaign::class;
    }
 
-   public function getGridData() : iterable
+   public function getGridData(array $filters=[]): ?iterable
    {
        $query = Campaign::join('users', 'campaigns.created_by', '=', 'users.id')
                 ->join('articles', 'campaigns.article_id', '=', 'articles.id')

@@ -30,11 +30,9 @@ final class FileField implements FieldInterface
         ->setName($name)
         ->setComponent('native::crudboard.fields.file')
         ->setHtmlElementName('input')
+        ->makeFileType()
         ->setPlaceholder($label ?? self::humanizeString($name))
         ->setLabel($label ?? self::humanizeString($name));
     }
-
-    
-    
 
 }

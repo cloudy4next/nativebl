@@ -9,13 +9,16 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ToffeAnalytics\ToffeeLoginRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\Auth\LoginService;
-use Illuminate\Support\Facades\Auth;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
+use Auth;
+use Session;
 
 class AuthController extends Controller
 {
@@ -32,39 +35,59 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-
-    public function login(Request $request)
+    public function toffeeLoginViewShow()
     {
+        return view('auth.toffee-login');
+    }
+
+    public function login(ToffeeLoginRequest $request)
+    {
+        if ($request->password == null) {
+            throw new NotFoundException("Please Enter the password");
+        }
         $user = $this->loginService->UserLoginCred($request);
 
-        if (is_string($user)) {
-            return redirect()->back()->withErrors(['email' => $user]);
-        }
-        // set status to 1 if user logged in  to prevent using different browser at same time...
+        // set status to 1 if user logged in to prevent using different browser at the same time...
         User::where('id', $user->id)->update(['is_active' => 1, 'updated_at' => Carbon::now()]);
-
         Auth::login($user);
-
         return redirect()->intended(RouteServiceProvider::HOME);
     }
+
     public function test(Request $request)
     {
-        $accessToken = $request->session()->get('permission');
-        // dd(Session::all(), $accessToken, Cookie::get('access_token'), Auth::user());
-        dd($accessToken);
+        $accessToken = $request->session()->get('menus');
+        dd(Session::all(), $accessToken);
+        // dd($accessToken);
     }
 
     public function logout(Request $request)
     {
         User::where('id', Auth::user()->id)->update(['is_active' => 0]);
         Auth::guard('web')->logout();
-        return redirect('/');
+        return redirect('/login');
     }
 
-    // public function passwordReset()
-    // {
-    //     return view('auth.password-reset');
-    // }
+    public function passwordReset($token)
+    {
+        return view('auth.password-reset', ['token' => $token]);
+    }
 
 
+    public function reset(Request $request)
+    {
+        $this->validate($request, [
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:8',
+        ]);
+        $json = [
+            "emailAddress" => $request->email,
+            "password" => bcrypt($request->get('password')),
+            'resetToken' => $request->token,
+        ];
+
+        $this->loginService->passwordReset($json);
+
+        return redirect()->route('login')->with('success', 'Password reset successful. You can now log in with your new password.');
+    }
 }

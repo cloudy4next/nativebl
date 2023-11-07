@@ -1,19 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Services\Settings;
 
 use App\Contracts\Services\Settings\UserServiceInterface;
 use App\Exceptions\NotFoundException;
-use App\Models\User;
 use NativeBL\Repository\AbstractNativeRepository;
 use App\Traits\APITrait;
 use App\Traits\HelperTrait;
+use App\Traits\AttachmentUploadTrait;
 use Auth;
 use Illuminate\Support\Collection;
+use Str;
 
 final class UserService extends AbstractNativeRepository implements UserServiceInterface
 {
-    use APITrait, HelperTrait;
+    use APITrait, HelperTrait, AttachmentUploadTrait;
 
     public function getModelFqcn(): string
     {
@@ -23,7 +26,6 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
     public function getGridData(array $filters = []): ?iterable
     {
         return $this->featureSet($this->getAllUser());
-
     }
 
     public function applyFilterData(Collection $data, array $filters): Collection
@@ -53,7 +55,7 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
      */
     public function getSingleUser(string $id)
     {
-        $path = '/Api/AppUserManagement/AppUser?id=' . $id;
+        $path = '/Api/AppUserManagement/AppUser?id=' . $id . '&email=null';
         $response = $this->apiResponse('GET', null, null, $path);
         return $response;
     }
@@ -101,12 +103,16 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
      */
     public function saveUser($request): bool
     {
+        $resetToken = Str::random(75);
         $randomUserID = $this->generateUUID();
+        $imageID = $request->file('image') == null ? '' : $this->upload($request->file('image'));
+        $isActive = ($request->get('GrantType') == 'bl_active_directory') ? 0 : 1;
+        $password = ($request->get('GrantType') == 'bl_active_directory' && $request->get('GrantType') != null) ? null : $request->get('password');
         $json = [
             "userID" => $randomUserID,
             "userName" => $request->get('userName'),
             "fullName" => $request->get('fullName'),
-            "password" => $request->get('password'),
+            "password" => $password,
             "emailAddress" => $request->get('emailAddress'),
             "mobileNumber" => $request->get('mobileNumber'),
             "createdBy" => Auth::user()->id,
@@ -114,37 +120,74 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
             "roleIDs" => $request->get('roles'),
             "defaultApplicationID" => (int) $request->get('applicationID'),
             "permissionIDs" => $request->get('permissions'),
+            "profilePicID" => $imageID,
+            "resetToken" => $resetToken,
+            "PasswordResetContent" => $this->getResetHtmlContent($resetToken),
+            "isMustChangePassword" => $isActive,
         ];
 
-        if ($this->checkIfToffee()) {
+        if ($this->getApplictionId() == config('nativebl.base.toffee_analytics_application_id')) {
             $json["grantType"] = $request->get('GrantType');
         }
-        $path = '/Api/AppUserManagement/SaveUser';
-
-        $test = $this->apiResponse('POST', null, $json, $path);
-        if ($test->errorSummary == "") {
+        $response = $this->apiResponse('POST', null, $json, '/Api/AppUserManagement/SaveUser');
+        if ($response->errorSummary == "") {
             $this->createUser($randomUserID, $request->get('userName'), $request->get('emailAddress'));
         }
+        // dd($response);
+
+        //---------------------------------------------------------------------------------//
+        /*
+            | only for testing perpose 🙃
+        */
+
+
+        // if ($request->get('GrantType') == "email_password") {
+        //     /*
+        //       | Send User Password Reset Email;
+        //     */
+        //     $mailJson = [
+        //         "fromEmail" => env('APP_NAME'),
+        //         "toEmail" => $request->get('emailAddress'),
+        //         "applicationID" => $this->SessionCheck("applicationID"),
+        //         "Subject" => 'Password Reset',
+        //         "Body" => $this->getResetHtmlContent($resetToken),
+        //         "createdBy" => Auth::user()->id,
+        //         "refType" => "password",
+        //     ];
+        //     $mailpath = '/Api/AppUserManagement/SendEmail';
+        //     $this->apiResponse('POST', null, $mailJson, $mailpath);
+        //     try {
+        //         $this->apiResponse('POST', null, $mailJson, $mailpath);
+        //     } catch (\Exception $e) {
+        //         dd($e);
+        //         throw new NotFoundException("Invalid e-mail server configuration found for the given application.");
+        //     }
+        // }
+
+        //---------------------------------------------------------------------------------//
+
         return true;
     }
 
     public function updateUser($request): bool
     {
+        $imageID = $request->file('image') == null ? $request->get('old_image') : $this->upload($request->file('image'));
         $isActive = ($request->get('isActiveUser') == null) ? 0 : 1;
-        // dd($isActive);
+        $password = ($request->get('GrantType') == 'bl_active_directory' && $request->get('GrantType') != null) ? null : $request->get('password');
+
         $json = [
             "userID" => $request->get('id'),
             "userName" => $request->get('userName'),
             "fullName" => $request->get('fullName'),
-            "password" => $request->get('password'),
+            "password" => $password,
             "emailAddress" => $request->emailAddress,
             "mobileNumber" => $request->get('mobileNumber'),
             "isUserActive" => $isActive,
             "roleIDs" => $request->get('roles'),
             "updatedBy" => Auth::user()->id,
             "permissionIDs" => $request->get('permissions'),
+            "profilePicID" => $imageID,
         ];
-        // dd($json);
 
         $path = '/Api/AppUserManagement/SaveUser';
 
@@ -178,6 +221,6 @@ final class UserService extends AbstractNativeRepository implements UserServiceI
 
     public function checkIfToffee(): bool
     {
-        return ($this->SessionCheck('applicationID') == 4) ? true : false;
+        return ($this->SessionCheck('applicationID') == config('nativebl.base.toffee_applicatation_id')) ? true : false;
     }
 }
