@@ -31,7 +31,11 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "NativeBL\\": "src/nativebl/"
-        }
+        },
+        "files": [
+            "app/Helper/helper.php"
+        ]
+
     },
     "autoload-dev": {
         "psr-4": {
