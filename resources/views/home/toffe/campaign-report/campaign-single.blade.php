@@ -18,7 +18,13 @@
             <div class="col-md-2">
                 <div class="card h-100">
                     <div class="card-body">
-                        <i class="fas fa-question-circle"></i>
+                        @if ($data['status'] == 'DELIVERING')
+                            <i class="fa fa-circle" style="color:green"></i>
+                        @elseif ($data['status'] == 'PAUSED')
+                            <i class="fa fa-pause-circle-o" aria-hidden="true" style="color:purple"></i>
+                        @else
+                            <i class="fa fa-circle" style="color:red"></i>
+                        @endif
                         <h6 class="card-title">Campaign Status</h6>
                         <p class="card-text">{{ $data['status'] }}</p>
                     </div>
@@ -29,7 +35,7 @@
             <div class="col-md-2">
                 <div class="card h-100">
                     <div class="card-body">
-                        <i class="fas fa-line-chart"></i>
+                        <i class="fas fa-line-chart" style="color:purple"></i>
                         <h6 class="card-title">Total Impression</h6>
                         <p class="card-text">{{ $data['impression'] }}</p>
                     </div>
@@ -40,7 +46,7 @@
             <div class="col-md-2">
                 <div class="card h-100">
                     <div class="card-body">
-                        <i class="fas fa-question-circle"></i>
+                        <i class="fa fa-bar-chart" style="color:purple"></i>
                         <h6 class="card-title">Total CTR</h6>
                         <p class="card-text">{{ $data['ctr'] }} </p>
                     </div>
@@ -51,7 +57,7 @@
             <div class="col-md-2">
                 <div class="card h-100">
                     <div class="card-body">
-                        <i class="fas fa-question-circle"></i>
+                        <i class="fa fa-hand-pointer-o" style="color:purple"></i>
                         <h6 class="card-title">Total Clicks</h6>
                         <p class="card-text">{{ $data['clicks'] }} </p>
                     </div>
@@ -62,8 +68,8 @@
             <div class="col-md-2">
                 <div class="card h-100">
                     <div class="card-body">
-                        <i class="fas fa-question-circle"></i>
-                        <h6 class="card-title">Complete View</h6>
+                        <i class="fa fa-eye" style="color:purple"></i>
+                        <h6 class="card-title">Complete Views</h6>
                         <p class="card-text">{{ $data['view'] }}</p>
                     </div>
                 </div>
@@ -190,9 +196,9 @@
         data: {
             labels: labels,
             datasets: [{
-                label: 'Chart Data',
+                label: 'Impression Data',
                 data: values,
-                borderColor: 'rgba(75, 192, 192, 1)',
+                borderColor: 'rgba(150,18,113)',
                 borderWidth: 1,
                 fill: false
             }]
@@ -215,7 +221,7 @@
             datasets: [{
                 label: 'Complete Data',
                 data: completeView,
-                borderColor: 'rgba(75, 192, 192, 1)',
+                borderColor: 'rgba(150,18,113)',
                 borderWidth: 1,
                 fill: false
             }]
@@ -237,7 +243,7 @@
             datasets: [{
                 label: 'Active Viewable Impression Data',
                 data: AVIData,
-                borderColor: 'rgba(75, 192, 192, 1)',
+                borderColor: 'rgba(150,18,113)',
                 borderWidth: 1,
                 fill: false
             }]
@@ -259,7 +265,7 @@
             datasets: [{
                 label: 'Total Clicks',
                 data: TC,
-                borderColor: 'rgba(75, 192, 192, 1)',
+                borderColor: 'rgba(150,18,113)',
                 borderWidth: 1,
             }]
         },

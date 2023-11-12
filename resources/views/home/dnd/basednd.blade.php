@@ -54,7 +54,7 @@
                                         <div class="col-lg-6" style="margin-top: 16px;">
                                             <div class="form-check form-check-inline">
                                                 <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                                    id="inlineRadio1" value="on">
+                                                    id="inlineRadio1" value="on" checked>
                                                 <label class="form-check-label" for="inlineRadio1">On</label>
                                             </div>
                                             <div class="form-check form-check-inline">

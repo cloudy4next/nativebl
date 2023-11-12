@@ -20,8 +20,8 @@
 
         .bg-image {
             background-image: url("{{asset('img/login-background.png')}}");
-            background-size: cover;
-            background-position: center center;
+            background-size: 100% 100%; /* This will ensure the full height of the image is visible */
+            background-position: left center;
             background-repeat: no-repeat;
             height: 100%;
         }

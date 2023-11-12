@@ -33,7 +33,7 @@ class FaqService implements FaqServiceInterface
     }
 
 
-    public function showAllArticle($input)
+    public function showAllfaq($input)
     {
         return $this->faqRepository->faqFilterData($input);
     }

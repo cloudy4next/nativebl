@@ -73,18 +73,18 @@ class UserCampaingController extends AbstractController
 
         $this->initGrid(
             [
-                Field::init('individual_date', 'Date'),
-                Field::init('impression', 'Impression'),
-                Field::init('clicks', 'Clicks'),
-                Field::init('complete_views', 'Complete Views'),
-                Field::init('active_viewable_impression', 'Active Viewable Impression'),
-                Field::init('viewable_impression', 'Viewable Impression (%)')->formatValue(function ($value) {
+                Field::init('individual_date', 'Date')->setCssClass('text-center'),
+                Field::init('impression', 'Impression')->setCssClass('text-center'),
+                Field::init('clicks', 'Clicks')->setCssClass('text-center'),
+                Field::init('complete_views', 'Complete Views')->setCssClass('text-center'),
+                Field::init('active_viewable_impression', 'Active Viewable Impression')->setCssClass('text-center'),
+                Field::init('viewable_impression', 'Viewable Impression (%)')->setCssClass('text-center')->formatValue(function ($value) {
                     return $value . " %";
                 }),
-                Field::init('ctr', 'CTR (%)')->formatValue(function ($value) {
+                Field::init('ctr', 'CTR (%)')->setCssClass('text-center')->formatValue(function ($value) {
                     return $value . " %";
                 }),
-                Field::init('completion_rate', 'Completion Rate (%)')->formatValue(function ($value) {
+                Field::init('completion_rate', 'Completion Rate (%)')->setCssClass('text-center')->formatValue(function ($value) {
                     return $value . " %";
                 }),
 

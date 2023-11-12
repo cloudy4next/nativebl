@@ -56,10 +56,10 @@ class CampaignManagementController extends AbstractController
             TextField::init('name', 'Campaign Name')
         ];
         if (Auth::user()->isSuperAdmin()) {
-            array_push($fields, TextField::init('agency'), TextField::init('brandName', 'brand'));
+            array_push($fields, TextField::init('agency'), TextField::init('brandName', 'Brand'));
         }
         if (Auth::user()->isbrand()) {
-            array_push($fields, TextField::init('brandName', 'brand'));
+            array_push($fields, TextField::init('brandName', 'Brand'));
         } elseif (Auth::user()->isAgency()) {
             array_push($fields, TextField::init('agency'));
         }
@@ -72,20 +72,21 @@ class CampaignManagementController extends AbstractController
     {
         $this->initGrid(
             [
-                Field::init('status', 'Status'),
-                Field::init('name', 'Campaign Name'),
-                Field::init('brandName', 'Brand'),
-                Field::init('startDate', 'Start Date'),
-                Field::init('endDate', 'End Date'),
-                Field::init('goal', 'Goal'),
-                Field::init('impression', 'Impression'),
-                Field::init('clicks', 'Clicks'),
-                Field::init('ctr', 'CTR (%)'),
-                Field::init('complete', 'Complete'),
+                Field::init('status', 'Status')->setCssClass('text-center'),
+                Field::init('name', 'Campaign Name')->setCssClass('text-center'),
+                Field::init('brandName', 'Brand')->setCssClass('text-center'),
+                Field::init('startDate', 'Start Date')->setCssClass('text-center'),
+                Field::init('endDate', 'End Date')->setCssClass('text-center'),
+                Field::init('goal', 'Goal')->setCssClass('text-center'),
+                Field::init('impression', 'Impression')->setCssClass('text-center'),
+                Field::init('clicks', 'Clicks')->setCssClass('text-center'),
+                Field::init('ctr', 'CTR (%)')->setCssClass('text-center'),
+                Field::init('complete', 'Complete')->setCssClass('text-center'),
             ],
             pagination: 10,
             config: [
-                'actionHeader' => 'View Campaign Details'
+                'actionHeader' => 'View Campaign Details',
+                'headerRowCssClass' => 'thead-purple',
             ]
         );
         // View Campaign Details

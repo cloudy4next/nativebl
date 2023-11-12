@@ -57,11 +57,19 @@
                 <div class="card-body">
                     <h5 class="card-title">{!! $article->title !!}</h5>
                     <p class="card-text">
-                        {!! Str::limit($article->content, 200) !!}
-                        ... <a href={{route('article_detail', $article->article_id)}} class="card-link">Read More</a>
+                        @if(strlen(strip_tags($article->content))>200)
+                            {!! Str::limit($article->content, 200) !!}
+                            ... <a href={{route('article_detail', $article->article_id)}} class="card-link">Read
+                                More</a>
+                        @else
+                            {!! $article->content !!}
+                        @endif
                     </p>
                 </div>
             </div>
+            @if($loop->index > 0)
+                </hr>
+            @endif
         @empty
             <div class="card mb-3">
                 <div class="card-body">

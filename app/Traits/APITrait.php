@@ -38,6 +38,7 @@ trait APITrait
                 'json' => $body
             ]);
         } catch (\Exception $e) {
+
             throw new NotFoundException($this->extractErrorSummary($e->getMessage(), $secondLevelError));
         }
 

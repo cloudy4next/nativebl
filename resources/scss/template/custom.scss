@@ -31,3 +31,10 @@
     left: 12px !important;
 }
 
+.sidebar-dropdown .sidebar-link::before {
+    content: "";
+}
+
+.purple-header {
+    background-color: purple;
+}

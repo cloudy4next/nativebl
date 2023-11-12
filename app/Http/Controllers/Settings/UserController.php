@@ -230,9 +230,9 @@ class UserController extends AbstractController
                 ->withInput();
         }
 
-        $id = $request->get('id');
+
         $this->userService->updateUser($request);
-        return redirect('users/edit/' . $id)->with('success', 'User Updated Successfully');
+        return redirect('users')->with('success', 'User Updated Successfully');
     }
     public function passwordChange()
     {

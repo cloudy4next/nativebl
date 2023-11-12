@@ -4,8 +4,10 @@ namespace App\Http\Controllers\TigerWeb;
 
 use App\Contracts\Services\TigerWeb\ArticleServiceInterface;
 use App\Exceptions\NotFoundException;
+use App\Http\Requests\TigerWeb\ArticleRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use NativeBL\Controller\AbstractNativeController as AbstractController;
 use App\Contracts\TigerWeb\ArticleRepositoryInterface;
 use NativeBL\Contracts\Repository\NativeRepositoryInterface;
@@ -70,8 +72,6 @@ class ArticleController extends AbstractController
     }
 
 
-
-
     public function configureForm(): void
     {
         $articleCategories = $this->commonService->articleCategoryList();
@@ -127,8 +127,7 @@ class ArticleController extends AbstractController
 
     public function articles()
     {
-        $this->initGrid(['title', 'slug', Field::init('articleCategoryTitle', 'Article Category'), 'complaint_path', Field::init('parentArticle', 'Parent'), Field::init('review_status', 'Status'), Field::init("createdBy", 'Created By'), Field::init("start_date",'Start Date')->formatValue(fn($value) => ($value != null)?(date("F j, Y", strtotime($value))):''), Field::init("end_date",'End Date')->formatValue(fn($value) => ($value != null)?(date("F j, Y", strtotime($value))):'')], pagination: 10)
-        ;
+        $this->initGrid(['title', 'slug', Field::init('articleCategoryTitle', 'Article Category'), 'complaint_path', Field::init('parentArticle', 'Parent'), Field::init('review_status', 'Status'), Field::init("createdBy", 'Created By'), Field::init("start_date", 'Start Date')->formatValue(fn($value) => ($value != null) ? (date("F j, Y", strtotime($value))) : ''), Field::init("end_date", 'End Date')->formatValue(fn($value) => ($value != null) ? (date("F j, Y", strtotime($value))) : '')], pagination: 10);
         return view('home.TigerWeb.Article.list');
     }
 
@@ -147,16 +146,24 @@ class ArticleController extends AbstractController
         return view('home.TigerWeb.Article.view-article', compact('articleDetails'));
     }
 
+    public function viewArticleSlug($slug)
+    {
+        $articleDetails = $this->articleService->slugDetails($slug);
+        return view('home.TigerWeb.Article.view-article', compact('articleDetails'));
+    }
+
     public function edit($id)
     {
         $this->initEdit($id);
         return view('home.TigerWeb.Article.edit');
     }
+
     public function delete($id)
     {
         echo $id;
         exit();
     }
+
     public function create_old()
     {
         $this->initForm('article_form', route('article_save'), 'post', ['id' => 'myForm']);
@@ -171,22 +178,12 @@ class ArticleController extends AbstractController
     }
 
 
-    public function store(Request $request): RedirectResponse
+    /**
+     * @throws NotFoundException
+     */
+    public function store(ArticleRequest $request): RedirectResponse
     {
-        $validator = \Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'article_category_id' => 'required|string',
-            'tag_name' => 'required|string',
-
-        ]);
-
-        if ($validator->fails()) {
-            return back()
-                ->withErrors($validator->errors())
-                ->withInput();
-        }
-
-        $request['slug'] = str_replace(' ', '-', $request['title']);
+        $request['slug'] = Str::slug($request['title']);
         $request['review_status'] = "APPROVED";
         $message = $this->articleService->store($request);
         if ($message == 1) {
@@ -194,8 +191,6 @@ class ArticleController extends AbstractController
         } else {
             throw new NotFoundException($message);
         }
-
-        return to_route('article_list');
     }
 
     public function article_review_submit(Request $request): RedirectResponse
@@ -237,8 +232,6 @@ class ArticleController extends AbstractController
             return Redirect::to('/article/list');
         }
     }
-
-
 
 
 }

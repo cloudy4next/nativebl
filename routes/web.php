@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Settings\MenuController;
 use App\Http\Controllers\Settings\PermissionController;
 use App\Http\Controllers\Settings\RoleController;
@@ -49,7 +50,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/session-check', ['uses' => 'Auth\AuthController@test']);
 
-    Route::get("/", [HomeController::class, 'main'])->name('home');
+    Route::get("/", [DashboardController::class, 'main'])->name('home');
 
     Route::post("/editor-file-upload", [FileController::class, 'fileUpload'])->name('editor.file.upload');
 

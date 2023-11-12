@@ -11,6 +11,11 @@ use NativeBL\Controller\AbstractNativeController as AbstractController;
 use NativeBL\Field\Field;
 use NativeBL\Field\InputField;
 use App\Exports\Export;
+use App\Http\Requests\Common\XlsCsvUploadRequest;
+use App\Models\DND\MasterDND;
+use NativeBL\Field\ButtonField;
+use NativeBL\Field\ChoiceField;
+use NativeBL\Field\FileField;
 
 class BulkUploadDNDController extends AbstractController
 {
@@ -34,7 +39,8 @@ class BulkUploadDNDController extends AbstractController
     public function configureFilter(): void
     {
         $fields = [
-            InputField::init('msisdn', 'MSISDN', 'number'),
+            InputField::init('filename', 'File Name'),
+
         ];
         $this->getFilter($fields);
     }
@@ -42,18 +48,26 @@ class BulkUploadDNDController extends AbstractController
 
     public function configureActions(): iterable
     {
-        return [];
+        return [
+            ButtonField::init('new', 'Upload')->linkToRoute('dnd.upload')->createAsCrudBoardAction(),
+            ButtonField::init('submit')->createAsFormSubmitAction(),
+            ButtonField::init('cancel')->linkToRoute('dnd-bulk')->createAsFormAction(),
+        ];
     }
-
-
 
 
     public function uploadBulk()
     {
         $this->initGrid(
             [
-                Field::init('msisdn'),
-                Field::init('channel_name'),
+                Field::init('filename'),
+                Field::init('creation_date'),
+                Field::init('schedule_process_time'),
+                Field::init('process_end_time'),
+                Field::init('record_count'),
+                Field::init('pending', 'Total Pending'),
+                Field::init('completed', 'Total Completed'),
+                Field::init('process_status_label', 'Process Status'),
             ]
         );
 
@@ -62,25 +76,32 @@ class BulkUploadDNDController extends AbstractController
 
     public function export(Request $request)
     {
-        $msisdn = $request->msisdn;
-        if (empty($msisdn)) {
-            throw new NotFoundException('No Data Found!!');
-        }
-
-        $dateArray = getDateArray($request);
-        $startDate = $dateArray['startDate'];
-        $endDate = $dateArray['endDate'];
 
         $type = $request->type;
 
-        $data = $this->bulkuploadDNDRepositoryInterface->getExportData((int)$msisdn, $startDate, $endDate);
-        $view = view('home.toffe.Report.all-campaign-report', compact('data'));
-        $filename = "DND Bulk Report [$msisdn] " . \Carbon::now()->format('d-m-Y h-i-s A');
+        $data = $this->bulkuploadDNDRepositoryInterface->getExportData();
+
+        $view = view('home.dnd.Report.dnd-report', compact('data'));
+        $filename = "DND Bulk Report-" . \Carbon\Carbon::now()->format('d-m-Y h-i-s A');
 
         return match ($type) {
             'pdf' => $view,
             'csv' => Excel::download(new Export($view), "{$filename}.csv", \Maatwebsite\Excel\Excel::CSV),
             default => Excel::download(new Export($view), "{$filename}.xls", \Maatwebsite\Excel\Excel::XLS),
         };
+    }
+
+    public function getUploadView()
+    {
+        return view('home.dnd.file-upload');
+    }
+
+    public function saveUploadData(XlsCsvUploadRequest $request)
+    {
+        $file = $request->file('file');
+        $shecduleDate = $request->datetime;
+        $this->bulkuploadDNDRepositoryInterface->saveUplaodedData($file, $shecduleDate);
+
+        return redirect('/dnd-bulk')->with('success', 'Uploaded SuccesFully.');
     }
 }

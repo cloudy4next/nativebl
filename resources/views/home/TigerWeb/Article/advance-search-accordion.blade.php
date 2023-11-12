@@ -28,66 +28,76 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
-                <div class="accordion" id="accordion_faq">
-                    <h5 class="card-title">FAQ</h5>
-                    @forelse ($faqResults as $faq)
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="faq_{{$loop->index+1}}">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapse_faq_{{$loop->index+1}}" aria-expanded="true"
-                                        aria-controls="collapse_faq_{{$loop->index+1}}">
-                                    {!! $faq->question !!}
-                                </button>
-                            </h2>
-                            <div id="collapse_faq_{{$loop->index+1}}"
-                                 class="accordion-collapse collapse {{$loop->index==0?'show':''}}"
-                                 aria-labelledby="headingOne"
-                                 data-bs-parent="#accordion_faq">
-                                <div class="accordion-body">
-                                    {!! Str::limit($faq->answer, 200) !!}
-                                    ... <a href="{{ route('faq_detail', $faq->faq_id)}}">Read More</a>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="accordion" id="accordion_faq">
+                            <h2 class="card-title">FAQ</h2>
+                            @forelse ($faqResults as $faq)
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="faq_{{$loop->index+1}}">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapse_faq_{{$loop->index+1}}" aria-expanded="true"
+                                                aria-controls="collapse_faq_{{$loop->index+1}}">
+                                            {!! $faq->question !!}
+                                        </button>
+                                    </h2>
+                                    <div id="collapse_faq_{{$loop->index+1}}"
+                                         class="accordion-collapse collapse"
+                                         aria-labelledby="headingOne"
+                                         data-bs-parent="#accordion_faq">
+                                        <div class="accordion-body">
+                                            {!! $faq->answer !!}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            @empty
+                                <div class="accordion-item">
+                                    <div class="accordion-body">
+                                        <span class="text-center">No Result</span>
+                                    </div>
+                                </div>
+                            @endforelse
                         </div>
-                    @empty
-                        <div class="accordion-item">
-                            <div class="accordion-body">
-                                <span class="text-center">No Result</span>
-                            </div>
-                        </div>
-                    @endforelse
+                    </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="accordion mt-5" id="accordion_article">
-                    <h5 class="card-title">Article</h5>
-                    @forelse ($articleResults as $article)
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="article_{{$loop->index+1}}">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapse_article_{{$loop->index+1}}" aria-expanded="true"
-                                        aria-controls="collapse_article_{{$loop->index+1}}">
-                                    {!! $article->title !!}
-                                </button>
-                            </h2>
-                            <div id="collapse_article_{{$loop->index+1}}"
-                                 class="accordion-collapse collapse {{$loop->index==0?'show':''}}"
-                                 aria-labelledby="headingOne"
-                                 data-bs-parent="#accordion_article">
-                                <div class="accordion-body">
-                                    {!!  Str::limit($article->content, 200)  !!}
-                                    ... <a href="{{  route('article_detail', $article->article_id)  }}">Read More</a>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Article</h2>
+                        @forelse ($articleResults as $article)
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">{!! $article->title !!}</h5>
+                                    <p class="card-text">
+                                        @if(strlen(strip_tags($article->content))>200)
+                                            {!! Str::limit($article->content, 200) !!}
+                                            ... <a
+                                                href={{route('article_detail', $article->article_id)}} class="card-link">Read
+                                                More</a>
+                                        @else
+                                            {!! $article->content !!}
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
-                        </div>
-                    @empty
-                        <div class="accordion-item">
-                            <div class="accordion-body">
-                                <span class="text-center">No Result</span>
+                            @if($loop->index >= 0 && $loop->index != count($articleResults)-1)
+                                <hr>
+                            @endif
+                        @empty
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <span class="text-center">No Result</span>
+                                </div>
                             </div>
-                        </div>
-                    @endforelse
+                        @endforelse
+
+                    </div>
                 </div>
             </div>
         </div>

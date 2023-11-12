@@ -11,10 +11,12 @@
 
 namespace App\Repositories\TigerWeb;
 
+use App\Http\Requests\TigerWeb\ArticleRequest;
 use App\Models\TigerWeb\ArticleReview;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use NativeBL\Repository\AbstractNativeRepository;
 use App\Contracts\TigerWeb\ArticleRepositoryInterface;
 use App\Models\TigerWeb\Article;
@@ -44,14 +46,14 @@ class ArticleRepository extends AbstractNativeRepository implements ArticleRepos
             // ->whereRaw("articles.end_date IS NULL")
             // ->orWhere('articles.end_date', '>', \DB::raw('NOW()'))
             // ->orWhere('articles.review_status', '=', 'ARCHIVED')
-            ->get(['articles.*', 'users.email as createdBy', 'u.email as updatedBy', 'article_categories.title as articleCategoryTitle', 'ac.title as parentArticle'])
-        ;
+            ->get(['articles.*', 'users.email as createdBy', 'u.email as updatedBy', 'article_categories.title as articleCategoryTitle', 'ac.title as parentArticle']);
         return $query;
     }
 
     public function details($id)
     {
-        $articleDetails = Article::with([
+        // dd($articleDetails);
+        return Article::with([
             'articleCategory',
             'articleReview',
             'articleTag.tagKey',
@@ -60,9 +62,19 @@ class ArticleRepository extends AbstractNativeRepository implements ArticleRepos
             'articleFaq',
             'updatedByUser'
         ])->where('id', $id)->first();
+    }
 
-        // dd($articleDetails);
-        return $articleDetails;
+    public function slugDetails($slug)
+    {
+        return Article::with([
+            'articleCategory',
+            'articleReview',
+            'articleTag.tagKey',
+            'parentArticle',
+            'parentTree',
+            'articleFaq',
+            'updatedByUser'
+        ])->where('slug', $slug)->firstOrFail();
     }
 
     public function applyFilterData(Collection $data, array $filters): Collection
@@ -98,19 +110,18 @@ class ArticleRepository extends AbstractNativeRepository implements ArticleRepos
 
     public function getRecordForEdit(int|string $id): object
     {
-        $article = Article::query()
+        // dd($article);
+        return Article::query()
             ->join('article_tags', 'articles.id', '=', 'article_tags.article_id')
             ->join('tag_keys', 'article_tags.tag_key_id', '=', 'tag_keys.id')
             ->where('articles.id', $id)
             ->get(['articles.*', 'tag_keys.title as tag_name'])
             ->first();
-        // dd($article);
-        return $article;
         // return $this->find($id);
     }
 
 
-    public function store(Request $request)
+    public function store_old(Request $request)
     {
         // dd($request);
         if ($request['id'] != null) {
@@ -145,8 +156,7 @@ class ArticleRepository extends AbstractNativeRepository implements ArticleRepos
                     $requestData['id'] = NULL;
                     if ($request->hasFile('file')) {
                         $requestData['image'] = $filePath;
-                    }
-                    else{
+                    } else {
                         $requestData['image'] = $tmpImagePath;
                     }
                     $articleId = Article::create($requestData)->id;
@@ -167,11 +177,10 @@ class ArticleRepository extends AbstractNativeRepository implements ArticleRepos
 
                     if ($request->hasFile('file')) {
                         $prevData->image = $filePath;
-                    }
-                    else{
+                    } else {
                         $prevData->image = $prevData['image'];
                     }
-                    
+
                     $prevData->save();
                 }
 
@@ -262,6 +271,103 @@ class ArticleRepository extends AbstractNativeRepository implements ArticleRepos
             // return Article::create($request->all());
         }
     }
+
+
+// Assuming this is within a controller class and necessary models and helpers are imported.
+
+    public function store(ArticleRequest $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $articleId = $request->input('id');
+            $filePath = $this->handleFileUpload($request);
+
+            if ($articleId) {
+                $article = $this->findAndUpdateArticle($request, $filePath, $articleId);
+            } else {
+                $article = $this->createNewArticle($request, $filePath);
+            }
+
+            $this->handleArticleTags($request, $article->id);
+
+            DB::commit();
+            return 1;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function handleFileUpload(ArticleRequest $request)
+    {
+        if ($request->hasFile('file')) {
+            $currentDate = Carbon::now()->format('d-m-Y');
+            $destinationPath = 'assets/article/' . $currentDate;
+            return fileUpload($request->file('file'), $destinationPath);
+        }
+        return '';
+    }
+
+    private function findAndUpdateArticle(ArticleRequest $request, $filePath, $articleId)
+    {
+        $article = Article::findOrFail($articleId);
+        $requestData = $request->all();
+        $requestData['image'] = $filePath ?: $article->image;
+
+        if (isset($requestData['correction']) && $requestData['correction'] == 'submit') {
+            $article->end_date = now();
+            $article->updated_by = $requestData['created_by'];
+            $requestData['slug'] = $article->slug;
+            $article->slug = Str::slug($article->slug . '-archive-' . $article->id);
+            $article->save();
+
+            $requestData['ref_id'] = $articleId;
+            unset($requestData['id']);
+            session()->flash('success', 'New Version of Article has been created successfully !');
+            return Article::create($requestData);
+        } else {
+            $this->updateArticleAttributes($article, $requestData);
+            session()->flash('success', 'Article has been updated successfully !');
+            return $article;
+        }
+    }
+
+    private function createNewArticle(ArticleRequest $request, $filePath)
+    {
+        $requestData = $request->except('id');
+        $requestData['image'] = $filePath;
+        session()->flash('success',  'New Article has been created successfully !');
+        return Article::create($requestData);
+    }
+
+    private function updateArticleAttributes($article, $requestData)
+    {
+        unset($requestData['slug']);
+        $article->fill($requestData);
+        $article->save();
+    }
+
+    private function handleArticleTags(ArticleRequest $request, $articleId)
+    {
+        ArticleTag::where('article_id', $articleId)->delete();
+        $tagNames = explode(',', $request->input('tag_name')); // Assuming tag names are separated by commas
+
+        foreach ($tagNames as $tagName) {
+            $tagData = TagKey::firstOrCreate(
+                ['title' => $tagName],
+                ['slug' => Str::slug($tagName)]
+            );
+            ArticleTag::create([
+                'tag_key_id' => $tagData->id,
+                'article_id' => $articleId
+            ]);
+        }
+    }
+
 
     public function article_review_submit(Request $request)
     {

@@ -14,7 +14,6 @@
             </a>
         @endif
 
-{{--        @dd(session()->get('menus'))--}}
 
         @if (session()->has('menus'))
             <ul class="sidebar-nav">

@@ -16,7 +16,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="icon">Icon</label>
-                        <input class="form-control  " id="icon" name="icon" type="text" placeholder="Icon"
+                        <input class="form-control  " id="icon" name="icon" type="file" placeholder="Icon"
                             value="{{ $agencyDetails['icon'] }}">
 
                     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Services\TigerWeb;
 
+use App\Http\Requests\TigerWeb\ArticleRequest;
 use App\Models\TigerWeb\User;
 use App\Contracts\Services\TigerWeb\ArticleServiceInterface;
 
@@ -12,16 +13,16 @@ final class ArticleService implements ArticleServiceInterface
 
 {
 
-	private $articleRepository;
+    private $articleRepository;
 
-	public function __construct(ArticleRepository $articleRepository)
+    public function __construct(ArticleRepository $articleRepository)
     {
 
         $this->articleRepository = $articleRepository;
     }
 
 
-    public function getAllArticle() : void
+    public function getAllArticle(): void
     {
 
     }
@@ -31,7 +32,12 @@ final class ArticleService implements ArticleServiceInterface
         return $this->articleRepository->details($id);
     }
 
-    public function store(Request $request)
+    public function slugDetails($slug)
+    {
+        return $this->articleRepository->slugDetails($slug);
+    }
+
+    public function store(ArticleRequest $request)
     {
         return $this->articleRepository->store($request);
     }

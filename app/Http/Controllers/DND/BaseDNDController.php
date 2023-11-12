@@ -59,12 +59,17 @@ class BaseDNDController extends AbstractController
 
 
 
-    public function dnd()
+    public function dndShow()
     {
         $this->initGrid(
             [
                 Field::init('msisdn'),
-                Field::init('channel_name'),
+                Field::init('created_at', 'Request Date'),
+                Field::init('channel_name', 'Channel Type'),
+                Field::init('request_type', 'Request Type'),
+                Field::init('api_user_id', 'User ID'),
+
+
             ]
         );
 

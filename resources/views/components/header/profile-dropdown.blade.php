@@ -5,11 +5,15 @@
     $userName = Auth::user()->user_name;
     $image = Auth::user()->userImage();
 @endphp
-<a class="nav-link dropdown-toggle d-none d-sm-inline-block" data-bs-toggle="dropdown">
-    <img class="avatar img-fluid rounded me-1" src="data:image/png;base64, {{ $image }}" alt="{{ $userName }}">
 
+<a class="nav-link dropdown-toggle d-none d-sm-inline-block" data-bs-toggle="dropdown">
+    @if ($image != '')
+        <img class="avatar img-fluid rounded me-1" src="data:image/png;base64, {{ $image }}"
+            alt="{{ $userName }}">
+    @endif
     <span>{{ $userName }}</span>
 </a>
+
 
 <div class="dropdown-menu dropdown-menu-end">
     {{-- <a class="dropdown-item" href="pages-profile.html">

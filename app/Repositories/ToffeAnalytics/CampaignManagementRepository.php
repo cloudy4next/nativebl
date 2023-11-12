@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 
 namespace App\Repositories\ToffeAnalytics;
@@ -73,7 +75,6 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
                 $hiddenEndTime = $this->googleDateTimeToString($endDateTime);
                 $endDate = $endDateTime->getDate();
                 $endDate = $this->customDateTimeFormat($endDate->getDay(), $endDate->getMonth(), $endDate->getYear());
-
             }
             $progress = $LineItem->getDeliveryIndicator();
             if ($progress != null) {
@@ -87,7 +88,6 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
                 $clicks = number_format($impressionsDelivered->getClicksDelivered());
                 $crt = number_format((float) $this->calculatePercentage((int) $clicks, (int) $imression), 2) . '%';
                 $complete = number_format($impressionsDelivered->getVideoCompletionsDelivered());
-
             }
             if (Auth::user()->isBrand()) {
                 $brandName = $this->getBrandName(Auth::user()->isBrand())->name;
@@ -170,7 +170,6 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
             $reportQuery->setDateRangeType(DateRangeType::CUSTOM_DATE)
                 ->setStartDate(AdManagerDateTimes::fromDateTime($startDate)->getDate())
                 ->setEndDate(AdManagerDateTimes::fromDateTime($endDate)->getDate());
-
         }
 
         $statementBuilder = (new StatementBuilder())
@@ -190,7 +189,6 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
         $this->prepareReportArray(gzdecode(file_get_contents($reportDownloadUrl)));
 
         return $this->getAllCampaignRecordById($lineItemId);
-
     }
 
     public function prepareReportArray(string $url): void
@@ -218,7 +216,7 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
                 $report->ctr = number_format(((float) $campaginData[6] * 100), 2);
                 $report->active_viewable_impression = number_format((float) $campaginData[7]);
                 $report->completion_rate = number_format(((float) $campaginData[8] * 100), 2);
-                $report->viewable_impression = number_format((float) $campaginData[9], 2);
+                $report->viewable_impression = number_format(((float) $campaginData[9] * 100), 2);
                 $report->complete_views = number_format((float) $campaginData[10]);
                 $report->save();
             }
@@ -235,7 +233,6 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
     public function getAllCampaignRecordById($id)
     {
         return CampaginReport::where("campaign_id", $id)->get()->toArray();
-
     }
 
     public function checkIdDateRangeExits(int $id, $startDate, $endDate): bool|array
@@ -265,7 +262,6 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
         }
 
         return $formattedData;
-
     }
 
     public function applyFilterData(Collection $data, array $filters): Collection
@@ -290,5 +286,4 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
         return CampaginReport::where('campaign_id', $id)->latest('individual_date')
             ->value('individual_date');
     }
-
 }

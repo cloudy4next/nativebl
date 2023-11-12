@@ -1,13 +1,13 @@
 <x-layouts.toffee-login-layout>
     <div class="h-100">
         <div class="row g-0 h-100">
-            <div class="col-md-8 bg-image d-flex align-items-center justify-content-center">
+            <div class="col-md-7 bg-image d-flex align-items-center justify-content-center">
                 <div class="logo">
                     <img src="{{ asset('img/toffee-logo.png') }}" alt="Logo" class="img-fluid">
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="form-container" style="margin-top:80px;">
+            <div class="col-md-5">
+                <div class="form-container text-start" style="margin-top:80px;">
                     <h2 class="text-center">Sign In</h2>
                     <div class="text-center mb-4">
                         <small>Enter your email and password to Sign In!</small>

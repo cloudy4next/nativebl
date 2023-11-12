@@ -15,44 +15,44 @@
 
     <!-- CSS-->
     <link rel="stylesheet" href="/css/app.css">
-
+    @stack('styles')
 </head>
 
 <body>
-<div class="wrapper">
-    <x-menu/>
-    <div class="main">
+    <div class="wrapper">
+        <x-menu />
+        <div class="main">
 
-        <!-- NavBar-->
-        <x-header/>
+            <!-- NavBar-->
+            <x-header />
 
-        <!-- Content-->
-        {{ $slot }}
+            <!-- Content-->
+            {{ $slot }}
 
-        <!-- Footer-->
-        <x-footer/>
+            <!-- Footer-->
+            <x-footer />
+        </div>
     </div>
-</div>
 
-<!-- JS-->
-<script>
-    window.base_url = "{{ url('/') }}";
-    window.csrf_token = "{{ csrf_token() }}";
-</script>
+    <!-- JS-->
+    <script>
+        window.base_url = "{{ url('/') }}";
+        window.csrf_token = "{{ csrf_token() }}";
+    </script>
 
-<script src="/js/app.js"></script>
+    <script src="/js/app.js"></script>
 
-@stack('scripts')
+    @stack('scripts')
 
-@if (session('success'))
-    <x-native::toast type="success" message="{{ session('success') }}"/>
-@elseif((session('info')))
-    <x-native::toast type="info" message="{{ session('info') }}"/>
-@elseif((session('warning')))
-    <x-native::toast type="warning" message="{{ session('warning') }}"/>
-@elseif((session('error')))
-    <x-native::toast type="error" message="{{ session('error') }}"/>
-@endif
+    @if (session('success'))
+        <x-native::toast type="success" message="{{ session('success') }}" />
+    @elseif(session('info'))
+        <x-native::toast type="info" message="{{ session('info') }}" />
+    @elseif(session('warning'))
+        <x-native::toast type="warning" message="{{ session('warning') }}" />
+    @elseif(session('error'))
+        <x-native::toast type="error" message="{{ session('error') }}" />
+    @endif
 
 </body>
 

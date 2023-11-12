@@ -44,7 +44,7 @@ class ArticleAdvanceSearchController extends AbstractController
             $faqResults = $this->commonService->highlightKeyword($searchTerm, $this->articleAdvanceSearchService->searchFaqs($searchTerm), ['answer', 'question']);
         }
 
-        return view('home.TigerWeb.Article.advance-search', compact('articleResults', 'faqResults'));
+        return view('home.TigerWeb.Article.advance-search-accordion', compact('articleResults', 'faqResults'));
     }
 
 

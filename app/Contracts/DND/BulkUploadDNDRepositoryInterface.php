@@ -8,6 +8,6 @@ use DateTime;
 
 interface BulkUploadDNDRepositoryInterface
 {
-
     function getExportData();
+    function saveUplaodedData($file,$shecduleDate);
 }

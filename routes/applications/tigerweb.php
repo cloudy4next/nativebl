@@ -32,7 +32,9 @@ Route::middleware('auth')->group(function () {
         Route::get("/raise-ticket/{id}", [ArticleController::class, 'raiseTicketAgainstArticle'])->name('article_raise_ticket')->middleware('acl:tigerweb-article-raise-ticket');
         Route::post("/article_review_submit", [ArticleController::class, 'article_review_submit'])->name('article_review_submit')->middleware('acl:tigerweb-article-review-submit');
         Route::get("/advance-search", [ArticleAdvanceSearchController::class, 'search'])->name('advance_search')->middleware('acl:tigerweb-article-advance-search');
+        Route::get("/{slug}", [ArticleController::class, 'viewArticleSlug'])->name('article_view_slug')->middleware('acl:tigerweb-article-agent-view');
         Route::get("/view/{id}", [ArticleController::class, 'viewArticle'])->name('article_view_detail')->middleware('acl:tigerweb-article-agent-view');
+        Route::get("/{slug}", [ArticleController::class, 'viewArticleSlug'])->name('article_view_slug');
     });
 
     // Article Category Routes

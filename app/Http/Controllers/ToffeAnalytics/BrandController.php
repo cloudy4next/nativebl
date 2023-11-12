@@ -17,6 +17,7 @@ use NativeBL\Field\ChoiceField;
 
 
 use Auth;
+use NativeBL\Field\FileField;
 
 class BrandController extends AbstractController
 {
@@ -57,8 +58,8 @@ class BrandController extends AbstractController
         $userList = $this->userServiceInterface->getAllUserIDNameArr();
         $fields = [
             IdField::init('id'),
-            TextField::init('name')->validate('required|max:255')->setHtmlAttributes(['required' => true, 'maxlength' => 100, 'minlength' => 6]),
-            TextField::init('icon', 'Icon')->setHtmlAttributes(['required' => true, 'maxlength' => 100, 'minlength' => 6]),
+            TextField::init('name')->validate('required|max:255')->setHtmlAttributes(['required' => true]),
+            FileField::init('icon', 'Icon')->setHtmlAttributes(['required' => true]),
             ChoiceField::init('user[]', 'Map User', choiceType: 'checkbox', choiceList: $userList)->setCssClass('my-class'),
             HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
         ];
@@ -146,7 +147,7 @@ class BrandController extends AbstractController
     {
         $validator = \Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'icon' => 'required|string',
+            'icon' => 'required|image',
             'user' => 'required|array',
 
         ]);

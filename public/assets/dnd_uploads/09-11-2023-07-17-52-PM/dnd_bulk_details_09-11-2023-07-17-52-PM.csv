@@ -1,0 +1,6 @@
+channel_name,msisdn,request_type
+promotional sms,1961086720,optin
+promotional sms,1961086721,optin
+promotional Calls,1961086723,optin
+vas,1961086723,optout
+all,1961086721,optout

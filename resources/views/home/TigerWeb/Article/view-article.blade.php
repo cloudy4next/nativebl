@@ -12,7 +12,7 @@
                             <div class="row g-0 mt-1">
                                 <div class="col-md-7 col-xl-7s">
                                     <div class="col-12"><b>Service Manager :</b> {{$articleDetails['service_manager']}} </div>
-                                    <div class="col-12"><b>Call Disposition Code :</b> {{$articleDetails['call_disposition_code']}} </div>                                  
+                                    <div class="col-12"><b>Call Disposition Code :</b> {{$articleDetails['call_disposition_code']}} </div>
                                     <div class="col-12"><b>Complaint Path :</b> {{$articleDetails['complaint_path']}} </div>
                                     <div class="col-12"><b>Start Date : </b>{{ ($articleDetails['start_date'] != null)?date("F j, Y", strtotime($articleDetails['start_date'])):'' }} </div>
                                     <div class="col-12"><b>End Date :</b> {{ ($articleDetails['end_date'] != null)?date("F j, Y", strtotime($articleDetails['end_date'])):'' }} </div>

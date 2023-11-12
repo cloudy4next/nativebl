@@ -78,8 +78,6 @@ class FaqController extends AbstractController
     }
 
 
-
-
     public function configureForm()
     {
         //$faqs = $this->commonService->faqList();
@@ -92,7 +90,7 @@ class FaqController extends AbstractController
             TextareaField::init('answer','Answer',rows:2)
                 ->setLayoutClass('col-md-12 pb-5')
                 ->setHtmlAttributes(['id'=>'editor'])
-                ->setHtmlAttributes(['required'=>true,'minlength'=>2]), 
+                ->setHtmlAttributes(['required'=>true,'minlength'=>2]),
             TextField::init('tag_name')->validate('required')->setHtmlAttributes(['required' => true, 'maxlength' => 255, 'minlength' => 2]),
             HiddenField::init('faq_type')->setDefaultValue($faq_type),
             HiddenField::init('ref_id')->setDefaultValue($faq_type_id),
@@ -115,6 +113,18 @@ class FaqController extends AbstractController
         $this->getFilter($fields);
     }
 
+    public function listWithSearch(Request $request)
+    {
+        try {
+            $faqs = $this->faqService->showAllfaq($request)->get();
+            dd($faqs);
+            //return view('articles.index', compact('articles', 'request'));
+        } catch (\Exception $e) {
+            throw new NotFoundException($message);
+            // return Redirect::to('/faq/list');
+        }
+    }
+
 
     public function index(Request $request)
     {
@@ -133,38 +143,9 @@ class FaqController extends AbstractController
             'faq_type',
             Field::init('Title','Ref. Title'),
             Field::init('question','Question'),
-            Field::init('answer','Answer')->formatValue(fn($value) => html_entity_decode(substr(trim($value), 0, 150).'...'))
+            Field::init('answer','Answer')->formatValue(fn($value) => strip_tags(html_entity_decode(substr(trim($value), 0, 150).'...')))
         ], pagination: 5);
         return view('home.TigerWeb.Faq.list');
-    }
-
-    public function show($faq_type, $faq_type_id, $id)
-    {
-        $faqResults = $this->faqService->details($id);
-        return view('home.TigerWeb.Faq.show', compact('faqResults'));
-    }
-
-    public function edit($faq_type, $faq_type_id, $id)
-    {
-        //dd($id);
-        $this->initEdit($id);
-        return view('home.TigerWeb.Faq.edit');
-    }
-    public function delete($faq_type, $faq_type_id, $id)
-    {
-        $message = $this->faqService->delete($id);
-        if($message == 1){
-            return to_route('faq_list', ['faq_type' => $faq_type, 'faq_type_id' => $faq_type_id]);
-        }
-        else{
-            throw new NotFoundException($message);
-        }
-    }
-    public function create_old()
-    {
-        $this->initForm('faq_form', route('faq_save'), 'post', ['id' => 'myForm']);
-
-        return view('create');
     }
 
     public function create()
@@ -192,36 +173,39 @@ class FaqController extends AbstractController
 
         $message = $this->faqService->store($request);
         if($message == 1){
-            return to_route('faq_list', ['faq_type' => $request->faq_type, 'faq_type_id' => $request->ref_id]);
-        } 
+            return to_route('faq_list', ['faq_type' => $request->faq_type, 'faq_type_id' => $request->ref_id])->with('success', 'Successfully done');
+        }
         else{
             throw new NotFoundException($message);
         }
-        
+
     }
 
+    public function show($faq_type, $faq_type_id, $id)
+    {
+        $faqResults = $this->faqService->details($id);
+        return view('home.TigerWeb.Faq.show', compact('faqResults'));
+    }
 
     public function showDetails($id)
     {
         //$this->initDetails();
     }
 
-
-    public function listWithSearch(Request $request)
+    public function edit($faq_type, $faq_type_id, $id)
     {
-    	//$displayRecordPerPage = 10;
-        try {
-           // $request->display_item_per_page = isset($request->display_item_per_page)?$request->display_item_per_page:10;
-            //$articles = $this->articleService->showAllArticle($request)->paginate($request->display_item_per_page);
-            $faqs = $this->faqService->showAllfaq($request)->get();
-            dd($faqs);
-            //return view('articles.index', compact('articles', 'request'));
-        } catch (\Exception $e) {
-        	throw new NotFoundException($message);
-            // return Redirect::to('/faq/list');
+        $this->initEdit($id);
+        return view('home.TigerWeb.Faq.edit');
+    }
+    public function delete($faq_type, $faq_type_id, $id)
+    {
+        $message = $this->faqService->delete($id);
+        if($message == 1){
+            return to_route('faq_list', ['faq_type' => $faq_type, 'faq_type_id' => $faq_type_id])->with('success', 'Deleted Successfully');
+        }
+        else{
+            throw new NotFoundException($message);
         }
     }
-
-
 
 }
