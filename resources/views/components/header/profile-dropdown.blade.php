@@ -20,7 +20,7 @@
         <i class="align-middle me-1" data-feather="user"></i> Profile
     </a> --}}
     <a class="dropdown-item" href="{{ route('password.change') }}">
-        <i class="align-middle me-1" data-feather="pie-chart"></i>Change Password
+        Change Password
     </a>
     {{-- <div class="dropdown-divider"></div>
     <a class="dropdown-item" href="pages-settings.html">

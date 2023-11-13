@@ -95,8 +95,9 @@ class CampaignController extends AbstractController
 
     public function campaigns()
     {
-        $this->initGrid(['campaign_name', Field::init('campaign_id', 'Campaign ID'), Field::init('agencyName', 'Agency'), Field::init('brandName', 'Brand')], pagination: 5)
-        ;
+        $this->initGrid(['campaign_name', Field::init('campaign_id', 'Campaign ID'), Field::init('agencyName', 'Agency'), Field::init('brandName', 'Brand')], pagination: 5, config: [
+            'headerRowCssClass' => 'thead-purple',
+        ]);
         return view('home.toffe.Campaign.list');
     }
 

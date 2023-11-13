@@ -5,25 +5,25 @@
         text-align: right !important;
     }
 
-    .table-bordered > tbody > tr > td,
-    .table-bordered > tbody > tr > th,
-    .table-bordered > tfoot > tr > td,
-    .table-bordered > tfoot > tr > th,
-    .table-bordered > thead > tr > td,
-    .table-bordered > thead > tr > th {
+    .table-bordered>tbody>tr>td,
+    .table-bordered>tbody>tr>th,
+    .table-bordered>tfoot>tr>td,
+    .table-bordered>tfoot>tr>th,
+    .table-bordered>thead>tr>td,
+    .table-bordered>thead>tr>th {
         border: 1px solid #000 !important;
         padding: 4px !important;
         vertical-align: middle;
     }
 
-    section .table-bordered > tbody > tr > td,
-    section .table-bordered > tbody > tr > th,
-    section .table-bordered > thead > tr > td,
-    section .table-bordered > thead > tr > th {
+    section .table-bordered>tbody>tr>td,
+    section .table-bordered>tbody>tr>th,
+    section .table-bordered>thead>tr>td,
+    section .table-bordered>thead>tr>th {
         text-align: center;
     }
 
-    .table-bordered > tfoot {
+    .table-bordered>tfoot {
         display: table-row-group;
     }
 
@@ -36,11 +36,14 @@
     }
 
     @media print {
-        body, table {
+
+        body,
+        table {
             font-size: 12px;
         }
 
-        html, body {
+        html,
+        body {
             height: auto;
         }
     }
@@ -50,40 +53,63 @@
         margin-left: 5px;
     }
 </style>
-<body>
-<table class="table table-bordered">
-    <thead>
-    <tr>
-        <th>Date</th>
-        <th>Impression</th>
-        <th>Clicks</th>
-        <th>Complete Views</th>
-        <th>Active Viewable Impression</th>
-        <th>Viewable Impression (%)</th>
-        <th>CTR</th>
-        <th>Completion Rate</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach ($data as $item)
-        <tr>
-            <td>{{ $item['individual_date'] }}</td>
-            <td>{{ $item['impression'] }}</td>
-            <td>{{ $item['clicks'] }}</td>
-            <td>{{ $item['complete_views'] }}</td>
-            <td>{{ $item['active_viewable_impression'] }}</td>
-            <td>{{ $item['viewable_impression'] }} %</td>
-            <td>{{ $item['ctr'] }} %</td>
-            <td>{{ $item['completion_rate'] }} %</td>
-        </tr>
-    @endforeach
-    </tbody>
-</table>
-<script>
-    window.onload = function () {
-        window.print();
-    }
-</script>
-</body>
-</html>
 
+<body>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Campaign ID</th>
+                <th>Campaign Name</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ $dataWithNameID['id'] }}</td>
+                <td>{{ $dataWithNameID['name'] }}</td>
+
+            </tr>
+
+        </tbody>
+    </table>
+
+
+
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Impression</th>
+                <th>Clicks</th>
+                <th>Complete Views</th>
+                <th>Active Viewable Impression</th>
+                <th>Viewable Impression (%)</th>
+                <th>CTR</th>
+                <th>Completion Rate</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($dataWithNameID['data'] as $item)
+                <tr>
+                    <td>{{ $item['individual_date'] }}</td>
+                    <td>{{ $item['impression'] }}</td>
+                    <td>{{ $item['clicks'] }}</td>
+                    <td>{{ $item['complete_views'] }}</td>
+                    <td>{{ $item['active_viewable_impression'] }}</td>
+                    <td>{{ $item['viewable_impression'] }} %</td>
+                    <td>{{ $item['ctr'] }} %</td>
+                    <td>{{ $item['completion_rate'] }} %</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+    <script>
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+
+</html>

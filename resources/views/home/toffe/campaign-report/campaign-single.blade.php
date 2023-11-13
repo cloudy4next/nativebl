@@ -176,6 +176,14 @@
             </div>
         </div>
     </div>
+
+    @push('styles')
+        <style>
+            .thead-purple tr th {
+                background-color: #f0e6ee;
+            }
+        </style>
+    @endpush
 </x-main-layout>
 <script>
     // Data retrieved from the controller

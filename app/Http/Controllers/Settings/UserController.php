@@ -117,7 +117,9 @@ class UserController extends AbstractController
             Field::init('isDeleted', 'Is Deleted')->formatValue(function ($value) {
                 return $value == 1 ? "Yes" : "No";
             }),
-        ], pagination: 5); //'userID',
+        ], pagination: 5, config: [
+            'headerRowCssClass' => 'thead-purple',
+        ]);
         return view('components.settings.user.user');
     }
 

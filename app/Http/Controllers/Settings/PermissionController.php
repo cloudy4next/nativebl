@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
@@ -10,6 +12,7 @@ use NativeBL\Field\Field;
 use NativeBL\Field\InputField;
 use NativeBL\Field\TextField;
 use Illuminate\Http\Request;
+
 class PermissionController extends AbstractController
 {
     public function __construct(private PermissionServiceInterface $permissionService)
@@ -35,15 +38,14 @@ class PermissionController extends AbstractController
             ButtonField::init('submit')->createAsFormSubmitAction(),
             ButtonField::init('cancel')->linkToRoute('permission_list')->createAsFormAction(),
         ];
-
     }
 
     public function configureForm()
     {
         $fields = [
             ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->permissionService->getApplication()),
-            InputField::init('title')->setHtmlAttributes(['required'=>true]),
-            InputField::init('shortDescription', 'Short Description', 'textarea')->setHtmlAttributes(['required'=>true]),
+            InputField::init('title')->setHtmlAttributes(['required' => true]),
+            InputField::init('shortDescription', 'Short Description', 'textarea')->setHtmlAttributes(['required' => true]),
         ];
 
         $this->getForm($fields)
@@ -68,13 +70,15 @@ class PermissionController extends AbstractController
             'title',
             'name',
             'shortDescription',
-            Field::init('isActive', 'Active Status')->formatValue(function($value) {
-                return $value== 1 ? "Active" : "Inactive";
+            Field::init('isActive', 'Active Status')->formatValue(function ($value) {
+                return $value == 1 ? "Active" : "Inactive";
             }),
-            Field::init('isDeleted', 'Is Deleted')->formatValue(function($value) {
-                return $value== 1 ? "Yes" : "No";
+            Field::init('isDeleted', 'Is Deleted')->formatValue(function ($value) {
+                return $value == 1 ? "Yes" : "No";
             }),
-        ], pagination: 5);
+        ], pagination: 5, config: [
+            'headerRowCssClass' => 'thead-purple',
+        ]);
         return view('home.settings.permission.list');
     }
 
@@ -95,20 +99,18 @@ class PermissionController extends AbstractController
 
         if ($validator->fails()) {
             return back()
-                ->withErrors( $validator->errors())
+                ->withErrors($validator->errors())
                 ->withInput();
         }
         $this->permissionService->savePermission($request);
         return redirect('permission')->with('success', 'Permission Created Successfully');
-
     }
     public function edit(int $id)
     {
         $singlePermisison = $this->permissionService->getSinglePermission($id);
         return view('components.settings.user.single-permission')
-        ->with('userApplicationIDs',$this->permissionService->getApplication())
-        ->with('permission', $singlePermisison->data);
-
+            ->with('userApplicationIDs', $this->permissionService->getApplication())
+            ->with('permission', $singlePermisison->data);
     }
 
     public function update(Request $request)
@@ -121,11 +123,11 @@ class PermissionController extends AbstractController
 
         if ($validator->fails()) {
             return back()
-                ->withErrors( $validator->errors())
+                ->withErrors($validator->errors())
                 ->withInput();
         }
         $this->permissionService->updatePermission($request);
-        return redirect('permission/edit/'. $request->get('id'))->with('success', 'Permission Updated Successfully');
+        return redirect('permission/edit/' . $request->get('id'))->with('success', 'Permission Updated Successfully');
     }
 
     public function delete(int $id)
@@ -133,6 +135,4 @@ class PermissionController extends AbstractController
         $this->permissionService->deletePermission($id);
         return redirect('permission')->with('success', 'Permission Deleted Successfully');
     }
-
-
 }

@@ -9,6 +9,8 @@
                 <form name="user_form" action={{ route('agency_save') }} method="post" class="">
                     @csrf
                     <input type="hidden" name="id" value="{{ $agencyDetails['id'] }}" />
+                    <input type="hidden" name="icon_test" value="{{ $agencyDetails['icon'] }}" />
+
                     <div class="mb-3">
                         <label class="form-label" for="name">Name</label>
                         <input class="form-control  " id="name" name="name" type="text" placeholder="Name"
@@ -21,7 +23,7 @@
 
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="user[]">Map User</label>
+                        <label class="form-label" for="user[]"><strong>Map User</strong></label>
                         <div>
                             @foreach ($userList as $key => $user)
                                 <label class="form-check form-check-inline">
@@ -32,10 +34,10 @@
                                 </label>
                             @endforeach
                         </div>
-
                     </div>
 
-                    <label class="form-label" for="user[]">Mapped User</label>
+
+                    <label class="form-label" for="user[]"><strong>Mapped User</strong></label>
 
                     <table class="table table-sm table-bordered">
                         <tbody>

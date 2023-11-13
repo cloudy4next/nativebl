@@ -20,8 +20,7 @@ class UserCampaingController extends AbstractController
     public function __construct(
         private readonly CampaignManagementServiceInterface $campaignManagementInterface,
         private readonly UserCampaignRepositoryInterface    $userCampaignRepositoryInterface
-    )
-    {
+    ) {
     }
 
     public function getRepository()
@@ -46,7 +45,7 @@ class UserCampaingController extends AbstractController
         $id = \Request::segment(3);
 
         $fields = [
-            TextField::init('individual_date','Date')->setHtmlAttributes(['id' => 'daterangepicker']),
+            TextField::init('individual_date', 'Date')->setHtmlAttributes(['id' => 'daterangepicker']),
             HiddenField::init('lineitem', 'lineitem', $id)
         ];
         $this->getFilter($fields);
@@ -89,7 +88,10 @@ class UserCampaingController extends AbstractController
                 }),
 
             ],
-            pagination: 1000
+            pagination: 1000,
+            config: [
+                'headerRowCssClass' => 'thead-purple',
+            ]
         );
         $dateArray = getDateArray($request);
         $dateArray['id'] = \Request::segment(3);
@@ -97,7 +99,6 @@ class UserCampaingController extends AbstractController
         return view('home.toffe.campaign-report.campaign-single')
             ->with('data', $newCardArray)
             ->with('dataset', $dataset);
-
     }
 
     /**
@@ -117,7 +118,12 @@ class UserCampaingController extends AbstractController
         $type = $request->type;
 
         $data = $this->userCampaignRepositoryInterface->getExportData((int)$id, $startDate, $endDate);
-        $view = view('home.toffe.Report.all-campaign-report', compact('data'));
+        $dataWithNameID =  [
+            'id' => $id,
+            'name' => $request->name,
+            'data' => $data,
+        ];
+        $view = view('home.toffe.Report.all-campaign-report', compact('dataWithNameID'));
         $filename = "Campaign Report [$id] " . Carbon::now()->format('d-m-Y h-i-s A');
 
         return match ($type) {
@@ -126,5 +132,4 @@ class UserCampaingController extends AbstractController
             default => Excel::download(new Export($view), "{$filename}.xls", \Maatwebsite\Excel\Excel::XLS),
         };
     }
-
 }

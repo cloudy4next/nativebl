@@ -33,19 +33,23 @@ class ESimRepository extends AbstractNativeRepository implements ESimRepositoryI
     public function getGridData(array $filters = []): iterable
     {
         $filter = Request::get('filters')['msisdn'] ?? null;
-        return $this->getESinfo((int) $filter);
+        if ($filter != null) {
+            return $this->getESinfo((int) $filter);
+        }
+        return [];
     }
 
     public function getESinfo(int|null $msisdn)
     {
-        if ($msisdn == null || $this->msisdnMakeFormate((string)$msisdn) == false) {
+        $checkMsisdn = $this->msisdnMakeFormate((string) $msisdn);
+        if ($msisdn == null || $checkMsisdn == false) {
             session()->flash('error', 'Invalid Number Supplied!!!');
 
             return [];
         }
+        $trimmedNumber = substr((string)$checkMsisdn, 3);
 
-
-        $path = "/api/DBSS/Subscriptions?MSISDN=" . (int)$msisdn;
+        $path = "/api/DBSS/Subscriptions?MSISDN=" . (int) $trimmedNumber;
 
         $header = [
             'Authorization' => 'Bearer ' . $this->SessionCheck('access_token'),

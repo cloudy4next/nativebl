@@ -91,7 +91,9 @@ class AgencyController extends AbstractController
 
     public function agencies()
     {
-        $this->initGrid([Field::init('name', 'Name'), Field::init('icon', 'Icon')], pagination: 5);
+        $this->initGrid([Field::init('name', 'Name'), Field::init('icon', 'Icon')], pagination: 5, config: [
+            'headerRowCssClass' => 'thead-purple',
+        ]);
         return view('home.toffe.Agency.list');
     }
 
@@ -156,7 +158,6 @@ class AgencyController extends AbstractController
     {
         $validator = \Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'icon' => 'required|image',
             'user' => 'required|array',
 
         ]);
@@ -170,7 +171,7 @@ class AgencyController extends AbstractController
         $message = $this->agencyService->store($request);
         if ($message == 1) {
             if ($request['id'] != null) {
-                return to_route('agency_edit', $request['id'])->with('success', 'Agency Added Successfully');
+                return to_route('agency_list')->with('success', 'Agency Added Successfully');
             } else {
                 return to_route('agency_list')->with('success', 'Agency Created Successfully');
             }

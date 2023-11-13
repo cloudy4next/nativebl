@@ -80,7 +80,9 @@ class BrandController extends AbstractController
 
     public function agencies()
     {
-        $this->initGrid(['name', 'icon'], pagination: 5);
+        $this->initGrid(['name', 'icon'], pagination: 5, config: [
+            'headerRowCssClass' => 'thead-purple',
+        ]);
         return view('home.toffe.Brand.list');
     }
 
@@ -147,7 +149,6 @@ class BrandController extends AbstractController
     {
         $validator = \Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'icon' => 'required|image',
             'user' => 'required|array',
 
         ]);
@@ -161,7 +162,7 @@ class BrandController extends AbstractController
         $message = $this->brandService->store($request);
         if ($message == 1) {
             if ($request['id'] != null) {
-                return to_route('brand_edit', $request['id'])->with('success', 'Brand Added Successfully');
+                return to_route('brand_list')->with('success', 'Brand Added Successfully');
             } else {
                 return to_route('brand_list')->with('success', 'Brand Created Successfully');
             }

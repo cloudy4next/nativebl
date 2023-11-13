@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /*
  * This file is part of the nativebl package.
@@ -36,15 +38,14 @@ class BrandRepository extends AbstractNativeRepository implements BrandRepositor
         return ToffeeBrand::select();
     }
 
-   public function applyFilterQuery(Builder $query, array $filters): Builder
+    public function applyFilterQuery(Builder $query, array $filters): Builder
     {
         if ($filters == null) {
             return $query;
         }
-        $query->where('name','LIKE',"%{$filters['name']}%");
+        $query->where('name', 'LIKE', "%{$filters['name']}%");
 
         return $query;
-
     }
 
     public function getGridQuery(): ?Builder
@@ -70,10 +71,10 @@ class BrandRepository extends AbstractNativeRepository implements BrandRepositor
 
             try {
                 DB::beginTransaction();
-
+                $icon = $request['icon_test'] != null ? $request['icon_test'] : $request['icon'];
                 $prevBrand = $this->find($request['id']);
                 $prevBrand['name'] = $request['name'];
-                $prevBrand['icon'] = $request['icon'];
+                $prevBrand['icon'] = $icon;
                 $prevBrand['created_by'] = $request['created_by'];
                 $prevBrand->save();
 
@@ -89,11 +90,9 @@ class BrandRepository extends AbstractNativeRepository implements BrandRepositor
 
                 DB::commit();
                 return 1;
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 return $e->getMessage();
-
             }
         } else {
 
@@ -126,11 +125,9 @@ class BrandRepository extends AbstractNativeRepository implements BrandRepositor
 
                 DB::commit();
                 return 1;
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 return $e->getMessage();
-
             }
         }
         // return ToffeAgency::create($request->all());
@@ -153,11 +150,9 @@ class BrandRepository extends AbstractNativeRepository implements BrandRepositor
 
             DB::commit();
             return 1;
-
         } catch (\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
-
         }
     }
 
@@ -168,10 +163,7 @@ class BrandRepository extends AbstractNativeRepository implements BrandRepositor
         $query = ToffeeBrand::query();
         if (isset($filter['search_text']) && $filter['search_text']) {
             $query->where('name', 'like', "%{$filter['search_text']}%");
-
         }
         return $query;
     }
-
-
 }

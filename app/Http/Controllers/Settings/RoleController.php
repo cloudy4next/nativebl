@@ -79,7 +79,9 @@ class RoleController extends AbstractController
             Field::init('isDeleted', 'Is Deleted')->formatValue(function($value) {
                 return $value== 1 ? "Yes" : "No";
             }),
-        ], pagination: 5);
+        ], pagination: 5, config: [
+            'headerRowCssClass' => 'thead-purple',
+        ]);
         return view('home.settings.role.list');
     }
 

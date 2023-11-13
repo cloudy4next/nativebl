@@ -45,10 +45,10 @@ class ESimController extends AbstractController
 
 
 
-    public function show()
-    {
-        dd($this->esimService->getESimCollection(123));
-    }
+    // public function show()
+    // {
+    //     dd($this->esimService->getESimCollection(123));
+    // }
 
     public function esim(Request $request)
     {
@@ -61,11 +61,7 @@ class ESimController extends AbstractController
                 Field::init('contract-id'),
             ]
         );
-
-        // $msidsnFilter = $request->input('filters.msisdn');
-        // $data = $msidsnFilter == null ? [] : $this->esimService->getESimCollection($msidsnFilter);
         return view('home.e-sim.e-sim');
-        // ->with('data', $data);
 
     }
 

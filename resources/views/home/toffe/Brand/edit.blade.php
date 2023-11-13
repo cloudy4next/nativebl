@@ -9,33 +9,34 @@
                 <form name="user_form" action={{ route('brand_save') }} method="post" class="">
                     @csrf
                     <input type="hidden" name="id" value="{{ $brandDetails['id'] }}" />
+                    <input type="hidden" name="icon_test" value="{{ $brandDetails['icon'] }}" />
+
                     <div class="mb-3">
                         <label class="form-label" for="name">Name</label>
                         <input class="form-control  " id="name" name="name" type="text" placeholder="Name"
-                            value="{{ $brandDetails['name'] }}">
+                            value="{{ $brandDetails['name'] }}" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="icon">Icon</label>
                         <input class="form-control  " id="icon" name="icon" type="file" placeholder="Icon"
                             value="{{ $brandDetails['icon'] }}">
-
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="user[]">Map User</label>
-                        <div class="grid grid-cols-4 gap-4">
+                        <label class="form-label" for="user[]"><strong>Map User</strong></label>
+                        <div>
                             @foreach ($userList as $key => $user)
-                            <label class="form-check form-check-inline">
-                                <input class="form-check-input my-class" type="checkbox" name="user[]" value="{{ $key }}"
-                                    {{ in_array($key, $mappedUserArray) ? 'checked' : '' }}>
-                                <span class="form-check-label">{{ $user }}</span>
-                            </label>
+                                <label class="form-check form-check-inline">
+                                    <input class="form-check-input my-class" type="checkbox" name="user[]"
+                                        value="{{ $key }}"
+                                        {{ in_array($key, $mappedUserArray) ? 'checked' : '' }}>
+                                    <span class="form-check-label">{{ $user }}</span>
+                                </label>
                             @endforeach
                         </div>
                     </div>
 
 
-
-                    <label class="form-label" for="user[]">Mapped User</label>
+                    <label class="form-label" for="user[]"><strong>Mapped User</strong></label>
 
                     <table class="table table-sm table-bordered">
                         <tbody>
@@ -46,7 +47,7 @@
                                             <td class="text-center">{{ $userList[$user] }}</td>
                                             <td>
                                                 <a class="btn btn-danger btn-sm"
-                                                   href="/brand/delete-brand-user-map/{{ $key }}/{{ $brandDetails['id'] }}">
+                                                    href="/brand/delete-brand-user-map/{{ $key }}/{{ $brandDetails['id'] }}">
                                                     <i class="fas fa-times"></i>
                                                 </a>
                                             </td>

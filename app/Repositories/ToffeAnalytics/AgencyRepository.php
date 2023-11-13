@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /*
  * This file is part of the nativebl package.
@@ -41,10 +43,9 @@ class AgencyRepository extends AbstractNativeRepository implements AgencyReposit
         if ($filters == null) {
             return $query;
         }
-        $query->where('name','LIKE',"%{$filters['name']}%");
+        $query->where('name', 'LIKE', "%{$filters['name']}%");
 
         return $query;
-
     }
 
     public function getGridQuery(): ?Builder
@@ -52,11 +53,11 @@ class AgencyRepository extends AbstractNativeRepository implements AgencyReposit
         return ToffeeAgency::select();
     }
 
-   public function getAgencyDataById($id)
-   {
-       $query = ToffeeAgency::with('agencyUserMap')
-                ->where('id', $id)
-                ->first();
+    public function getAgencyDataById($id)
+    {
+        $query = ToffeeAgency::with('agencyUserMap')
+            ->where('id', $id)
+            ->first();
 
         return $query;
     }
@@ -69,10 +70,11 @@ class AgencyRepository extends AbstractNativeRepository implements AgencyReposit
 
             try {
                 DB::beginTransaction();
+                $icon = $request['icon_test'] != null ? $request['icon_test'] : $request['icon'];
 
                 $prevAgency = $this->find($request['id']);
                 $prevAgency['name'] = $request['name'];
-                $prevAgency['icon'] = $request['icon'];
+                $prevAgency['icon'] = $icon;
                 $prevAgency['created_by'] = $request['created_by'];
                 $prevAgency->save();
 
@@ -88,11 +90,9 @@ class AgencyRepository extends AbstractNativeRepository implements AgencyReposit
 
                 DB::commit();
                 return 1;
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 return $e->getMessage();
-
             }
         } else {
 
@@ -124,13 +124,10 @@ class AgencyRepository extends AbstractNativeRepository implements AgencyReposit
 
                 DB::commit();
                 return 1;
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 return $e->getMessage();
-
             }
-
         }
     }
 
@@ -149,11 +146,9 @@ class AgencyRepository extends AbstractNativeRepository implements AgencyReposit
 
             DB::commit();
             return true;
-
         } catch (\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
-
         }
     }
 
@@ -164,10 +159,7 @@ class AgencyRepository extends AbstractNativeRepository implements AgencyReposit
         $query = ToffeeAgency::query();
         if (isset($filter['search_text']) && $filter['search_text']) {
             $query->where('name', 'like', "%{$filter['search_text']}%");
-
         }
         return $query;
     }
-
-
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
@@ -82,13 +84,15 @@ class MenuController extends AbstractController
             'name',
             'applicationID',
             'parentID',
-            Field::init('isActive', 'Active Status')->formatValue(function($value) {
-                return $value== 1 ? "Active" : "Inactive";
+            Field::init('isActive', 'Active Status')->formatValue(function ($value) {
+                return $value == 1 ? "Active" : "Inactive";
             }),
-            Field::init('isDeleted', 'Is Deleted')->formatValue(function($value) {
-                return $value== 1 ? "Yes" : "No";
+            Field::init('isDeleted', 'Is Deleted')->formatValue(function ($value) {
+                return $value == 1 ? "Yes" : "No";
             }),
-        ], pagination: 5);
+        ], pagination: 5, config: [
+            'headerRowCssClass' => 'thead-purple',
+        ]);
         return view('home.settings.menu.list');
     }
 
@@ -138,7 +142,7 @@ class MenuController extends AbstractController
         return to_route('menu_list')->with('success', 'Menu Updated Successfully');
     }
 
-    public function edit(int $id, )
+    public function edit(int $id,)
     {
         $requestedMenu = $this->MenuService->singleMenu($id);
         return view('components.settings.user.single-menu')
