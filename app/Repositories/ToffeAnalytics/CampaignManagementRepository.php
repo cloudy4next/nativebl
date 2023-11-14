@@ -17,6 +17,8 @@ use Google\AdsApi\AdManager\v202308\ExportFormat;
 use Google\AdsApi\AdManager\v202308\ReportJob;
 use App\Contracts\ToffeAnalytics\CampaignManagementRepositoryInterface;
 use App\Models\ToffeAnalytics\CampaginReport;
+use App\Models\ToffeAnalytics\ToffeeAgency;
+use App\Models\ToffeAnalytics\ToffeeCampaign;
 use App\Traits\ToffeAnalytics\AdsManagerTrait;
 use Google\AdsApi\AdManager\v202308\ReportJobStatus;
 use Google\AdsApi\AdManager\v202308\ServiceFactory;
@@ -61,7 +63,7 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
             $id = $LineItem->getId();
             $status = $LineItem->getStatus();
             $name = $LineItem->getName(); // Campaign name.......
-            $brandName = $LineItem->getOrderName(); //brandName ...........
+            //  $brandName = $LineItem->getOrderName(); //brandName ...........
 
             $startDateTime = $LineItem->getStartDateTime();
             if ($startDateTime != null) {
@@ -86,18 +88,23 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
 
                 $imression = number_format($impressionsDelivered->getImpressionsDelivered());
                 $clicks = number_format($impressionsDelivered->getClicksDelivered());
-                $crt = number_format((float) $this->calculatePercentage((int) $clicks, (int) $imression), 2) . '%';
+                $calculatectr = (float) $clicks / (float) $imression;
+                $crt = number_format(($calculatectr * 100), 2) . '%';
+
                 $complete = number_format($impressionsDelivered->getVideoCompletionsDelivered());
             }
-            if (Auth::user()->isBrand()) {
-                $brandName = $this->getBrandName(Auth::user()->isBrand())->name;
-            }
+            $campignItem = ToffeeCampaign::where('campaign_id', $id)->first();
+            $brandName = $this->getBrandName($campignItem->brand_id)->name;
+            $agencyName = $this->getAgencyName($campignItem->agency_id)->name;
+
 
             $newObject[] = [
                 'id' => $id,
                 'status' => $status,
                 'name' => $name,
                 'brandName' => (string) $brandName,
+                'agencyName' => (string) $agencyName,
+
                 'startDate' => $startDate ?? null,
                 'endDate' => $endDate ?? null,
                 'goal' => (string) $goal ?? null,
@@ -280,6 +287,13 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
     {
         return ToffeeBrand::where('id', $id)->first('name');
     }
+
+
+    public function getAgencyName($id)
+    {
+        return ToffeeAgency::where('id', $id)->first('name');
+    }
+
 
     public function getLastSavedDate(int $id): string|null
     {

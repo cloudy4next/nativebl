@@ -18,6 +18,7 @@ use NativeBL\Field\ChoiceField;
 
 use Auth;
 use NativeBL\Field\FileField;
+use NativeBL\Field\InputField;
 
 class BrandController extends AbstractController
 {
@@ -60,7 +61,7 @@ class BrandController extends AbstractController
             IdField::init('id'),
             TextField::init('name')->validate('required|max:255')->setHtmlAttributes(['required' => true]),
             FileField::init('icon', 'Icon')->setHtmlAttributes(['required' => true]),
-            ChoiceField::init('user[]', 'Map User', choiceType: 'checkbox', choiceList: $userList)->setCssClass('my-class'),
+            InputField::init('user[]')->setComponent('toffee.map-user')->setLayoutClass('col-md-12'),
             HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
         ];
         $this->getForm($fields)
@@ -147,11 +148,15 @@ class BrandController extends AbstractController
 
     public function store(Request $request): RedirectResponse
     {
-        $validator = \Validator::make($request->all(), [
+        $rules = [
             'name' => 'required|string|max:255',
             'user' => 'required|array',
+        ];
+        if ($request->id == null) {
+            $rules['icon'] = 'required|image';
+        }
 
-        ]);
+        $validator = \Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return back()

@@ -20,9 +20,10 @@ class CheckPermission
         if (Auth::check() && Auth::user()->hasPermission($permission)) {
             return $next($request);
         }
-        abort(401);
-        return $next($request);
+
+        if ($request->session()->get('applicationID') == config('nativebl.base.toffee_analytics_application_id')) {
+            return to_route(config('nativebl.base.toffee_home_route'))->with('error', 'UNAUTHORIZED');
+        }
+        return to_route(config('nativebl.base.tigerweb_home_route'))->with('error', 'UNAUTHORIZED');
     }
-
-
 }

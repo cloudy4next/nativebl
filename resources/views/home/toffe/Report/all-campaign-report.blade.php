@@ -57,24 +57,17 @@
 <body>
 
     <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Campaign ID</th>
-                <th>Campaign Name</th>
-
-            </tr>
-        </thead>
         <tbody>
             <tr>
+                <td><strong>Campaign ID:</strong></td>
                 <td>{{ $dataWithNameID['id'] }}</td>
-                <td>{{ $dataWithNameID['name'] }}</td>
-
             </tr>
-
+            <tr>
+                <td><strong>Campaign Name:</strong></td>
+                <td>{{ $dataWithNameID['name'] }}</td>
+            </tr>
         </tbody>
-    </table>
-
-
+    </table>s
 
 
     <table class="table table-bordered">

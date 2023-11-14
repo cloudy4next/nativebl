@@ -88,7 +88,7 @@ class User extends Authenticatable
     public function isAgency()
     {
         $agency = ToffeeAgencyUserMap::where('user_id', $this->id)->first();
-        return ($agency == null) ? false : (int) $agency->id;
+        return ($agency == null) ? false : (int) $agency->agency_id;
     }
     public function isBrand()
     {
@@ -96,10 +96,10 @@ class User extends Authenticatable
         return ($brand == null) ? false : (int) $brand->brand_id;
     }
 
-    public function getToffeeAgencyId(): int
+    public function getToffeeAgencyId(): ?int
     {
         $id = ToffeeAgency::whereRaw('LOWER(name) like ?', ['%toffee%'])->first();
-        return (int) $id->id;
+        return  $id == null ? null : (int) $id->id;
     }
 
     public function camapign()
@@ -109,10 +109,13 @@ class User extends Authenticatable
             $query = ToffeeCampaign::all();
         } else {
             if ($this->isAgency()) {
-
                 $query = ToffeeCampaign::where('agency_id', $this->isAgency())->get();
             } else {
-                $query = ToffeeCampaign::where('brand_id', $this->isBrand())->where('agency_id', $this->getToffeeAgencyId())->get();
+                if ($this->getToffeeAgencyId() != null) {
+                    $query = ToffeeCampaign::where('brand_id', $this->isBrand())->where('agency_id', $this->getToffeeAgencyId())->get();
+                } else {
+                    $query = null;
+                }
             }
         }
         if ($query == null) {
@@ -128,6 +131,4 @@ class User extends Authenticatable
     {
         return $this->getBase64Attachment($this->SessionCheck('profilePicID'));
     }
-
-
 }

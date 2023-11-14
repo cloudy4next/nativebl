@@ -785,7 +785,7 @@ $sidebar-link-active-bg: #{linear-gradient(
     rgba($primary, 0.0875) 50%,
     rgba($black, 0) 100%
   )} !default;
-$sidebar-link-active-color: $primary !default;
+$sidebar-link-active-color: #ba0d6f !default;
 $sidebar-link-active-border-left-color: $primary !default;
 
 // Sidebar child link
@@ -797,13 +797,13 @@ $sidebar-link-child-color: $body-color !default;
 $sidebar-link-child-bg: transparent !default;
 $sidebar-link-child-hover-color: #ba0d6f !default;
 $sidebar-link-child-hover-bg: transparent !default;
-$sidebar-link-child-active-color: $primary !default;
+$sidebar-link-child-active-color: #ba0d6f !default;
 $sidebar-link-child-active-bg: transparent !default;
 
 // Sidebar link icon
 $sidebar-link-icon-color: $body-color !default;
 $sidebar-link-icon-hover-color: #ba0d6f !default;
-$sidebar-link-icon-active-color: $primary !default;
+$sidebar-link-icon-active-color: #ba0d6f !default;
 
 // Sidebar bottom
 $sidebar-cta-color: $gray-200 !default;
@@ -852,7 +852,7 @@ $footer-bg: $white !default;
 }
 
 .active-menu {
-    background-color: $blue !important;
+    background-color: #ba0d6f !important;
     color: #fff !important;
 }
 
@@ -872,6 +872,11 @@ $footer-bg: $white !default;
 .sidebar-link:hover {
     color: #ba0d6f;
     background: transparent;
+}
+
+[data-bs-theme=dark] .sidebar-link:hover {
+    background: #1c1c1e;
+    color: #ba0d6f;
 }
 
 .sidebar-dropdown .sidebar-link::before {

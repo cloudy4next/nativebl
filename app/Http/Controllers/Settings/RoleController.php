@@ -39,16 +39,15 @@ class RoleController extends AbstractController
             ButtonField::init('submit')->createAsFormSubmitAction(),
             ButtonField::init('cancel')->linkToRoute('role_list')->createAsFormAction(),
         ];
-
     }
 
     public function configureForm()
     {
         $fields = [
             ChoiceField::init('applicationID', 'Select Application', choiceType: 'select', choiceList: $this->roleService->getApplication())->setCssClass('my-class'),
-            InputField::init('title')->setHtmlAttributes(['required'=>true,'minlength'=>3]),
-            InputField::init('shortDescription', 'Short Description', 'textarea')->setHtmlAttributes(['required'=>true,'minlength'=>3]),
-            InputField::init('menus')->setComponent('settings.user.role-custom-component')->setHtmlAttributes(['required'=>true,'minlength'=>8])->setLayoutClass('col-md-12'),
+            InputField::init('title')->setHtmlAttributes(['required' => true, 'minlength' => 3]),
+            InputField::init('shortDescription', 'Short Description', 'textarea')->setHtmlAttributes(['required' => true, 'minlength' => 3]),
+            InputField::init('menus')->setComponent('settings.user.role-custom-component')->setHtmlAttributes(['required' => true, 'minlength' => 8])->setLayoutClass('col-md-12'),
 
         ];
         $this->getForm($fields)
@@ -73,11 +72,11 @@ class RoleController extends AbstractController
             'title',
             'name',
             Field::init('shortDescription', 'Short Description'),
-            Field::init('isActive', 'Active Status')->formatValue(function($value) {
-                return $value== 1 ? "Active" : "Inactive";
+            Field::init('isActive', 'Active Status')->formatValue(function ($value) {
+                return $value == 1 ? "Active" : "Inactive";
             }),
-            Field::init('isDeleted', 'Is Deleted')->formatValue(function($value) {
-                return $value== 1 ? "Yes" : "No";
+            Field::init('isDeleted', 'Is Deleted')->formatValue(function ($value) {
+                return $value == 1 ? "Yes" : "No";
             }),
         ], pagination: 5, config: [
             'headerRowCssClass' => 'thead-purple',
@@ -123,9 +122,8 @@ class RoleController extends AbstractController
                 ->withErrors($validator->errors())
                 ->withInput();
         }
-        $roleID = $request->get('id');
         $this->roleService->updateRole($request);
-        return redirect('role/edit/' . $roleID)->with('success', 'Role Updated Successfully');
+        return redirect('role')->with('success', 'Role Updated Successfully');
     }
 
     public function delete(int $id)
@@ -144,7 +142,5 @@ class RoleController extends AbstractController
 
     public function show($id)
     {
-
     }
-
 }

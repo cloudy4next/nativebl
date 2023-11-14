@@ -13,6 +13,8 @@ return [
     'current_application_id' => 0,
     'core_application_id' => 1,
     'toffee_analytics_application_id' => 4,
+    'toffee_home_route' => 'toffee.all.campaign.list',
+    'tigerweb_home_route' => 'home',
     'tiger_web_application_id' => 5,
     'dnd_application_id' => 7,
     'tiger_web_upload_file_type' => ['jpg', 'jpeg', 'png', 'bmp', 'pdf', 'doc', 'xls', 'ppt'],

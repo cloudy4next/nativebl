@@ -56,7 +56,7 @@
         </symbol>
     </svg>
 
-    <div class="dropdown settings-toggle d-flex align-items-center">
+    {{-- <div class="dropdown settings-toggle d-flex align-items-center">
         <button class="btn btn-link nav-link d-flex align-items-center" id="bd-theme" type="button"
             data-bs-toggle="dropdown" aria-expanded="false">
             <svg class="bi my-1 theme-icon-active">
@@ -95,6 +95,6 @@
                 </button>
             </li>
         </ul>
-    </div>
+    </div> --}}
 
 </x-layouts.toffee-login-layout>

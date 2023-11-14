@@ -127,7 +127,7 @@ class PermissionController extends AbstractController
                 ->withInput();
         }
         $this->permissionService->updatePermission($request);
-        return redirect('permission/edit/' . $request->get('id'))->with('success', 'Permission Updated Successfully');
+        return redirect('permission')->with('success', 'Permission Updated Successfully');
     }
 
     public function delete(int $id)

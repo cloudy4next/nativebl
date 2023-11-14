@@ -92,6 +92,7 @@ class AgencyRepository extends AbstractNativeRepository implements AgencyReposit
                 return 1;
             } catch (\Exception $e) {
                 DB::rollBack();
+                dd($e);
                 return $e->getMessage();
             }
         } else {
@@ -126,6 +127,8 @@ class AgencyRepository extends AbstractNativeRepository implements AgencyReposit
                 return 1;
             } catch (\Exception $e) {
                 DB::rollBack();
+                dd($e);
+
                 return $e->getMessage();
             }
         }

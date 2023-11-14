@@ -74,6 +74,7 @@ class CampaignManagementController extends AbstractController
             [
                 Field::init('status', 'Status')->setCssClass('text-center'),
                 Field::init('name', 'Campaign Name')->setCssClass('text-center'),
+                Field::init('agencyName', 'Agency')->setCssClass('text-center'),
                 Field::init('brandName', 'Brand')->setCssClass('text-center'),
                 Field::init('startDate', 'Start Date')->setCssClass('text-center'),
                 Field::init('endDate', 'End Date')->setCssClass('text-center'),
