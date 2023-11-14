@@ -88,9 +88,10 @@ class CampaignManagementRepository extends AbstractNativeRepository implements C
 
                 $imression = number_format($impressionsDelivered->getImpressionsDelivered());
                 $clicks = number_format($impressionsDelivered->getClicksDelivered());
-                $calculatectr = (float) $clicks / (float) $imression;
+                $newImpression = str_replace(',', '', $imression);
+                $newCrt = str_replace(',', '', $clicks);
+                $calculatectr = (float) ((int) $newCrt / (int) $newImpression);
                 $crt = number_format(($calculatectr * 100), 2) . '%';
-
                 $complete = number_format($impressionsDelivered->getVideoCompletionsDelivered());
             }
             $campignItem = ToffeeCampaign::where('campaign_id', $id)->first();
