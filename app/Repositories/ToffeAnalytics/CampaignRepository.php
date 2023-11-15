@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /*
  * This file is part of the nativebl package.
@@ -38,7 +40,6 @@ class CampaignRepository extends AbstractNativeRepository implements CampaignRep
             $query = ToffeeCampaign::join('toffee_agencies', 'toffee_campaigns.agency_id', '=', 'toffee_agencies.id')
                 ->join('toffee_brands', 'toffee_campaigns.brand_id', '=', 'toffee_brands.id')
                 ->get(['toffee_campaigns.*', 'toffee_brands.name as brandName', 'toffee_agencies.name as agencyName']);
-
         } else {
             if (Auth::user()->getToffeeAgencyId()) {
                 $query = ToffeeCampaign::where('agency_id', Auth::user()->getToffeeAgencyId())
@@ -56,7 +57,6 @@ class CampaignRepository extends AbstractNativeRepository implements CampaignRep
                     ->join('toffee_brands', 'toffee_campaigns.brand_id', '=', 'toffee_brands.id')
                     ->get(['toffee_campaigns.*', 'toffee_brands.name as brandName', 'toffee_agencies.name as agencyName']);
             }
-            // dd($query);
         }
 
         return $query;
@@ -65,13 +65,11 @@ class CampaignRepository extends AbstractNativeRepository implements CampaignRep
     {
         foreach ($filters as $field => $value) {
             if ($value !== null) {
-                try{
+                try {
                     $query->where($field, 'LIKE', '%' . $value . '%');
-
-                }finally{
+                } finally {
                     $query->where($field, '=', $value);
                 }
-
             }
         }
         return $query;
@@ -100,12 +98,8 @@ class CampaignRepository extends AbstractNativeRepository implements CampaignRep
         try {
             ToffeeCampaign::where('id', $id)->delete();
             return 1;
-
         } catch (\Exception $e) {
             return $e->getMessage();
-
         }
     }
-
-
 }
