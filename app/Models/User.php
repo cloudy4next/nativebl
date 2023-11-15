@@ -92,8 +92,8 @@ class User extends Authenticatable
     }
     public function isBrand()
     {
-        $brand = ToffeeBrandUserMap::where('user_id', $this->id)->first();
-        return ($brand == null) ? false : (int) $brand->brand_id;
+        $brand = ToffeeBrandUserMap::where('user_id', $this->id)->pluck('brand_id')->toArray();;
+        return ($brand == null) ? false :  $brand;
     }
 
     public function getToffeeAgencyId(): ?int
@@ -112,7 +112,7 @@ class User extends Authenticatable
                 $query = ToffeeCampaign::where('agency_id', $this->isAgency())->get();
             } else {
                 if ($this->getToffeeAgencyId() != null) {
-                    $query = ToffeeCampaign::where('agency_id', $this->getToffeeAgencyId())->where('brand_id', $this->isBrand())->get();
+                    $query = ToffeeCampaign::where('agency_id', $this->getToffeeAgencyId())->whereIn('brand_id', $this->isBrand())->get();
                 } else {
                     $query = null;
                 }
