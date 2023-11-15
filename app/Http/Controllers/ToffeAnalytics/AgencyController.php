@@ -66,11 +66,13 @@ class AgencyController extends AbstractController
 
     public function configureForm(): void
     {
+        $userList = $this->userServiceInterface->getAllUserIDNameArr();
+
         $fields = [
             IdField::init('id'),
             TextField::init('name')->validate('required|max:255')->setHtmlAttributes(['required' => true]),
             FileField::init('icon', 'Icon')->setHtmlAttributes(['required' => true]),
-            InputField::init('user[]')->setComponent('toffee.map-user')->setLayoutClass('col-md-12'),
+            ChoiceField::init('user[]', 'Map User', choiceType: 'checkbox', choiceList: $userList)->setCssClass('my-class'),
             HiddenField::init('created_by')->setDefaultValue(Auth::user()->id),
         ];
         $this->getForm($fields)

@@ -23,7 +23,6 @@ class MapUser extends Component
     public function render(): View|Closure|string
     {
         $userList = $this->userServiceInterface->getAllUserIDNameArr();
-
         return view('components.toffee.map-user')->with('userList', $userList);
     }
 }
