@@ -38,7 +38,7 @@ final class CampaignManagementService implements CampaignManagementServiceInterf
             $startDate = $lastSavedDate;
         }
         return match ($status) {
-            'PAUSED', 'COMPLETED' => $this->getFromDbOrGoogle($id, $pauseCompleteDate, $endDate, true),
+            'PAUSED' => $this->getFromDbOrGoogle($id, $pauseCompleteDate, $endDate, true),
             default => $this->getFromDbOrGoogle($id, $this->makeDateTime($startDate), $newEndDate),
         };
 
