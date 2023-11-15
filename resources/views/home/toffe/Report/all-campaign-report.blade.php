@@ -67,7 +67,7 @@
                 <td>{{ $dataWithNameID['name'] }}</td>
             </tr>
         </tbody>
-    </table>s
+    </table>
 
 
     <table class="table table-bordered">

@@ -110,7 +110,7 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="permissions">Permissions:</label>
+                        <label for="permissions"><strong>Permissons:</strong></label>
                         <div class="row">
                             @foreach ($permissions as $permission)
                                 <div class="col-md-4"> <!-- Adjust the column size as needed -->

@@ -98,7 +98,7 @@ class UserController extends AbstractController
             // TextField::init('userID'),
             TextField::init('userName'),
             TextField::init('fullName'),
-            TextField::init('mobileNumber'),
+            InputField::init('mobileNumber', 'Mobile Number', 'number'),
             TextField::init('emailAddress'),
         ];
         $this->getFilter($fields);
