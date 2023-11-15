@@ -116,11 +116,13 @@ class UserCampaingController extends AbstractController
         $endDate = $dateArray['endDate'];
 
         $type = $request->type;
+        $name  =  str_replace('"', '', $request->name);
+
 
         $data = $this->userCampaignRepositoryInterface->getExportData((int)$id, $startDate, $endDate);
         $dataWithNameID =  [
             'id' => $id,
-            'name' => $request->name,
+            'name' => $name,
             'data' => $data,
         ];
         $view = view('home.toffe.Report.all-campaign-report', compact('dataWithNameID'));
