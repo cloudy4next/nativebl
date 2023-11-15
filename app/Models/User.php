@@ -92,7 +92,7 @@ class User extends Authenticatable
     }
     public function isBrand()
     {
-        $brand = ToffeeBrandUserMap::where('user_id', $this->id)->pluck('brand_id')->toArray();;
+        $brand = ToffeeBrandUserMap::where('user_id', $this->id)->pluck('brand_id')->toArray();
         return ($brand == null) ? false :  $brand;
     }
 
