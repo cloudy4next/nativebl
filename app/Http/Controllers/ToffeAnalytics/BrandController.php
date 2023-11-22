@@ -152,7 +152,6 @@ class BrandController extends AbstractController
     {
         $rules = [
             'name' => 'required|string|max:255',
-            'user' => 'required|array',
         ];
         if ($request->id == null) {
             $rules['icon'] = 'required|image';
@@ -174,7 +173,7 @@ class BrandController extends AbstractController
                 return to_route('brand_list')->with('success', 'Brand Created Successfully');
             }
         } else {
-            throw new NotFoundException($message);
+            return to_route('brand_list')->with('error', 'No User Provided');
         }
     }
 

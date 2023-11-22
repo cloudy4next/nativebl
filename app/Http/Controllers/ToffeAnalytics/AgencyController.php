@@ -161,7 +161,6 @@ class AgencyController extends AbstractController
     {
         $rules = [
             'name' => 'required|string|max:255',
-            'user' => 'required|array',
         ];
         if ($request->id == null) {
             $rules['icon'] = 'required|image';
@@ -183,7 +182,7 @@ class AgencyController extends AbstractController
                 return to_route('agency_list')->with('success', 'Agency Created Successfully');
             }
         } else {
-            throw new NotFoundException($message);
+            return to_route('agency_list')->with('error', 'No User Provided');
         }
     }
 }

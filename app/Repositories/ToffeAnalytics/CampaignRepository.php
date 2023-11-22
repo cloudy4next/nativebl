@@ -61,18 +61,19 @@ class CampaignRepository extends AbstractNativeRepository implements CampaignRep
 
         return $query;
     }
-    public function applyFilterQuery(Builder $query, array $filters): Builder
+
+
+    public function applyFilterData(Collection $data, array $filters): Collection
     {
         foreach ($filters as $field => $value) {
             if ($value !== null) {
-                try {
-                    $query->where($field, 'LIKE', '%' . $value . '%');
-                } finally {
-                    $query->where($field, '=', $value);
-                }
+                $data = $data->filter(function ($item) use ($field, $value) {
+                    return $item[$field] !== null && stripos($item[$field], $value) !== false;
+                });
             }
         }
-        return $query;
+        return $data;
+
     }
 
     public function store(Request $request)
